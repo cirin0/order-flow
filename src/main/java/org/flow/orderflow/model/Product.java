@@ -4,35 +4,32 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Product {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String first_name;
+  @Column(nullable = false)
+  private String name;
 
-  private String last_name;
+  private String imageUrl;
 
-  private String email;
+  private String description;
 
   @Column(nullable = false)
-  private String password;
+  private Double price;
 
-  @Enumerated(EnumType.STRING)
-  @Builder.Default
-  private Role role = Role.USER;
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Order> orders;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  private Category category;
 
   @Column(name = "created_at")
   private LocalDateTime createdAt;
@@ -45,10 +42,11 @@ public class User {
   protected void onCreate() {
     createdAt = LocalDateTime.now();
     updatedAt = LocalDateTime.now();
+    category = null;
   }
 
   @PreUpdate
-  void onUpdate() {
+  protected void onUpdate() {
     updatedAt = LocalDateTime.now();
   }
 }
