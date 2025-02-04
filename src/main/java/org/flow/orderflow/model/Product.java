@@ -27,6 +27,7 @@ public class Product {
   @Column(nullable = false)
   private Double price;
 
+  @Column(nullable = false)
   private Integer stock;
 
   @ManyToOne(fetch = FetchType.LAZY)

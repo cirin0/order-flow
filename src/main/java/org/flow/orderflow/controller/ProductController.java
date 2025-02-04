@@ -14,7 +14,6 @@ import java.util.List;
 public class ProductController {
   private final ProductService productService;
 
-
   @GetMapping
   public ResponseEntity<List<Product>> getAllProducts() {
     return ResponseEntity.ok(productService.getAllProducts());
@@ -23,6 +22,26 @@ public class ProductController {
   @GetMapping("/{id}")
   public ResponseEntity<Product> getProductById(@PathVariable Long id) {
     return ResponseEntity.ok(productService.getProductById(id));
+  }
+
+  @GetMapping("/name/{name}")
+  public ResponseEntity<Product> getProductByName(@PathVariable String name) {
+    return ResponseEntity.ok(productService.getProductByName(name));
+  }
+
+  @GetMapping("/category/{categoryId}")
+  public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable Long categoryId) {
+    return ResponseEntity.ok(productService.getProductsByCategoryId(categoryId));
+  }
+
+  @GetMapping("/category/name/{categoryName}")
+  public ResponseEntity<List<Product>> getProductsByCategoryName(@PathVariable String categoryName) {
+    return ResponseEntity.ok(productService.getProductsByCategoryName(categoryName));
+  }
+
+  @GetMapping("/named/{id}")
+  public ResponseEntity<Product> getProductNameById(@PathVariable Long id) {
+    return ResponseEntity.ok(productService.getProductNameById(id));
   }
 
   @PostMapping
