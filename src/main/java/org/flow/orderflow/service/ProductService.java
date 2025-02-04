@@ -1,6 +1,6 @@
 package org.flow.orderflow.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryService categoryService;
