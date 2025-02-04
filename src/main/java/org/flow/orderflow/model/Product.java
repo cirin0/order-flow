@@ -27,6 +27,8 @@ public class Product {
   @Column(nullable = false)
   private Double price;
 
+  private Integer stock;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")
   private Category category;
@@ -36,7 +38,6 @@ public class Product {
 
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
-
 
   @PrePersist
   protected void onCreate() {

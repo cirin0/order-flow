@@ -26,8 +26,10 @@ public class ProductService {
   }
 
   public Product addProduct(Product product) {
-    Category category = categoryService.getCategoryById(product.getCategory().getId());
-    product.setCategory(category);
+    if (product.getCategory() != null) {
+      Category category = categoryService.getCategoryById(product.getCategory().getId());
+      product.setCategory(category);
+    }
     return productRepository.save(product);
   }
 
@@ -38,7 +40,7 @@ public class ProductService {
     existingProduct.setCategory(category);
     existingProduct.setName(product.getName());
     existingProduct.setPrice(product.getPrice());
-    //existingProduct.setStock(product.getStock());
+    existingProduct.setStock(product.getStock());
     return Optional.of(productRepository.save(existingProduct));
   }
 
