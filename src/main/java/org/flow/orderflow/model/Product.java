@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -34,6 +36,10 @@ public class Product {
   @JoinColumn(name = "category_id")
   private Category category;
 
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Review> reviews = new ArrayList<>();
+
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
@@ -44,7 +50,6 @@ public class Product {
   protected void onCreate() {
     createdAt = LocalDateTime.now();
     updatedAt = LocalDateTime.now();
-    category = null;
   }
 
   @PreUpdate

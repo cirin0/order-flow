@@ -4,38 +4,32 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "reviews")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Review {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String first_name;
-
-  private String last_name;
-
-  private String email;
+  @Column(nullable = false)
+  private String message;
 
   @Column(nullable = false)
-  private String password;
+  private Integer rating;
 
-  @Enumerated(EnumType.STRING)
-  @Builder.Default
-  private Role role = Role.USER;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id")
+  private Product product;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Order> orders;
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Review> reviews;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Column(name = "created_at")
   private LocalDateTime createdAt;
@@ -43,15 +37,21 @@ public class User {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-
   @PrePersist
   protected void onCreate() {
     createdAt = LocalDateTime.now();
     updatedAt = LocalDateTime.now();
+    validateRating();
   }
 
   @PreUpdate
-  void onUpdate() {
+  protected void onUpdate() {
     updatedAt = LocalDateTime.now();
+    validateRating();
+  }
+
+  private void validateRating() {
+    if (rating < 1) rating = 1;
+    if (rating > 5) rating = 5;
   }
 }
