@@ -1,12 +1,12 @@
 package org.flow.orderflow.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
   public final UserRepository userRepository;
 
