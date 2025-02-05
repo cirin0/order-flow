@@ -1,4 +1,4 @@
-package org.flow.orderflow.controller;
+package org.flow.orderflow.controller.api;
 
 import lombok.AllArgsConstructor;
 import org.flow.orderflow.dto.category.CategoryDto;

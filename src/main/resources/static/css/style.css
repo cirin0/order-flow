@@ -1,0 +1,18 @@
+body {
+  padding: 20px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table img {
+  max-width: 100px;
+  max-height: 100px;
+  display: block;
+}
+
+
+.btn {
+  margin-right: 5px;
+}
