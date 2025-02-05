@@ -59,12 +59,17 @@ public class ProductService {
   }
 
   public ProductDto addProduct(ProductDto productDto) {
-    CategoryDto categoryDTO = categoryService.getCategoryById(productDto.getCategoryId());
+    CategoryDto categoryDTO = null;
+    if (productDto.getCategoryId() != null) {
+      categoryDTO = categoryService.getCategoryById(productDto.getCategoryId());
+    }
     Product product = productMapper.toEntity(productDto);
-    product.setCategory(Category.builder()
-      .id(categoryDTO.getId())
-      .name(categoryDTO.getName())
-      .build());
+    if (categoryDTO != null) {
+      product.setCategory(Category.builder()
+        .id(categoryDTO.getId())
+        .name(categoryDTO.getName())
+        .build());
+    }
     Product savedProduct = productRepository.save(product);
     return productMapper.toDto(savedProduct);
   }
