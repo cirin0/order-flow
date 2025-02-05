@@ -2,7 +2,9 @@ package org.flow.orderflow.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.exception.NotFound;
+import org.flow.orderflow.mapper.CategoryMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
@@ -13,42 +15,41 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryService {
   private final CategoryRepository categoryRepository;
+  private final CategoryMapper categoryMapper;
 
-  public List<Category> getAllCategories() {
-    return categoryRepository.findAll();
+  public List<CategoryDto> getAllCategories() {
+    List<Category> categories = categoryRepository.findAll();
+    return categoryMapper.toDtoList(categories);
   }
 
-  public Category getCategoryById(Long id) {
+  public CategoryDto getCategoryById(Long id) {
     return categoryRepository.findById(id)
+      .map(categoryMapper::toDto)
       .orElseThrow(() -> new NotFound("Category not found with id: " + id));
   }
 
-  public Category getCategoryByName(String name) {
+  public CategoryDto getCategoryByName(String name) {
     Category category = categoryRepository.findByName(name);
     if (category == null) {
       throw new NotFound("Category not found with name: " + name);
     }
-    return category;
+    return categoryMapper.toDto(category);
   }
 
-  public Category addCategory(Category category) {
-    Category existingCategory = categoryRepository.findByName(category.getName());
+  public CategoryDto addCategory(CategoryDto categoryDto) {
+    Category existingCategory = categoryRepository.findByName(categoryDto.getName());
     if (existingCategory != null) {
-      return existingCategory;
+      throw new NotFound("Category already exists with name: " + categoryDto.getName());
     }
-    return categoryRepository.save(category);
+    Category category = categoryMapper.toEntity(categoryDto);
+    return categoryMapper.toDto(categoryRepository.save(category));
   }
 
-  public Category updateCategory(Long id, Category category) {
+  public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
     Category existingCategory = categoryRepository.findById(id)
       .orElseThrow(() -> new NotFound("Category not found with id: " + id));
-    if (category.getName() != null) {
-      existingCategory.setName(category.getName());
-    }
-    if (category.getImageUrl() != null) {
-      existingCategory.setImageUrl(category.getImageUrl());
-    }
-    return categoryRepository.save(existingCategory);
+    Category category = categoryMapper.partialUpdate(categoryDto, existingCategory);
+    return categoryMapper.toDto(categoryRepository.save(category));
   }
 
   public void deleteCategory(Long id) {
