@@ -17,6 +17,7 @@ public class ProductDto {
   private String imageUrl;
   private String description;
   private Double price;
+  private Integer stock;
   private LocalDateTime createdAt;
   private Long categoryId;
   private String categoryName;
