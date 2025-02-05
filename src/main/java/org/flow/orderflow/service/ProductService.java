@@ -45,10 +45,7 @@ public class ProductService {
 
   public List<ProductDto> getProductsByCategoryName(String categoryName) {
     CategoryDto categoryDTO = categoryService.getCategoryByName(categoryName);
-    List<Product> products = productRepository.findByCategory(Category.builder()
-      .id(categoryDTO.getId())
-      .name(categoryDTO.getName())
-      .build());
+    List<Product> products = productRepository.findByCategoryId(categoryDTO.getId());
     return productMapper.toDtoList(products);
   }
 
