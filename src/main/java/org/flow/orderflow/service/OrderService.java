@@ -7,6 +7,7 @@ import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.OrderMapper;
 import org.flow.orderflow.model.Order;
 import org.flow.orderflow.model.OrderItem;
+import org.flow.orderflow.model.OrderStatus;
 import org.flow.orderflow.repository.OrderRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
@@ -62,11 +63,20 @@ public class OrderService {
       .collect(Collectors.toList());
 
     order.setItems(orderItems);
-
     Order savedOrder = orderRepository.save(order);
     cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);
   }
+
+  public OrderDto updateOrderStatus(Long id, OrderStatus newStatus) {
+    Order order = orderRepository.findById(id)
+      .orElseThrow(() -> new NotFound("Order not found with id: " + id));
+
+    order.setStatus(newStatus);
+    Order savedOrder = orderRepository.save(order);
+    return orderMapper.toDto(savedOrder);
+  }
+
 
   public void deleteOrder(Long id) {
     Order order = orderRepository.findById(id)

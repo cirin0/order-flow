@@ -2,6 +2,7 @@ package org.flow.orderflow.controller.api;
 
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.order.OrderDto;
+import org.flow.orderflow.model.OrderStatus;
 import org.flow.orderflow.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,12 @@ public class OrderController {
   public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
     orderService.deleteOrder(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @PatchMapping("/{id}/status")
+  public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
+    OrderDto updatedOrder = orderService.updateOrderStatus(id, status);
+    return ResponseEntity.ok(updatedOrder);
   }
 
   @ExceptionHandler(RuntimeException.class)
