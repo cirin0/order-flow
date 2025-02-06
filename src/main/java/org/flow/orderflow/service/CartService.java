@@ -1,113 +1,101 @@
 package org.flow.orderflow.service;
 
-import lombok.AllArgsConstructor;
-import org.flow.orderflow.model.*;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.cart.CartDto;
+import org.flow.orderflow.dto.cart.CartItemDto;
+import org.flow.orderflow.mapper.CartMapper;
+import org.flow.orderflow.model.Cart;
+import org.flow.orderflow.model.CartItem;
+import org.flow.orderflow.model.Product;
+import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.CartRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CartService {
   private final CartRepository cartRepository;
-  private final ProductRepository productRepository;
+  private final CartMapper cartMapper;
   private final UserRepository userRepository;
-  private final OrderService orderService;
+  private final ProductRepository productRepository;
+
+  public CartDto createCartForUser(User user) {
+    Cart cart = Cart.builder()
+      .user(user)
+      .build();
+    return cartMapper.toDTO(cartRepository.save(cart));
+  }
+
+  public CartDto getCartByUserId(Long userId) {
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    return cartMapper.toDTO(cartRepository.findByUser(user)
+      .orElseThrow(() -> new IllegalArgumentException("Cart not found")));
+  }
 
   @Transactional
-  public Cart addToCart(Long userId, Long productId, int quantity) {
-    User user = userRepository.findById(userId)
-      .orElseThrow(() -> new RuntimeException("User not found"));
+  public CartDto addItemToCart(Long cartId, CartItemDto itemDto) {
+    Cart cart = getCart(cartId);
+    Product product = productRepository.findById(itemDto.getProductId())
+      .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-    Product product = productRepository.findById(productId)
-      .orElseThrow(() -> new RuntimeException("Product not found"));
-
-    // Перевірка наявності товару
-    if (product.getStock() < quantity) {
-      throw new RuntimeException("Insufficient stock quantity");
-    }
-
-    // Отримання або створення кошика
-    Cart cart = cartRepository.findByUserId(userId)
-      .orElse(new Cart());
-    cart.setUser(user);
-
-    // Перевірка чи товар вже є в кошику
-    CartItem existingItem = cart.getItems().stream()
-      .filter(item -> item.getProduct().getId().equals(productId))
-      .findFirst()
-      .orElse(null);
-
+    CartItem existingItem = findExistingItem(cart, product);
     if (existingItem != null) {
-      existingItem.setQuantity(existingItem.getQuantity() + quantity);
+      existingItem.setQuantity(existingItem.getQuantity() + itemDto.getQuantity());
     } else {
-      CartItem newItem = new CartItem();
-      newItem.setCart(cart);
-      newItem.setProduct(product);
-      newItem.setQuantity(quantity);
+      CartItem newItem = CartItem.builder()
+        .cart(cart)
+        .product(product)
+        .quantity(itemDto.getQuantity())
+        .build();
       cart.getItems().add(newItem);
     }
 
-    return cartRepository.save(cart);
-  }
-
-  public Cart getCart(Long userId) {
-    return cartRepository.findByUserId(userId)
-      .orElseThrow(() -> new RuntimeException("Cart not found"));
+    cart.recalculateTotal();
+    return cartMapper.toDTO(cartRepository.save(cart));
   }
 
   @Transactional
-  public Cart removeFromCart(Long itemId) {
-    CartItem item = cartRepository.findItemById(itemId)
-      .orElseThrow(() -> new RuntimeException("Cart item not found"));
+  public CartDto updateItemQuantity(Long cartId, Long itemId, Integer quantity) {
+    Cart cart = getCart(cartId);
+    CartItem item = cart.getItems().stream()
+      .filter(i -> i.getId().equals(itemId))
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Item not found in cart"));
 
-    Cart cart = item.getCart();
-    cart.getItems().remove(item);
-    return cartRepository.save(cart);
+    item.setQuantity(quantity);
+    cart.recalculateTotal();
+    return cartMapper.toDTO(cartRepository.save(cart));
   }
 
   @Transactional
-  public Order checkout(Long userId) {
-    Cart cart = getCart(userId);
-    if (cart.getItems().isEmpty()) {
-      throw new RuntimeException("Cart is empty");
-    }
+  public CartDto removeItemFromCart(Long cartId, Long itemId) {
+    Cart cart = getCart(cartId);
+    cart.getItems().removeIf(item -> item.getId().equals(itemId));
+    cart.recalculateTotal();
+    return cartMapper.toDTO(cartRepository.save(cart));
+  }
 
-    // Перевірка наявності всіх товарів
-    for (CartItem item : cart.getItems()) {
-      Product product = item.getProduct();
-      if (product.getStock() < item.getQuantity()) {
-        throw new RuntimeException(
-          "Insufficient stock for product: " + product.getName());
-      }
-    }
+  @Transactional
+  public CartDto clearCart(Long cartId) {
+    Cart cart = getCart(cartId);
+    cart.getItems().clear();
+    cart.setTotalPrice(0.0);
+    return cartMapper.toDTO(cartRepository.save(cart));
+  }
 
-    // Створення замовлення
-    Order order = new Order();
-    order.setUser(cart.getUser());
+  private Cart getCart(Long cartId) {
+    return cartRepository.findById(cartId)
+      .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+  }
 
-    // Перенесення товарів з кошика в замовлення
-    for (CartItem cartItem : cart.getItems()) {
-      OrderItem orderItem = new OrderItem();
-      orderItem.setOrder(order);
-      orderItem.setProduct(cartItem.getProduct());
-      orderItem.setQuantity(cartItem.getQuantity());
-      orderItem.setPrice(cartItem.getProduct().getPrice());
-
-      // Оновлення складських залишків
-      Product product = cartItem.getProduct();
-      product.setStock(product.getStock() - cartItem.getQuantity());
-      productRepository.save(product);
-
-      order.getItems().add(orderItem);
-    }
-
-    // Очищення кошика
-    cartRepository.delete(cart);
-
-    // Збереження замовлення
-    return orderService.saveOrder(order);
+  private CartItem findExistingItem(Cart cart, Product product) {
+    return cart.getItems().stream()
+      .filter(item -> item.getProduct().getId().equals(product.getId()))
+      .findFirst()
+      .orElse(null);
   }
 }

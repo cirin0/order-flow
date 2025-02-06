@@ -1,25 +1,45 @@
 package org.flow.orderflow.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.user.UserDto;
+import org.flow.orderflow.dto.user.UserRegistrationDto;
+import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+// UserService.java
 @Service
 @RequiredArgsConstructor
 public class UserService {
-  public final UserRepository userRepository;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
+  private final CartService cartService;
 
-  public User saveUser(User user) {
-    return userRepository.save(user);
+
+
+  @Transactional
+  public UserDto registerUser(UserRegistrationDto dto) {
+    if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+      throw new IllegalArgumentException("User already exists");
+    }
+    User user = userMapper.toEntity(dto);
+    user = userRepository.save(user);
+    cartService.createCartForUser(user);
+    return userMapper.toDTO(user);
   }
 
-  public User updateUser(User user) {
-    return userRepository.save(user);
+
+
+
+  public List<User> getAllUsers() {
+    return userRepository.findAll();
   }
 
-  public void deleteUser(Long id) {
-    userRepository.deleteById(id);
+  public boolean existsByEmail(String email) {
+    return userRepository.findByEmail(email).isPresent();
   }
-
 }
