@@ -1,7 +1,7 @@
-package org.flow.orderflow.controller;
+package org.flow.orderflow.controller.api;
 
 import lombok.AllArgsConstructor;
-import org.flow.orderflow.model.Category;
+import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,28 +15,28 @@ public class CategoryController {
   private final CategoryService categoryService;
 
   @GetMapping
-  public ResponseEntity<List<Category>> getAllCategories() {
+  public ResponseEntity<List<CategoryDto>> getAllCategories() {
     return ResponseEntity.ok(categoryService.getAllCategories());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+  public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long id) {
     return ResponseEntity.ok(categoryService.getCategoryById(id));
   }
 
   @GetMapping("/name/{name}")
-  public ResponseEntity<Category> getCategoryByName(@PathVariable String name) {
+  public ResponseEntity<CategoryDto> getCategoryByName(@PathVariable String name) {
     return ResponseEntity.ok(categoryService.getCategoryByName(name));
   }
 
   @PostMapping
-  public ResponseEntity<Category> addCategory(@RequestBody Category category) {
-    return ResponseEntity.ok(categoryService.addCategory(category));
+  public ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto categoryDto) {
+    return ResponseEntity.ok(categoryService.addCategory(categoryDto));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category category) {
-    Category updatedCategory = categoryService.updateCategory(id, category);
+  public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto) {
+    CategoryDto updatedCategory = categoryService.updateCategory(id, categoryDto);
     return ResponseEntity.ok(updatedCategory);
   }
 

@@ -1,81 +1,86 @@
 package org.flow.orderflow.service;
 
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.category.CategoryDto;
+import org.flow.orderflow.dto.product.ProductDto;
 import org.flow.orderflow.exception.NotFound;
+import org.flow.orderflow.mapper.ProductMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
 import org.flow.orderflow.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryService categoryService;
+  private final ProductMapper productMapper;
 
-  public List<Product> getAllProducts() {
-    return productRepository.findAll();
+  public List<ProductDto> getAllProducts() {
+    List<Product> products = productRepository.findAll();
+    return productMapper.toDtoList(products);
   }
 
-  public Product getProductById(Long id) {
+  public ProductDto getProductById(Long id) {
     return productRepository.findById(id)
+      .map(productMapper::toDto)
       .orElseThrow(() -> new NotFound("Product not found with id: " + id));
   }
 
-  public Product getProductByName(String name) {
+  public ProductDto getProductByName(String name) {
     Product product = productRepository.findByName(name);
     if (product == null) {
       throw new NotFound("Product not found with name: " + name);
     }
-    return product;
+    return productMapper.toDto(product);
   }
 
-  public List<Product> getProductsByCategoryId(Long categoryId) {
-    Product product = productRepository.findByCategoryId(categoryId);
-    if (product == null) {
-      throw new NotFound("Product not found with category id: " + categoryId);
-    }
-    return List.of(product);
+  public List<ProductDto> getProductsByCategoryId(Long categoryId) {
+    List<Product> products = productRepository.findByCategoryId(categoryId);
+    return productMapper.toDtoList(products);
   }
 
-  public List<Product> getProductsByCategoryName(String categoryName) {
-    Category category = categoryService.getCategoryByName(categoryName);
-    return productRepository.findByCategory(category);
+  public List<ProductDto> getProductsByCategoryName(String categoryName) {
+    CategoryDto categoryDTO = categoryService.getCategoryByName(categoryName);
+    List<Product> products = productRepository.findByCategoryId(categoryDTO.getId());
+    return productMapper.toDtoList(products);
   }
 
-  public Product getProductNameById(Long id) {
+  public ProductDto getProductNameById(Long id) {
     return productRepository.findById(id)
+      .map(productMapper::toDto)
       .orElseThrow(() -> new NotFound("Product not found with id: " + id));
   }
 
-  public Product addProduct(Product product) {
-    if (product.getCategory() != null) {
-      Category category = categoryService.getCategoryById(product.getCategory().getId());
-      product.setCategory(category);
+  public ProductDto addProduct(ProductDto productDto) {
+    CategoryDto categoryDTO = null;
+    if (productDto.getCategoryId() != null) {
+      categoryDTO = categoryService.getCategoryById(productDto.getCategoryId());
     }
-    return productRepository.save(product);
+    Product product = productMapper.toEntity(productDto);
+    if (categoryDTO != null) {
+      product.setCategory(Category.builder()
+        .id(categoryDTO.getId())
+        .name(categoryDTO.getName())
+        .build());
+    }
+    Product savedProduct = productRepository.save(product);
+    return productMapper.toDto(savedProduct);
   }
 
-  public Optional<Product> updateProduct(Long id, Product product) {
-    Product existingProduct = productRepository.findById(id)
+  public ProductDto updateProduct(Long id, ProductDto productDTO) {
+    Product product = productRepository.findById(id)
       .orElseThrow(() -> new NotFound("Product not found with id: " + id));
-    if (product.getName() != null) {
-      existingProduct.setName(product.getName());
-    }
-    if (product.getDescription() != null) {
-      existingProduct.setDescription(product.getDescription());
-    }
-    if (product.getPrice() != null) {
-      existingProduct.setPrice(product.getPrice());
-    }
-    if (product.getCategory() != null) {
-      Category category = categoryService.getCategoryById(product.getCategory().getId());
-      existingProduct.setCategory(category);
-    }
-    return Optional.of(productRepository.save(existingProduct));
+    CategoryDto categoryDTO = categoryService.getCategoryById(productDTO.getCategoryId());
+    Product updatedProduct = productMapper.partialUpdate(productDTO, product);
+    product.setCategory(Category.builder()
+      .id(categoryDTO.getId())
+      .name(categoryDTO.getName())
+      .build());
+    return productMapper.toDto(productRepository.save(updatedProduct));
   }
 
   public void deleteProduct(Long id) {
