@@ -11,15 +11,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-// UserService.java
 @Service
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final CartService cartService;
-
-
 
   @Transactional
   public UserDto registerUser(UserRegistrationDto dto) {
@@ -31,9 +28,6 @@ public class UserService {
     cartService.createCartForUser(user);
     return userMapper.toDTO(user);
   }
-
-
-
 
   public List<User> getAllUsers() {
     return userRepository.findAll();
