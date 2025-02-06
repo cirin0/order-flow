@@ -2,10 +2,14 @@ package org.flow.orderflow.controller.web;
 
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.category.CategoryDto;
+import org.flow.orderflow.dto.product.ProductDto;
 import org.flow.orderflow.service.CategoryService;
+import org.flow.orderflow.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/categories")
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryControllerWeb {
 
   private final CategoryService categoryService;
+  private final ProductService productService;
 
   @GetMapping
   public String listCategories(Model model) {
@@ -50,5 +55,15 @@ public class CategoryControllerWeb {
   public String deleteCategory(@PathVariable Long id) {
     categoryService.deleteCategory(id);
     return "redirect:/categories";
+  }
+
+  @GetMapping("/{id}/products")
+  public String showCategoryProducts(@PathVariable Long id, Model model) {
+    CategoryDto category = categoryService.getCategoryById(id);
+    List<ProductDto> products = productService.getProductsByCategoryId(id);
+
+    model.addAttribute("categoryName", category.getName());
+    model.addAttribute("products", products);
+    return "categories/category-products";
   }
 }

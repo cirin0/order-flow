@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<main class="container mt-5">
+
+  <h1>Edit Product</h1>
+  <form th:action="@{/products/edit/{id}(id=${product.id})}"
+        th:object="${product}" method="post">
+    <div>
+      <label>Навзва товару:</label>
+      <input type="text" th:field="*{name}" required>
+    </div>
+    <div>
+      <label>Опис:</label>
+      <textarea th:field="*{description}"></textarea>
+    </div>
+    <div>
+      <label>Ціна:</label>
+      <input type="number" step="0.01" th:field="*{price}" required min="0">
+    </div>
+    <div>
+      <label>Кількість на складі:</label>
+      <input type="number" th:field="*{stock}" required min="0">
+    </div>
+    <div>
+      <label>Покликання на зображення:</label>
+      <input type="text" th:field="*{imageUrl}">
+    </div>
+    <div>
+      <label>Категорія:</label>
+      <select th:field="*{categoryId}">
+        <option value="">Оберіть категорію</option>
+        <option th:each="category : ${categories}"
+                th:value="${category.id}"
+                th:text="${category.name}">
+        </option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success">Оновити</button>
+    <a href="/products" class="btn btn-secondary">Відмінити</a>
+  </form>
+
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,19 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>Categories</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-          crossorigin="anonymous"></script>
-</head>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
+<main class="container mt-5">
 <h1>Категорії</h1>
 <a href="/categories/add" class="btn btn-primary">Додати нову категорію</a>
 
-<div th:if="${message}" class="alert alert-success">
+
+  <div th:if="${message}" class="alert alert-success">
   <span th:text="${message}"></span>
 </div>
 
@@ -33,6 +28,7 @@
     </td>
     <td>
       <a th:href="@{/categories/edit/{id}(id=${category.id})}" class="btn btn-warning">Редагувати</a>
+      <a th:href="@{/categories/{id}/products(id=${category.id})}" class="btn btn-info">Переглянути товари</a>
       <a th:href="@{/categories/delete/{id}(id=${category.id})}"
          class="btn btn-danger"
          onclick="return confirm('Ви впевнені?')">Видалити</a>
@@ -40,5 +36,7 @@
   </tr>
   </tbody>
 </table>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>
