@@ -31,6 +31,16 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
   </properties>
+  <repositories>
+    <repository>
+      <id>repository</id>
+      <url>https://github.com/liqpay/sdk-java/raw/repository</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
   <dependencies>
     <!-- Spring Boot Starters -->
     <dependency>
@@ -81,6 +91,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
       <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.liqpay</groupId>
+      <artifactId>liqpay-sdk</artifactId>
+      <version>0.8-SNAPSHOT</version>
     </dependency>
 
     <!-- MapStruct -->
