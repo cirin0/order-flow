@@ -16,3 +16,34 @@ body {
 .btn {
   margin-right: 5px;
 }
+
+
+/* Стилі нав бару */
+
+.header__menu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.header__link {
+  text-decoration: none;
+  color: #000;
+  padding: 10px;
+}
+
+.header__link a {
+  text-decoration: none;
+  color: #333;
+  font-size: 18px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.header__link a:hover {
+  background-color: #f0f0f0;
+  color: #007BFF;
+}
