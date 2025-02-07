@@ -3,6 +3,7 @@ package org.flow.orderflow.mapper;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserLoginDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
+import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,11 +30,9 @@ public interface UserMapper {
 
   UserLoginDto toLoginEntity(User user);
 
-//  @Mapping(target = "first_name", source = "firstName")
-//  @Mapping(target = "last_name", source = "lastName")
-////  @Mapping(target = "role", constant = "Role.USER")
-//  @Mapping(target = "orders", ignore = true)
-//  @Mapping(target = "createdAt", ignore = true)
-//  @Mapping(target = "updatedAt", ignore = true)
-//  User toEntity(UserRegistrationDto dto);
+  User toUserSessionDto(UserSessionDto dto);
+
+  @Mapping(target = "userId", source = "id")
+  @Mapping(target = "role", source = "role")
+  UserSessionDto toSessionEntity(User user);
 }

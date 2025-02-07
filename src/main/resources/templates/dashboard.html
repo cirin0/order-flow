@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Панель управління</title>
+</head>
+<body>
+<h1>Вітаємо, <span th:text="${session.user.email}">Користувач</span>!</h1>
+
+<p>Ваша роль: <span th:text="${session.user.role}"></span></p>
+
+<div th:if="${session.user.role.toString() == 'ADMIN'}">
+  <p>Ви адміністратор! Можете керувати системою.</p>
+  <a href="user/admin">Перейти в адмін-панель</a>
+</div>
+
+<div th:if="${session.user.role.toString() == 'USER'}">
+  <p>Ви звичайний користувач.</p>
+</div>
+
+</body>
+</html>

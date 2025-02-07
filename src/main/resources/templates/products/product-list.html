@@ -59,10 +59,12 @@
                     <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
                     <span th:unless="${product.stock > 0}">Немає на складі</span>
                   </p>
-                  <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Змінити</a>
-                  <a th:href="@{/products/delete/{id}(id=${product.id})}"
-                     class="btn btn-danger"
-                     onclick="return confirm('Ви впевнені?')">Видалити</a>
+                  <!--                  <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">-->
+                  <!--                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Змінити</a>-->
+                  <!--                    <a th:href="@{/products/delete/{id}(id=${product.id})}"-->
+                  <!--                       class="btn btn-danger"-->
+                  <!--                       onclick="return confirm('Ви впевнені?')">Видалити</a>-->
+                  <!--                  </div>-->
                 </div>
               </div>
             </div>
