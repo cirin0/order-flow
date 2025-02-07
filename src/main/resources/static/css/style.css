@@ -1,7 +1,69 @@
-body {
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  background: linear-gradient(180deg, #444 0%, #000 100%);
+}
+
+.cityscape {
+  position: fixed;
+  bottom: 0;
+  left: -60px;
+  width: 25%;
+  height: 60%;
+  z-index: -1;
+  background-image: url('../images/4-2.png');
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.7;
+}
+
+.cityscape-revers {
+  position: fixed;
+  bottom: 0;
+  left: 70%;
+  width: 300%;
+  height: 37%;
+  z-index: -1;
+  background-image: url('../images/4-2.png');
+  background-position: bottom left;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.7;
+}
+
+/*.smoke-effect {*/
+/*  position: fixed;*/
+/*  bottom: 0;*/
+/*  left: 0;*/
+/*  width: 100%;*/
+/*  height: 200px;*/
+/*  background: linear-gradient(0deg, rgb(255, 255, 255) 0%, rgba(255, 0, 0, 0) 70%);*/
+/*  z-index: -1;*/
+/*}*/
+
+.content {
+  flex: 1;
   padding: 20px;
 }
 
+/* тимчасові стилі таблиці */
 .table-responsive {
   overflow-x: auto;
 }
@@ -12,38 +74,412 @@ body {
   display: block;
 }
 
-
 .btn {
   margin-right: 5px;
 }
 
+/* Стилі хедеру */
 
-/* Стилі нав бару */
+.header {
+  background-color: rgba(0, 0, 0, 1);
+  padding: 20px 0;
+  position: relative;
+}
 
-.header__menu {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: opacity 0.3s;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+}
+
+.header-icons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.icon-link {
+  color: white;
+  font-size: 20px;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+  width: 200px;
+  font-size: 14px;
+}
+
+.search-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between; /* Align items to both ends */
+  align-items: center;
+  gap: 30px;
+}
+
+.header-left { /* New class for left side elements */
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Adjust as needed */
+}
+
+
+.header-logo { /* New class for the logo/icon area */
+  width: 50px; /* Adjust as needed */
+  height: 50px; /* Adjust as needed */
+  background-color: #ccc; /* Placeholder styling */
+  border-radius: 50%; /* Optional: Make it circular */
+}
+
+.header-nav { /* New class for text links */
+  display: flex;
+  gap: 20px; /* Adjust spacing as needed */
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column; /* Stack vertically on smaller screens */
+    align-items: flex-start; /* Align to the left */
+    gap: 15px;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-nav {
+    flex-direction: column;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+}
+
+/* Футер стилі */
+
+.footer {
+  background-color: #000;
+  color: #fff;
+  padding: 20px 0;
+  width: 100%;
+  position: relative;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-nav {
   display: flex;
   justify-content: center;
+  gap: 40px;
+  margin-bottom: 20px;
 }
 
-.header__link {
+.footer-nav a {
+  color: #fff;
   text-decoration: none;
-  color: #000;
-  padding: 10px;
+  text-transform: uppercase;
+  font-size: 14px;
+  transition: opacity 0.3s;
+  padding: 5px 10px;
 }
 
-.header__link a {
+.footer-nav a:hover {
+  opacity: 0.8;
+}
+
+.footer-nav .brand-link {
+  border: 2px solid white;
+  color: white;
+  padding: 5px 15px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.footer-links {
+  text-align: center;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.footer-links a {
+  color: #666;
   text-decoration: none;
+  margin: 0 10px;
+}
+
+.footer-links a:hover {
+  color: #999;
+}
+
+.footer-contacts {
+  text-align: center;
+  font-size: 11px;
+  color: #666;
+  margin: 15px 0;
+}
+
+.footer-contacts span {
+  margin: 0 15px;
+}
+
+@media (max-width: 768px) {
+  .footer-nav {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .footer-contacts span {
+    display: block;
+    margin: 5px 0;
+  }
+}
+
+/* Product-List */
+
+.list-group-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 15px 0;
+  transition: background-color 0.3s ease;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.list-group-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-right: 15px;
+  border-radius: 8px;
+}
+
+.list-group-item a {
   color: #333;
-  font-size: 18px;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
-.header__link a:hover {
-  background-color: #f0f0f0;
-  color: #007BFF;
+.list-group-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
+
+.card {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  backdrop-filter: blur(20px);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+  height: 250px;
+  object-fit: cover;
+}
+
+.card-body {
+  color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.card-text {
+  margin-bottom: 10px;
+}
+
+.btn-warning, .btn-danger {
+  margin-top: 10px;
+}
+
+#searchInput {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: border-color 0.3s ease;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Category-List */
+
+.category-card-link {
+  text-decoration: none;
+  display: block;
+}
+
+.category-card {
+  height: 250px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 15px;
+  border: 1px solid gray;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+}
+
+.category-card:hover {
+  transform: scale(1.05);
+}
+
+.category-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+}
+
+.category-card-title {
+  color: white;
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+/* стилі для продуктів у категорії */
+
+.product-list {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.product-list-item {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.product-list-item:last-child {
+  border-bottom: none;
+}
+
+.product-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  transform: translateX(10px);
+}
+
+.product-list-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 15px;
+  margin-right: 25px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-list-details {
+  flex-grow: 1;
+}
+
+.product-list-details h5 {
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: 600;
+}
+
+.product-list-details p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.product-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+}
+
+.product-stock {
+  color: #ffffff;
+}
+
+.product-out-of-stock {
+  background-color: #dc3545;
+  color: white;
+}
+
