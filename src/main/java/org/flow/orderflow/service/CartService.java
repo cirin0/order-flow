@@ -22,11 +22,11 @@ public class CartService {
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
 
-  public CartDto createCartForUser(User user) {
+  public void createCartForUser(User user) {
     Cart cart = Cart.builder()
       .user(user)
       .build();
-    return cartMapper.toDTO(cartRepository.save(cart));
+    cartRepository.save(cart);
   }
 
   public CartDto getCartByUserId(Long userId) {
