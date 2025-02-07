@@ -1,19 +1,59 @@
 <!DOCTYPE html>
-<html lang="uk">
-<head th:replace="~{fragments/head :: head}"></head>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Головна сторінка</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+
+    header {
+      background: #333;
+      color: #fff;
+      padding: 15px 0;
+      font-size: 24px;
+    }
+
+    nav {
+      margin: 20px 0;
+    }
+
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    footer {
+      margin-top: 20px;
+      padding: 10px;
+      background: #333;
+      color: white;
+    }
+  </style>
+</head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
+<header>
+  Ласкаво просимо на наш сайт!
+</header>
 
-<div class="page-wrapper">
-  <div class="background-wrapper">
-    <div class="cityscape"></div>
-    <div class="smoke-effect"></div>
-  </div>
-
-  <main class="container mt-5 content">
-
-
-  <nav>
+<nav>
   <a href="#">Головна</a>
   <a href="#">Про нас</a>
   <a href="#">Контакти</a>
@@ -25,9 +65,16 @@
 <div class="container">
   <h1>Вітаємо на домашній сторінці!</h1>
   <p>Це простий HTML-документ для демонстрації базової структури веб-сторінки.</p>
+  <p th:text="${session.user.email}"></p>
 </div>
-  </main>
-  <div th:replace="~{fragments/footer :: footer}"></div>
+
+<div th:if="${session.user != null}">
+  <a href="/dashboard">Перейти на панель управління</a>
 </div>
+
+
+<footer>
+  &copy; 2025 Всі права захищені.
+</footer>
 </body>
 </html>
