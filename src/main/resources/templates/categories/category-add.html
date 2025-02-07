@@ -3,7 +3,14 @@
 <head th:replace="~{fragments/head :: head}"></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-<main class="container mt-5">
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="container mt-5 content">
 <h1>Додати категорію</h1>
 <form th:action="@{/categories/add}" th:object="${category}" method="post">
   <div>
@@ -20,5 +27,6 @@
 
 </main>
 <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
 </body>
 </html>

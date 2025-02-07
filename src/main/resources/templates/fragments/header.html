@@ -1,32 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-<header>
-  <nav class="header">
-    <ul class="header__menu">
-      <li class="header__link"><a th:href="@{/}">Головна</a></li>
-      <li class="header__link"><a th:href="@{/products}">Товари</a></li>
-      <li class="header__link"><a th:href="@{/categories}">Категорії</a></li>
-      <li class="header__link">
-        <a th:href="@{/cart}">Кошик</a>
-      </li>
-      <li class="header__link">
-        <a th:href="@{/orders}">Замовлення</a>
-      </li>
-      <li class="header__link">
-        <a th:href="@{/auth/register}">Реєстрація</a>
-      </li>
-      <li class="header__link">
-        <a th:href="@{/auth/login}">Увійти</a>
-      </li>
-      <li class="header__link">
-        <a th:href="@{/user/profile}">Профіль</a>
-      </li>
-      <li class="header__link">
-        <a th:href="@{/logout}">Вийти</a>
-      </li>
-    </ul>
-  </nav>
+
+<header th:fragment="header" class="header">
+  <div class="header-container">
+    <div class="header-left">
+      <div class="header-logo">
+        <i class="bi bi-house-fill" style="font-size: 40px; color: white;"></i>
+      </div>
+      <div class="header-nav">
+        <a href="/categories" class="nav-link">КАТЕГОРІЇ</a>
+        <a href="/products" class="nav-link">ПРОДУКТИ</a>
+      </div>
+
+    </div>
+
+    <div class="header-icons">
+      <a href="/delivery" class="icon-link">
+        <i class="bi bi-truck"></i>
+      </a>
+      <a href="/cart" class="icon-link">
+        <i class="bi bi-basket"></i>
+      </a>
+      <a href="/profile" class="icon-link">
+        <i class="bi bi-person"></i>
+      </a>
+    </div>
+
+    <div class="search-container">
+      <input type="text" class="search-input" placeholder="Search">
+      <button class="search-button">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+
+  </div>
+
+  <div class="header-gradient"></div>
 </header>
+
 </body>
 </html>

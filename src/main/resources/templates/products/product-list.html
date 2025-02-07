@@ -4,65 +4,70 @@
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main class="container mt-5">
-  <div class="row">
-    <div class="col-md-3">
-      <h2>Категорії</h2>
-      <ul class="list-group">
-        <li th:each="cat : ${categories}" class="list-group-item d-flex align-items-center">
-          <img th:if="${cat.imageUrl}"
-               th:src="${cat.imageUrl}"
-               class="rounded-circle mr-3"
-               style="width: 50px; height: 50px; object-fit: cover;"
-               alt="Category Image">
-          <img th:unless="${cat.imageUrl}"
-               src="/default-category.png"
-               class="rounded-circle mr-3"
-               style="width: 50px; height: 50px; object-fit: cover;"
-               alt="Default Category Image">
-          <br>
-          <a th:href="@{/categories/{id}/products(id=${cat.id})}"
-             th:text="${cat.name}"
-             class="stretched-link"></a>
-        </li>
-      </ul>
-    </div>
-    <div class="col-md-9">
-      <h1>Наш асортимент</h1>
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+    <div class="cityscape-revers"></div>
+  </div>
 
-      <div class="input-group mb-3">
-        <input
-          type="text"
-          id="searchInput"
-          class="form-control"
-          placeholder="Пошук товарів..."
-        >
+  <main class="container mt-5 content">
+    <div class="row">
+      <div class="col-md-2">
+        <h2>Категорії</h2>
+        <ul class="list-group">
+          <li th:each="cat, iterStat : ${categories}"
+              th:if="${iterStat.index < 4}"
+              class="list-group-item d-flex align-items-center">
+            <a th:href="@{/categories/{id}/products(id=${cat.id})}"
+               th:text="${cat.name}"
+               class="stretched-link"></a>
+          </li>
+          <li class="list-group-item d-flex align-items-center">
+            <a th:href="@{/categories}" class="stretched-link">
+              <i class="fas fa-list me-2"></i>
+              Всі категорії
+            </a>
+          </li>
+        </ul>
       </div>
+      <div class="col-md-10">
 
-      <a href="/products/add" class="btn btn-primary mb-3">Додати новий продукт</a>
+        <h1>Наш асортимент</h1>
 
-      <div id="productsContainer">
-        <div th:fragment="product-grid">
-          <div th:if="${products.isEmpty()}" class="alert alert-info">
-            Товарів не знайдено
-          </div>
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Пошук товарів..."
+          >
+        </div>
 
-          <div class="row mt-4" th:unless="${products.isEmpty()}">
-            <div th:each="product : ${products}" class="col-md-4">
-              <div class="card mb-4">
-                <img th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
-                <div class="card-body">
-                  <h5 class="card-title" th:text="${product.name}"></h5>
-                  <p class="card-text">Категорія: <span th:text="${product.categoryName}"></span></p>
-                  <p class="card-text">Ціна: <span th:text="${product.price}"></span></p>
-                  <p class="card-text">
-                    <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
-                    <span th:unless="${product.stock > 0}">Немає на складі</span>
-                  </p>
-                  <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Змінити</a>
-                  <a th:href="@{/products/delete/{id}(id=${product.id})}"
-                     class="btn btn-danger"
-                     onclick="return confirm('Ви впевнені?')">Видалити</a>
+        <div id="productsContainer">
+          <div th:fragment="product-grid">
+            <div th:if="${products.isEmpty()}" class="alert alert-info">
+              Товарів не знайдено
+            </div>
+
+            <div class="row mt-4, background" th:unless="${products.isEmpty()}">
+              <div th:each="product : ${products}" class="col-md-3">
+                <div class="card mb-5">
+                  <img th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
+                  <div class="card-body">
+                    <h5 class="card-title" th:text="${product.name}"></h5>
+                    <p class="card-text">Ціна: <span th:text="${product.price}"></span></p>
+                    <p class="card-text">
+                      <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
+                      <span th:unless="${product.stock > 0}">Немає на складі</span>
+                    </p>
+                    <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark" title="Детальніше">
+                      <i class="fas fa-info-circle me-2"></i>Детальніше
+                    </a>
+                    <a href="#" class="btn btn-outline-dark" title="Додати до кошика">
+                      <i class="fas fa-shopping-cart"></i>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -70,42 +75,43 @@
         </div>
       </div>
     </div>
-  </div>
-</main>
+  </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('searchInput');
-    const productsContainer = document.getElementById('productsContainer');
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchInput = document.getElementById('searchInput');
+      const productsContainer = document.getElementById('productsContainer');
 
-    searchInput.addEventListener('input', function () {
-      const searchTerm = this.value;
 
-      if (searchTerm.length < 2) {
-        fetch('/products')
+      searchInput.addEventListener('input', function () {
+        const searchTerm = this.value;
+
+        if (searchTerm.length < 2) {
+          fetch('/products')
+            .then(response => response.text())
+            .then(html => {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = html;
+              const newProductsGrid = tempDiv.querySelector('#productsContainer > div');
+              productsContainer.innerHTML = newProductsGrid.innerHTML;
+            });
+          return;
+        }
+
+        fetch(`/products/search?searchTerm=${encodeURIComponent(searchTerm)}`)
           .then(response => response.text())
           .then(html => {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
-            const newProductsGrid = tempDiv.querySelector('#productsContainer > div');
+            const newProductsGrid = tempDiv.querySelector('div');
             productsContainer.innerHTML = newProductsGrid.innerHTML;
-          });
-        return;
-      }
-
-      fetch(`/products/search?searchTerm=${encodeURIComponent(searchTerm)}`)
-        .then(response => response.text())
-        .then(html => {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = html;
-          const newProductsGrid = tempDiv.querySelector('div');
-          productsContainer.innerHTML = newProductsGrid.innerHTML;
-        })
-        .catch(error => console.error('Помилка пошуку:', error));
+          })
+          .catch(error => console.error('Помилка пошуку:', error));
+      });
     });
-  });
-</script>
+  </script>
+</div>
 </body>
 </html>

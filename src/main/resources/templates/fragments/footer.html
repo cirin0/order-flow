@@ -3,10 +3,22 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
-<footer th:fragment="footer">
-  <p>&copy; 2025 OrderFlow</p>
+<footer class="footer">
+  <div class="footer-content">
+    <nav class="footer-nav">
+      <a href="/about">ПРО НАС</a>
+      <a href="/order-flow" class="brand-link">Order Flow</a>
+      <a href="/delivery">КОНТАКТИ</a>
+    </nav>
+
+    <div class="footer-links">
+      <a href="/privacy">Політика конфіденційності</a>
+      <a href="/terms">та Умови використання</a>
+    </div>
+  </div>
 </footer>
 </body>
 </html>
