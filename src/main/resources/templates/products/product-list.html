@@ -59,6 +59,11 @@
                     <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
                     <span th:unless="${product.stock > 0}">Немає на складі</span>
                   </p>
+
+
+<!--                  <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-info">Детальніше</a>-->
+
+
                   <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Змінити</a>
                   <a th:href="@{/products/delete/{id}(id=${product.id})}"
                      class="btn btn-danger"

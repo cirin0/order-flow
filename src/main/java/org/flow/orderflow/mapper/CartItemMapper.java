@@ -1,4 +1,3 @@
-// CartItemMapper.java
 package org.flow.orderflow.mapper;
 
 import org.flow.orderflow.dto.cart.CartItemDto;
@@ -9,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CartItemMapper {
   @Mapping(source = "product.id", target = "productId")
+  @Mapping(source = "product.name", target = "productName")
   @Mapping(source = "product.price", target = "price")
   CartItemDto toDTO(CartItem cartItem);
 

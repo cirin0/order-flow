@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Реєстрація</title>
+  <style>
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .alert {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+    .btn {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    .login-link {
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Реєстрація</h2>
+
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <form th:action="@{/register}" method="post">
+    <div class="form-group">
+      <label>Ім'я:</label>
+      <input type="text" name="firstName" required/>
+    </div>
+    <div class="form-group">
+      <label>Прізвище:</label>
+      <input type="text" name="lastName" required/>
+    </div>
+    <div class="form-group">
+      <label>Email:</label>
+      <input type="email" name="email" required/>
+    </div>
+    <div class="form-group">
+      <label>Пароль:</label>
+      <input type="password" name="password" required/>
+    </div>
+    <button type="submit" class="btn">Зареєструватися</button>
+  </form>
+
+  <div class="login-link">
+    <p>Вже є акаунт? <a th:href="@{/login}">Увійти</a></p>
+  </div>
+</div>
+</body>
+</html>
