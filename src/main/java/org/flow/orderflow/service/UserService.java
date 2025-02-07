@@ -2,8 +2,6 @@ package org.flow.orderflow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserDto;
-import org.flow.orderflow.dto.user.UserLoginDto;
-import org.flow.orderflow.dto.user.UserRegistrationDto;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.User;
@@ -48,29 +46,29 @@ public class UserService {
 //    return userMapper.toDto(user);
 //  }
 
-  public UserDto registerUser(UserRegistrationDto dto) {
-    if (existsByEmail(dto.getEmail())) {
-      throw new RuntimeException("User with email: " + dto.getEmail() + " already exists");
-    }
-    User user = userMapper.toUserRegistrationDto(dto);
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-    userRepository.save(user);
-    cartService.createCartForUser(user);
-    return userMapper.toDto(user);
-  }
+//  public UserDto registerUser(UserRegistrationDto dto) {
+//    if (existsByEmail(dto.getEmail())) {
+//      throw new RuntimeException("User with email: " + dto.getEmail() + " already exists");
+//    }
+//    User user = userMapper.toUserRegistrationDto(dto);
+//    user.setPassword(passwordEncoder.encode(user.getPassword()));
+//    userRepository.save(user);
+//    cartService.createCartForUser(user);
+//    return userMapper.toDto(user);
+//  }
 
   public boolean existsByEmail(String email) {
     return userRepository.findByEmail(email).isPresent();
   }
 
-  public UserDto loginUser(UserLoginDto dto) {
-    User user = userRepository.findByEmail(dto.getEmail())
-      .orElseThrow(() -> new NotFound("User not found with email: " + dto.getEmail()));
-    if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-      throw new RuntimeException("Invalid password");
-    }
-    return userMapper.toDto(user);
-  }
+//  public UserDto loginUser(UserLoginDto dto) {
+//    User user = userRepository.findByEmail(dto.getEmail())
+//      .orElseThrow(() -> new NotFound("User not found with email: " + dto.getEmail()));
+//    if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+//      throw new RuntimeException("Invalid password");
+//    }
+//    return userMapper.toDto(user);
+//  }
 
 //   Не використовується, не видаляти
 
