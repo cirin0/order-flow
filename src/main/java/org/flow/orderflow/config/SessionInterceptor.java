@@ -3,44 +3,45 @@ package org.flow.orderflow.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.service.AuthenticationService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class SessionInterceptor implements HandlerInterceptor {
-  private final Set<String> protectedEndpoints;
-  private final Set<String> authPages;
+  private final AuthenticationService authenticationService;
 
-  public SessionInterceptor(Set<String> protectedEndpoints, Set<String> authPages) {
-    this.protectedEndpoints = protectedEndpoints;
-    this.authPages = authPages;
-  }
+  private final List<String> protectedPaths = Arrays.asList(
+    "/cart/**",
+    "/order/**",
+    "/user/profile",
+    "/user/logout"
+  );
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
     String requestURI = request.getRequestURI();
-    HttpSession session = request.getSession(false);
 
-    // Перевірка сторінок, потребують авторизації
-    if (!protectedEndpoints.contains(requestURI)) {
+    boolean isProtectedPath = protectedPaths.stream()
+      .anyMatch(requestURI::startsWith);
+
+    if (!isProtectedPath) {
       return true;
     }
-    // Перевірка авторизованих сторінок
-    if (authPages.contains(requestURI) && session != null && session.getAttribute("user") != null) {
-      response.sendRedirect("/user/profile");
+
+    HttpSession session = request.getSession();
+    String sessionToken = (String) session.getAttribute("sessionToken");
+
+    if (sessionToken == null || !authenticationService.validateSession(sessionToken)) {
+      response.sendRedirect("/auth/login");
       return false;
     }
-
-    // Перевірка захищених сторінок
-    if (session == null || session.getAttribute("user") == null) {
-      response.sendRedirect("/user/login");
-      return false;
-    }
-
     return true;
-
   }
 }

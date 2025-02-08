@@ -1,29 +1,17 @@
 package org.flow.orderflow.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Set;
-
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+  private final SessionInterceptor authInterceptor;
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-
-    Set<String> protectedEndpoints = Set.of(
-      "/user/profile",
-      "/user/logout",
-      "/cart/**",
-      "/order/**"
-    );
-
-    Set<String> authPages = Set.of(
-      "/user/login",
-      "/user/register"
-    );
-
-    registry.addInterceptor(new SessionInterceptor(protectedEndpoints, authPages));
+    registry.addInterceptor(authInterceptor);
   }
 }
