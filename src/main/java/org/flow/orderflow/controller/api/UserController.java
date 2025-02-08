@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,5 +32,10 @@ public class UserController {
   @GetMapping("/check/{email}")
   public ResponseEntity<Boolean> checkUserExists(@PathVariable String email) {
     return ResponseEntity.ok(userService.existsByEmail(email));
+  }
+
+  @PostMapping("/admin/{id}")
+  public ResponseEntity<String> changeRoleAdmin(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.changeRoleAdmin(id));
   }
 }
