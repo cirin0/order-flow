@@ -2,8 +2,11 @@
 package org.flow.orderflow.controller.web;
 
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.user.UserLoginDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
 import org.flow.orderflow.dto.user.UserDto;
+import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.service.AuthenticationService;
 import org.flow.orderflow.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,65 +16,49 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthControllerWeb {
-  private final UserService userService;
+  private final AuthenticationService authenticationService;
 
   @GetMapping("/login")
-  public String showLoginForm() {
-    return "auth/login";  // замість просто "login"
-  }
-
-  @PostMapping("/login")
-  public String login(@RequestParam String email,
-                      HttpSession session,
-                      RedirectAttributes redirectAttributes) {
-    if (userService.existsByEmail(email)) {
-      UserDto user = userService.getAllUsers().stream()
-        .filter(u -> u.getEmail().equals(email))
-        .findFirst()
-        .map(u -> {
-          UserDto dto = new UserDto();
-          dto.setId(u.getId());
-          dto.setEmail(u.getEmail());
-          dto.setFirstName(u.getFirstName());
-          dto.setLastName(u.getLastName());
-          return dto;
-        })
-        .orElseThrow();
-      session.setAttribute("userEmail", email);
-      return "redirect:/cart";  // Changed from "/cart/" + user.getId()
-    }
-
-    redirectAttributes.addFlashAttribute("error", "Користувача не знайдено");
-    return "redirect:/login";
+  public String login(Model model) {
+    model.addAttribute("userLoginDto", new UserLoginDto());
+    return "login";
   }
 
   @GetMapping("/register")
-  public String showRegistrationForm(Model model) {
-    model.addAttribute("user", new UserRegistrationDto());
-    return "auth/register";
+  public String register(HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user != null) {
+      return "redirect:/user/profile";
+    }
+    return "register";
   }
 
   @PostMapping("/register")
-  public String register(@ModelAttribute UserRegistrationDto registrationDto,
-                         HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+  public String register(Model model, @ModelAttribute UserRegistrationDto userRegistrationDto) {
     try {
-      UserDto userDto = userService.registerUser(registrationDto);
-      // Зберігаємо email в сесії
-      session.setAttribute("userEmail", userDto.getEmail());
-      return "redirect:/cart";
-    } catch (IllegalArgumentException e) {
-      redirectAttributes.addFlashAttribute("error", e.getMessage());
-      return "redirect:/register";
+      authenticationService.registerUser(userRegistrationDto);
+      model.addAttribute("success", "Користувач успішно зареєстрований!");
+      return "redirect:/auth/login";
+    } catch (Exception e) {
+      model.addAttribute("error", "Користувач з такою поштою вже існує!");
+      return "register";
     }
   }
 
-  @GetMapping("/logout")
-  public String logout(HttpSession session) {
-    session.invalidate();
-    return "redirect:/login";
+  @PostMapping("/login")
+  public String login(Model model, @ModelAttribute UserLoginDto userLoginDto, HttpSession session) {
+    try {
+      UserSessionDto user = authenticationService.login(userLoginDto);
+      session.setAttribute("user", user);
+      return "redirect:/user/profile";
+    } catch (Exception e) {
+      model.addAttribute("error", "Невірний логін або пароль!");
+      return "login";
+    }
   }
+
+
 }
