@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body class="bg-gray-100">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">My Cart</h1>
+
+  <div th:if="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
+    <p>Your cart is empty</p>
+  </div>
+
+  <div th:unless="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
+    <table class="w-full">
+      <thead>
+      <tr class="border-b">
+        <th class="text-left">Product</th>
+        <th class="text-center">Quantity</th>
+        <th class="text-right">Price</th>
+        <th class="text-right">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="item : ${cart.items}" class="border-b">
+        <td th:text="${item.productName}">Product Name</td>
+        <td class="text-center">
+          <form th:action="@{/cart/update}" method="post" class="flex items-center justify-center">
+            <input type="hidden" name="itemId" th:value="${item.id}"/>
+            <input
+              type="number"
+              name="quantity"
+              th:value="${item.quantity}"
+              min="1"
+              class="w-16 text-center border rounded"
+            />
+            <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded">
+              Update
+            </button>
+          </form>
+        </td>
+        <td class="text-right" th:text="${#numbers.formatCurrency(item.price * item.quantity)}">$0.00</td>
+        <td class="text-right">
+          <form th:action="@{/cart/remove}" method="post">
+            <input type="hidden" name="itemId" th:value="${item.id}"/>
+            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded">
+              Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="mt-4 text-right">
+      <p class="text-xl font-bold">
+        Total: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">$0.00</span>
+      </p>
+      <form th:action="@{/cart/clear}" method="post" class="mt-2">
+        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">
+          Clear Cart
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -5,16 +5,18 @@
 <header th:fragment="header" class="header">
   <div class="header-container">
     <div class="header-left">
-      <div class="header-logo">
-        <i class="bi bi-house-fill" style="font-size: 40px; color: white;"></i>
-      </div>
       <div class="header-nav">
-        <a href="/categories" class="nav-link">КАТЕГОРІЇ</a>
-        <a href="/products" class="nav-link">ПРОДУКТИ</a>
+        <a href="/categories" class="nav-link">
+          <i class="bi bi-list"></i> КАТЕГОРІЇ
+        </a>
+        <a href="/products" class="nav-link">
+          <i class="bi bi-box"></i> ПРОДУКТИ
+        </a>
       </div>
-
     </div>
-
+    <div class="header-center">
+      <h1 class="header-title">Order Flow</h1>
+    </div>
     <div class="header-icons">
       <a href="/delivery" class="icon-link">
         <i class="bi bi-truck"></i>
@@ -22,19 +24,16 @@
       <a href="/cart" class="icon-link">
         <i class="bi bi-basket"></i>
       </a>
-      <a href="/profile" class="icon-link">
+      <a href="/user/profile" class="icon-link">
         <i class="bi bi-person"></i>
       </a>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Пошук">
+        <button class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
     </div>
-
-    <div class="search-container">
-      <input type="text" class="search-input" placeholder="Search">
-      <button class="search-button">
-        <i class="fas fa-search"></i>
-      </button>
-    </div>
-
-
   </div>
 
   <div class="header-gradient"></div>
