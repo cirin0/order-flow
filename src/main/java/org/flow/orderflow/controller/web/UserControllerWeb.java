@@ -20,19 +20,21 @@ public class UserControllerWeb {
 
   private final AuthenticationService authenticationService;
 
-
-
   @GetMapping("/profile")
   public String dashboard(Model model, HttpSession session) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     model.addAttribute("user", user);
-    return "dashboard";
+    return "user/profile";
   }
 
   @GetMapping("/logout")
   public String logout(HttpSession session) {
-    session.removeAttribute("user");
-    return "redirect:/user/login";
+    String sessionToken = (String) session.getAttribute("sessionToken");
+    if (sessionToken != null) {
+      authenticationService.logout(sessionToken);
+    }
+    session.invalidate();
+    return "redirect:/auth/login";
   }
 
 }

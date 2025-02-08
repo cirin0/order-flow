@@ -1,19 +1,17 @@
-
 package org.flow.orderflow.controller.web;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserLoginDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
-import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.AuthenticationService;
-import org.flow.orderflow.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/auth")
@@ -24,7 +22,7 @@ public class AuthControllerWeb {
   @GetMapping("/login")
   public String login(Model model) {
     model.addAttribute("userLoginDto", new UserLoginDto());
-    return "login";
+    return "user/login";
   }
 
   @GetMapping("/register")
@@ -33,7 +31,7 @@ public class AuthControllerWeb {
     if (user != null) {
       return "redirect:/user/profile";
     }
-    return "register";
+    return "user/register";
   }
 
   @PostMapping("/register")
@@ -44,7 +42,7 @@ public class AuthControllerWeb {
       return "redirect:/auth/login";
     } catch (Exception e) {
       model.addAttribute("error", "Користувач з такою поштою вже існує!");
-      return "register";
+      return "user/register";
     }
   }
 
@@ -53,12 +51,11 @@ public class AuthControllerWeb {
     try {
       UserSessionDto user = authenticationService.login(userLoginDto);
       session.setAttribute("user", user);
+      session.setAttribute("sessionToken", user.getSessionToken());
       return "redirect:/user/profile";
     } catch (Exception e) {
       model.addAttribute("error", "Невірний логін або пароль!");
-      return "login";
+      return "user/login";
     }
   }
-
-
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.UserMapper;
+import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,43 +39,15 @@ public class UserService {
       .collect(Collectors.toList());
   }
 
-//  @Transactional
-//  public UserDto registerUser(UserRegistrationDto dto) {
-//    User user = userMapper.toUserRegistrationDto(dto);
-//    userRepository.save(user);
-//    cartService.createCartForUser(user);
-//    return userMapper.toDto(user);
-//  }
-
-//  public UserDto registerUser(UserRegistrationDto dto) {
-//    if (existsByEmail(dto.getEmail())) {
-//      throw new RuntimeException("User with email: " + dto.getEmail() + " already exists");
-//    }
-//    User user = userMapper.toUserRegistrationDto(dto);
-//    user.setPassword(passwordEncoder.encode(user.getPassword()));
-//    userRepository.save(user);
-//    cartService.createCartForUser(user);
-//    return userMapper.toDto(user);
-//  }
+  public String changeRoleAdmin(Long id) {
+    User user = userRepository.findById(id)
+      .orElseThrow(() -> new NotFound("User not found with id: " + id));
+    user.setRole(Role.valueOf("ADMIN"));
+    userRepository.save(user);
+    return "User role changed to ADMIN";
+  }
 
   public boolean existsByEmail(String email) {
     return userRepository.findByEmail(email).isPresent();
   }
-
-//  public UserDto loginUser(UserLoginDto dto) {
-//    User user = userRepository.findByEmail(dto.getEmail())
-//      .orElseThrow(() -> new NotFound("User not found with email: " + dto.getEmail()));
-//    if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-//      throw new RuntimeException("Invalid password");
-//    }
-//    return userMapper.toDto(user);
-//  }
-
-//   Не використовується, не видаляти
-
-//  public Boolean logoutUser(UserDto dto) {
-//    return true;
-//  }
-
-
 }

@@ -9,12 +9,12 @@
 
 <p>Ваша роль: <span th:text="${session.user.role}"></span></p>
 
-<div th:if="${session.user.role.toString() == 'ADMIN'}">
+<div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'ADMIN'}">
   <p>Ви адміністратор! Можете керувати системою.</p>
   <a href="user/admin">Перейти в адмін-панель</a>
 </div>
 
-<div th:if="${session.user.role.toString() == 'USER'}">
+<div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'USER'}">
   <p>Ви звичайний користувач.</p>
 </div>
 

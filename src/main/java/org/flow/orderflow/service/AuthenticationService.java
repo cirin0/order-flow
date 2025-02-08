@@ -5,6 +5,7 @@ import org.flow.orderflow.dto.user.UserLoginDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.mapper.UserMapper;
+import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +31,9 @@ public class AuthenticationService {
 
     User user = userMapper.toUserRegistrationDto(registrationDto);
     user.setPassword(passwordEncoder.encode(user.getPassword()));
+    if (user.getRole() == null) {
+      user.setRole(Role.valueOf("USER"));
+    }
     User savedUser = userRepository.save(user);
 
     return createUserSession(savedUser);
