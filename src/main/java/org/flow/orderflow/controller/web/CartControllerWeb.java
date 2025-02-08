@@ -1,5 +1,3 @@
-//хто прочитав той гей
-
 package org.flow.orderflow.controller.web;
 
 import jakarta.servlet.http.HttpSession;
@@ -8,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.cart.CartItemDto;
 import org.flow.orderflow.dto.user.UserDto;
+import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -25,14 +24,13 @@ public class CartControllerWeb {
 
   @GetMapping
   public String showCartPage(HttpSession session, Model model) {
-    String userEmail = (String) session.getAttribute("userEmail");
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
 
-    if (userEmail == null) {
+    if (user == null) {
       return "redirect:/login";
     }
 
-    UserDto user = userService.getUserByEmail(userEmail);
-    CartDto cart = cartService.getCartByUserId(user.getId());
+    CartDto cart = cartService.getCartByUserId(user.getUserId());
     model.addAttribute("cart", cart);
     return "cart/cart";
   }
@@ -45,9 +43,8 @@ public class CartControllerWeb {
     RedirectAttributes redirectAttributes
   ) {
     try {
-      String userEmail = (String) session.getAttribute("userEmail");
-      UserDto user = userService.getUserByEmail(userEmail);
-      CartDto cart = cartService.getCartByUserId(user.getId());
+      UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+      CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       CartItemDto itemDto = new CartItemDto();
       itemDto.setProductId(productId);
@@ -76,9 +73,8 @@ public class CartControllerWeb {
     RedirectAttributes redirectAttributes
   ) {
     try {
-      String userEmail = (String) session.getAttribute("userEmail");
-      UserDto user = userService.getUserByEmail(userEmail);
-      CartDto cart = cartService.getCartByUserId(user.getId());
+      UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+      CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       cartService.updateItemQuantity(cart.getId(), itemId, quantity);
       redirectAttributes.addFlashAttribute("successMessage", "Cart updated successfully");
@@ -95,9 +91,8 @@ public class CartControllerWeb {
     RedirectAttributes redirectAttributes
   ) {
     try {
-      String userEmail = (String) session.getAttribute("userEmail");
-      UserDto user = userService.getUserByEmail(userEmail);
-      CartDto cart = cartService.getCartByUserId(user.getId());
+      UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+      CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       cartService.removeItemFromCart(cart.getId(), itemId);
       redirectAttributes.addFlashAttribute("successMessage", "Item removed successfully");
@@ -113,9 +108,8 @@ public class CartControllerWeb {
     RedirectAttributes redirectAttributes
   ) {
     try {
-      String userEmail = (String) session.getAttribute("userEmail");
-      UserDto user = userService.getUserByEmail(userEmail);
-      CartDto cart = cartService.getCartByUserId(user.getId());
+      UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+      CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       cartService.clearCart(cart.getId());
       redirectAttributes.addFlashAttribute("successMessage", "Cart cleared successfully");
