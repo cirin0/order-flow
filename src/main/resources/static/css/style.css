@@ -493,8 +493,24 @@ body, html {
 
 .btn-warning, .btn-danger {
   margin-top: 8px;
-  padding: 5px 10px;
+  padding: 5px 15px;
   font-size: 0.8rem;
+}
+
+.btn-outline-warning .btn-outline-danger {
+  background-color: #007bff;
+  font-size: 1rem;
+}
+
+/* кнопки для адмінів */
+
+.btn-admin {
+  margin: 7px 0 0 0;
+  font-size: 12px;
+}
+
+.btn-admin-add {
+  font-size: large;
 }
 
 /* Стилі для карток, які недоступні */
@@ -528,7 +544,20 @@ body, html {
   cursor: pointer;
 }
 
+.card.disabled .btn-admin {
+  pointer-events: auto;
+  background-color: transparent;
+  border-color: rgba(0, 0, 0, 0.5);
+  color: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+}
+
+
 .card.disabled .btn-outline-dark[title="Детальніше"]:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.card.disabled .btn-admin:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
@@ -659,6 +688,10 @@ body, html {
   margin: 0;
   text-align: center;
   font-size: 1.2rem;
+}
+
+.btn-admin-category {
+  font-size: large;
 }
 
 /* стилі для продуктів у категорії */

@@ -68,6 +68,14 @@
           >
         </div>
 
+        <div class="col-md-12">
+          <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
+            <a th:href="@{/products/add}" class="btn btn-admin btn-admin-add btn-success mb-3" title="Додати">
+              <i class="fas fa-plus-circle"></i> Додати товар
+            </a>
+          </div>
+        </div>
+
         <div id="productsContainer">
           <div th:fragment="product-grid">
             <div th:if="${products.isEmpty()}" class="alert alert-info">
@@ -95,6 +103,17 @@
                        th:unless="${product.stock > 0}">
                       <i class="fas fa-shopping-cart"></i>
                     </a>
+
+                    <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
+                      <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-admin btn-warning"
+                         title="Змінити">
+                        <i class="fas fa-edit"></i> Змінити
+                      </a>
+                      <a th:href="@{/products/delete/{id}(id=${product.id})}"
+                         class="btn btn-admin btn-danger btn-delete" title="Видалити">
+                        <i class="fas fa-trash"></i> Видалити
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -143,6 +162,17 @@
       filterSortForm.addEventListener('submit', function (event) {
         event.preventDefault();
         updateProducts();
+      });
+
+      const deleteButtons = document.querySelectorAll('.btn-delete');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          const confirmDelete = confirm('Ви справді хочете видалити цей товар?');
+          if (confirmDelete) {
+            window.location.href = event.target.closest('a').href;
+          }
+        });
       });
     });
 

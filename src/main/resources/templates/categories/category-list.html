@@ -14,6 +14,11 @@
   <main class="container mt-5 content">
     <h1>Категорії</h1>
     <br>
+    <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
+      <a th:href="@{/categories/add}" class="btn btn-admin-category btn-success mb-3" title="Додати">
+        <i class="fas fa-plus-circle"></i> Додати категорію
+      </a>
+    </div>
     <div th:if="${message}" class="alert alert-success">
       <span th:text="${message}"></span>
     </div>
@@ -27,13 +32,37 @@
             </div>
           </div>
         </a>
+        <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}" class="mt-2">
+          <a th:href="@{/categories/edit/{id}(id=${category.id})}" class="btn btn-admin-category btn-warning"
+             title="Змінити">
+            <i class="fas fa-edit"></i> Змінити
+          </a>
+          <a th:href="@{/categories/delete/{id}(id=${category.id})}"
+             class="btn btn-admin-category btn-danger btn-delete" title="Видалити">
+            <i class="fas fa-trash"></i> Видалити
+          </a>
+        </div>
       </div>
     </div>
   </main>
 
 </div>
 
-
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        const confirmDelete = confirm('Ви справді хочете видалити цю категорію?');
+        if (confirmDelete) {
+          window.location.href = event.target.closest('a').href;
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>

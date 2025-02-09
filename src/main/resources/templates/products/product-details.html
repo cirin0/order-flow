@@ -36,7 +36,7 @@
           <strong>Розміщено на продаж:</strong>
           <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
         </div>
-        <a th:href="@{/cart/add?productId={id}(id=${product.id})}" class="buy-button" th:if="${product.stock > 0}">Купити</a>
+        <a class="buy-button" th:if="${product.stock > 0}">Купити</a>
         <a href="#" class="buy-button disabled" th:unless="${product.stock > 0}">Немає в наявності</a>
       </div>
       <div class="image-container">
