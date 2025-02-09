@@ -8,9 +8,13 @@ import org.flow.orderflow.mapper.ProductMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
 import org.flow.orderflow.repository.ProductRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,4 +92,18 @@ public class ProductService {
       .orElseThrow(() -> new NotFound("Product not found with id: " + id));
     productRepository.delete(product);
   }
+
+  public List<ProductDto> searchProducts(String query, int size) {
+    Pageable pageable = PageRequest.of(0, size);
+    return productRepository.searchByNameContaining(query, pageable).stream()
+      .map(productMapper::toDto)
+      .collect(Collectors.toList());
+  }
+
+  public List<ProductDto> filterSortAndSearchProducts(String searchTerm, Double minPrice, Double maxPrice, Boolean inStock, String sortBy, String sortDirection) {
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+    List<Product> products = productRepository.filterSortAndSearchProducts(searchTerm, minPrice, maxPrice, inStock, sort);
+    return productMapper.toDtoList(products);
+  }
+
 }

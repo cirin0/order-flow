@@ -12,42 +12,42 @@
   </div>
 
   <main class="container mt-5 content">
-
-  <h1>Про товар</h1>
-  <div th:if="${product}">
-    <div>
-      <strong>Назва:</strong>
-      <span th:text="${product.name}"></span>
+    <div class="product-detail-container" th:if="${product}">
+      <div class="product-info">
+        <h1 class="product-title" th:text="${product.name}"></h1>
+        <div class="detail-item">
+          <strong>Категорія:</strong>
+          <span th:text="${product.categoryName}"></span>
+        </div>
+        <div class="detail-item">
+          <strong>Опис:</strong>
+          <p th:text="${product.description}"></p>
+        </div>
+        <div class="detail-item">
+          <strong>Ціна:</strong>
+          <span class="price" th:text="${#numbers.formatCurrency(product.price)}"></span>
+        </div>
+        <div class="detail-item">
+          <strong>Залишилось на складі:</strong>
+          <span class="stock" th:classappend="${product.stock <= 0} ? 'out-of-stock' : 'available'"
+                th:text="${product.stock}"></span>
+        </div>
+        <div class="detail-item">
+          <strong>Розміщено на продаж:</strong>
+          <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+        </div>
+        <a th:href="@{/cart/add?productId={id}(id=${product.id})}" class="buy-button" th:if="${product.stock > 0}">Купити</a>
+        <a href="#" class="buy-button disabled" th:unless="${product.stock > 0}">Немає в наявності</a>
+      </div>
+      <div class="image-container">
+        <img class="product-image" th:src="${product.imageUrl}" alt="Product Image">
+      </div>
     </div>
-    <div>
-      <strong>Категорія:</strong>
-      <span th:text="${product.categoryName}"></span>
-    </div>
-    <div>
-      <strong>Опис:</strong>
-      <p th:text="${product.description}"></p>
-    </div>
-    <div>
-      <strong>Ціна:</strong>
-      <span th:text="${#numbers.formatCurrency(product.price)}"></span>
-    </div>
-    <div>
-      <strong>Залишилось на складі:</strong>
-      <span th:text="${product.stock}"></span>
-    </div>
-    <div th:if="${product.imageUrl}">
-      <strong>Зображення товару:</strong>
-      <img th:src="${product.imageUrl}" alt="Product Image" style="max-width: 300px;">
-    </div>
-    <div>
-      <strong>Розміщено на продаж:</strong>
-      <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
-    </div>
+  </main>
+  <div>
+    <a href="/products" class="back-button">Назад до товарів</a>
   </div>
-  <a href="/products" class="btn btn-secondary">Back to Products</a>
-
-</main>
-<div th:replace="~{fragments/footer :: footer}"></div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
 </body>
 </html>

@@ -99,5 +99,21 @@ public class ProductControllerWeb {
     return "products/product-list :: product-grid";
   }
 
+  @GetMapping("/filter-sort-search")
+  public String filterSortAndSearchProducts(
+    @RequestParam(required = false) String searchTerm,
+    @RequestParam(required = false) Double minPrice,
+    @RequestParam(required = false) Double maxPrice,
+    @RequestParam(required = false) Boolean inStock,
+    @RequestParam String sortBy,
+    @RequestParam String sortDirection,
+    Model model
+  ) {
+    List<ProductDto> products = productService.filterSortAndSearchProducts(searchTerm, minPrice, maxPrice, inStock, sortBy, sortDirection);
+    model.addAttribute("products", products);
+    return "products/product-list :: product-grid";
+  }
 
 }
+
+
