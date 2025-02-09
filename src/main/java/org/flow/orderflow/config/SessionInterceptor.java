@@ -18,8 +18,6 @@ public class SessionInterceptor implements HandlerInterceptor {
   private final AuthenticationService authenticationService;
 
   private final List<String> protectedPaths = Arrays.asList(
-    "/cart/**",
-    "/order/**",
     "/user/profile",
     "/user/logout"
   );

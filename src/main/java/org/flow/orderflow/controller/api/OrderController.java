@@ -34,9 +34,16 @@ public class OrderController {
     return ResponseEntity.ok(orders);
   }
 
+  @GetMapping("/user/{userEmail}")
+  public ResponseEntity<OrderDto> getOrderByUserEmail(@PathVariable String userEmail) {
+    OrderDto order = orderService.getOrderByUserEmail(userEmail);
+    return ResponseEntity.ok(order);
+  }
+
   @PostMapping
   public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
-    OrderDto order = orderService.createOrder(orderDto);
+    String userEmail = "ivan.gruziv@gmail.com";
+    OrderDto order = orderService.createOrder(orderDto, userEmail);
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
@@ -49,6 +56,18 @@ public class OrderController {
   @PatchMapping("/{id}/status")
   public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
     OrderDto updatedOrder = orderService.updateOrderStatus(id, status);
+    return ResponseEntity.ok(updatedOrder);
+  }
+
+  @PatchMapping("/{id}/cancel")
+  public ResponseEntity<OrderDto> cancelOrder(@PathVariable Long id) {
+    OrderDto updatedOrder = orderService.cancelOrder(id);
+    return ResponseEntity.ok(updatedOrder);
+  }
+
+  @PatchMapping("/{id}/complete")
+  public ResponseEntity<OrderDto> completeOrder(@PathVariable Long id) {
+    OrderDto updatedOrder = orderService.completeOrder(id);
     return ResponseEntity.ok(updatedOrder);
   }
 

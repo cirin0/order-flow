@@ -8,7 +8,8 @@ public enum OrderStatus {
   PROCESSING("В обробці"),
   SHIPPED("Відправлено"),
   DELIVERED("Доставлено"),
-  CANCELLED("Скасовано");
+  COMPLETED("Завершено"),
+  CANCELED("Скасовано");
 
   private final String description;
 

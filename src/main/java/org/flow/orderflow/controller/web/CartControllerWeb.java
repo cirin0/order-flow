@@ -1,14 +1,11 @@
 package org.flow.orderflow.controller.web;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.cart.CartItemDto;
-import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.CartService;
-import org.flow.orderflow.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +59,7 @@ public class CartControllerWeb {
   public String showCartPage(@PathVariable Long userId, Model model) {
     CartDto cart = cartService.getCartByUserId(userId);
     model.addAttribute("cart", cart);
-    return "cart";
+    return "cart/cart";
   }
 
   @PostMapping("/update")
