@@ -52,7 +52,7 @@ public class AuthControllerWeb {
       UserSessionDto user = authenticationService.login(userLoginDto);
       session.setAttribute("user", user);
       session.setAttribute("sessionToken", user.getSessionToken());
-      return "redirect:/user/profile";
+      return "redirect:/";
     } catch (Exception e) {
       model.addAttribute("error", "Невірний логін або пароль!");
       return "user/login";

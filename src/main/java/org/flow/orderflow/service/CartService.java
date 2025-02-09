@@ -114,4 +114,11 @@ public class CartService {
       .findFirst()
       .orElse(null);
   }
+
+  public CartDto getCartByUserEmail(String email) {
+    User user = userRepository.findByEmail(email)
+      .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    return cartMapper.toDTO(cartRepository.findByUser(user)
+      .orElseThrow(() -> new IllegalArgumentException("Cart not found")));
+  }
 }
