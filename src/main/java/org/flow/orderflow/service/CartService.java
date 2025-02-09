@@ -29,6 +29,22 @@ public class CartService {
     cartRepository.save(cart);
   }
 
+  @Transactional
+  public CartDto getOrCreateCartByUserId(Long userId) {
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    Cart cart = cartRepository.findByUser(user)
+      .orElseGet(() -> {
+        Cart newCart = Cart.builder()
+          .user(user)
+          .build();
+        return cartRepository.save(newCart);
+      });
+
+    return cartMapper.toDTO(cart);
+  }
+
   public CartDto getCartByUserId(Long userId) {
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new IllegalArgumentException("User not found"));
