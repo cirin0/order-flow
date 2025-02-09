@@ -43,6 +43,14 @@
       <strong>Розміщено на продаж:</strong>
       <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
     </div>
+
+
+<!--    <form th:action="@{/products/{id}/add-to-cart(id=${product.id})}" method="post" class="mt-3">-->
+<!--      <button type="submit" class="btn btn-primary">Додати в корзину</button>-->
+<!--    </form>-->
+
+
+
   </div>
   <a href="/products" class="btn btn-secondary">Back to Products</a>
 
