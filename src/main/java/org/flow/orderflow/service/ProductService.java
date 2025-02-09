@@ -8,6 +8,7 @@ import org.flow.orderflow.mapper.ProductMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
 import org.flow.orderflow.repository.ProductRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -100,10 +101,30 @@ public class ProductService {
       .collect(Collectors.toList());
   }
 
-  public List<ProductDto> filterSortAndSearchProducts(String searchTerm, Double minPrice, Double maxPrice, Boolean inStock, String sortBy, String sortDirection) {
+  public Page<ProductDto> getAllProducts(Pageable pageable) {
+    if (!pageable.getSort().isSorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("createdAt").descending());
+    }
+    Page<Product> products = productRepository.findAll(pageable);
+    return products.map(productMapper::toDto);
+  }
+
+  public Page<ProductDto> filterSortAndSearchProducts(
+    String searchTerm,
+    Double minPrice,
+    Double maxPrice,
+    Boolean inStock,
+    String sortBy,
+    String sortDirection,
+    int page,
+    int size
+  ) {
     Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
-    List<Product> products = productRepository.filterSortAndSearchProducts(searchTerm, minPrice, maxPrice, inStock, sort);
-    return productMapper.toDtoList(products);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Product> productsPage = productRepository
+      .filterSortAndSearchProducts(searchTerm, minPrice, maxPrice, inStock, pageable);
+    return productsPage.map(productMapper::toDto);
   }
 
 }

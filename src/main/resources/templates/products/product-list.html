@@ -1,9 +1,7 @@
-<!DOCTYPE html>
 <html lang="ua" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head}"></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
@@ -33,7 +31,6 @@
                 <option value="false">Немає в наявності</option>
               </select>
             </div>
-
             <div class="mb-3">
               <label for="sortBy">Сортувати за:</label>
               <select id="sortBy" name="sortBy" class="form-control">
@@ -82,7 +79,7 @@
               Товарів не знайдено
             </div>
 
-            <div class="row mt-4, background" th:unless="${products.isEmpty()}">
+            <div class="row mt-4 background" th:unless="${products.isEmpty()}">
               <div th:each="product : ${products}" class="col-md-3">
                 <div class="card mb-5" th:classappend="${product.stock <= 0} ? 'disabled' : ''">
                   <img th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
@@ -118,13 +115,40 @@
                 </div>
               </div>
             </div>
+
+            <nav th:if="${totalPages > 1}" aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                  <a class="page-link"
+                     th:href="@{/products(page=${currentPage - 1}, size=${param.size}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     aria-label="Previous">
+                    <span aria-hidden="true">«</span>
+                  </a>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${currentPage == i} ? 'active' : ''">
+                  <a class="page-link"
+                     th:href="@{/products/filter-sort-search(page=${i}, size=${size}, searchTerm=${param.searchTerm}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, inStock=${param.inStock}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     th:text="${i + 1}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                  <a class="page-link"
+                     th:href="@{/products(page=${currentPage + 1}, size=${param.size}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     aria-label="Next">
+                    <span aria-hidden="true">»</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
     </div>
   </main>
-
   <div th:replace="~{fragments/footer :: footer}"></div>
+
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -132,7 +156,7 @@
       const searchInput = document.getElementById('searchInput');
       const productsContainer = document.getElementById('productsContainer');
 
-      function updateProducts() {
+      function updateProducts(page = 0, size = 12) {
         const searchTerm = searchInput.value;
         const minPrice = document.getElementById('minPrice').value;
         const maxPrice = document.getElementById('maxPrice').value;
@@ -146,7 +170,9 @@
           maxPrice: maxPrice || "",
           inStock: inStock || "",
           sortBy: sortBy,
-          sortDirection: sortDirection
+          sortDirection: sortDirection,
+          page: page,
+          size: size
         });
 
         fetch(`/products/filter-sort-search?${queryParams}`)
@@ -157,11 +183,24 @@
           .catch(error => console.error('Помилка:', error));
       }
 
-      searchInput.addEventListener('input', updateProducts);
+      searchInput.addEventListener('input', function () {
+        updateProducts();
+      });
 
       filterSortForm.addEventListener('submit', function (event) {
         event.preventDefault();
         updateProducts();
+      });
+
+      productsContainer.addEventListener('click', function (event) {
+        const pageLink = event.target.closest('.page-link');
+        if (pageLink) {
+          event.preventDefault();
+          const newPage = parseInt(pageLink.textContent) - 1;
+          if (!isNaN(newPage) && newPage >= 0) {
+            updateProducts(newPage, 12);
+          }
+        }
       });
 
       const deleteButtons = document.querySelectorAll('.btn-delete');
@@ -178,6 +217,7 @@
 
   </script>
 
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const productsContainer = document.getElementById('productsContainer');
@@ -191,6 +231,8 @@
       });
     });
   </script>
+
+
 </div>
 </body>
 </html>

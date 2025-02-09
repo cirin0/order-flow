@@ -2,8 +2,8 @@ package org.flow.orderflow.repository;
 
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,13 +25,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     "(:minPrice IS NULL OR p.price >= :minPrice) AND " +
     "(:maxPrice IS NULL OR p.price <= :maxPrice) AND " +
     "(:inStock IS NULL OR (:inStock = true AND p.stock > 0) OR (:inStock = false AND p.stock <= 0))")
-  List<Product> filterSortAndSearchProducts(
+  Page<Product> filterSortAndSearchProducts(
     @Param("searchTerm") String searchTerm,
     @Param("minPrice") Double minPrice,
     @Param("maxPrice") Double maxPrice,
     @Param("inStock") Boolean inStock,
-    Sort sort
+    Pageable pageable
   );
 
+
+  @Override
+  Page<Product> findAll(Pageable pageable);
 
 }
