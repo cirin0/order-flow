@@ -7,9 +7,12 @@ import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.CategoryMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.repository.CategoryRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,4 +60,12 @@ public class CategoryService {
       .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
     categoryRepository.delete(category);
   }
+
+  public List<CategoryDto> searchCategories(String query, int size) {
+    Pageable pageable = PageRequest.of(0, size);
+    return categoryRepository.searchByNameContaining(query, pageable).stream()
+      .map(categoryMapper::toDto)
+      .collect(Collectors.toList());
+  }
+
 }

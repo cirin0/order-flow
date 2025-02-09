@@ -1,9 +1,7 @@
-<!DOCTYPE html>
 <html lang="ua" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head}"></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
@@ -13,25 +11,48 @@
 
   <main class="container mt-5 content">
     <div class="row">
-      <div class="col-md-2">
-        <h2>Категорії</h2>
-        <ul class="list-group">
-          <li th:each="cat, iterStat : ${categories}"
-              th:if="${iterStat.index < 4}"
-              class="list-group-item d-flex align-items-center">
-            <a th:href="@{/categories/{id}/products(id=${cat.id})}"
-               th:text="${cat.name}"
-               class="stretched-link"></a>
-          </li>
-          <li class="list-group-item d-flex align-items-center">
-            <a th:href="@{/categories}" class="stretched-link">
-              <i class="fas fa-list me-2"></i>
-              Всі категорії
-            </a>
-          </li>
-        </ul>
+      <div class="col-md-3">
+        <div class="sorting-block">
+          <h2>Сортування</h2>
+          <form id="filterSortForm">
+            <div class="mb-3">
+              <label for="minPrice">Мінімальна ціна</label>
+              <input type="number" id="minPrice" name="minPrice" class="form-control" placeholder="Від">
+            </div>
+            <div class="mb-3">
+              <label for="maxPrice">Максимальна ціна</label>
+              <input type="number" id="maxPrice" name="maxPrice" class="form-control" placeholder="До">
+            </div>
+            <div class="mb-3">
+              <label for="inStock">Наявність на складі</label>
+              <select id="inStock" name="inStock" class="form-control">
+                <option value="">Всі</option>
+                <option value="true">В наявності</option>
+                <option value="false">Немає в наявності</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="sortBy">Сортувати за:</label>
+              <select id="sortBy" name="sortBy" class="form-control">
+                <option value="price">Ціною</option>
+                <option value="name">Назвою</option>
+                <option value="createdAt">Датою додавання</option>
+                <option value="stock">Кількістю на складі</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="sortDirection">Напрямок:</label>
+              <select id="sortDirection" name="sortDirection" class="form-control">
+                <option value="asc">За зростанням</option>
+                <option value="desc">За спаданням</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-sort">Застосувати</button>
+          </form>
+        </div>
       </div>
-      <div class="col-md-10">
+      <div class="col-md-9">
 
         <h1>Наш асортимент</h1>
 
@@ -44,15 +65,23 @@
           >
         </div>
 
+        <div class="col-md-12">
+          <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
+            <a th:href="@{/products/add}" class="btn btn-admin btn-admin-add btn-success mb-3" title="Додати">
+              <i class="fas fa-plus-circle"></i> Додати товар
+            </a>
+          </div>
+        </div>
+
         <div id="productsContainer">
           <div th:fragment="product-grid">
             <div th:if="${products.isEmpty()}" class="alert alert-info">
               Товарів не знайдено
             </div>
 
-            <div class="row mt-4, background" th:unless="${products.isEmpty()}">
+            <div class="row mt-4 background" th:unless="${products.isEmpty()}">
               <div th:each="product : ${products}" class="col-md-3">
-                <div class="card mb-5">
+                <div class="card mb-5" th:classappend="${product.stock <= 0} ? 'disabled' : ''">
                   <img th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
                   <div class="card-body">
                     <h5 class="card-title" th:text="${product.name}"></h5>
@@ -64,54 +93,146 @@
                     <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark" title="Детальніше">
                       <i class="fas fa-info-circle me-2"></i>Детальніше
                     </a>
-                    <a href="#" class="btn btn-outline-dark" title="Додати до кошика">
+                    <a href="#" class="btn btn-outline-dark" title="Додати до кошика" th:if="${product.stock > 0}">
                       <i class="fas fa-shopping-cart"></i>
                     </a>
+                    <a href="#" class="btn btn-outline-dark disabled" title="Додати до кошика"
+                       th:unless="${product.stock > 0}">
+                      <i class="fas fa-shopping-cart"></i>
+                    </a>
+
+                    <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
+                      <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-admin btn-warning"
+                         title="Змінити">
+                        <i class="fas fa-edit"></i> Змінити
+                      </a>
+                      <a th:href="@{/products/delete/{id}(id=${product.id})}"
+                         class="btn btn-admin btn-danger btn-delete" title="Видалити">
+                        <i class="fas fa-trash"></i> Видалити
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <nav th:if="${totalPages > 1}" aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                  <a class="page-link"
+                     th:href="@{/products(page=${currentPage - 1}, size=${param.size}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     aria-label="Previous">
+                    <span aria-hidden="true">«</span>
+                  </a>
+                </li>
+
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${currentPage == i} ? 'active' : ''">
+                  <a class="page-link"
+                     th:href="@{/products/filter-sort-search(page=${i}, size=${size}, searchTerm=${param.searchTerm}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, inStock=${param.inStock}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     th:text="${i + 1}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                  <a class="page-link"
+                     th:href="@{/products(page=${currentPage + 1}, size=${param.size}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     aria-label="Next">
+                    <span aria-hidden="true">»</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
     </div>
   </main>
-
   <div th:replace="~{fragments/footer :: footer}"></div>
+
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const filterSortForm = document.getElementById('filterSortForm');
       const searchInput = document.getElementById('searchInput');
       const productsContainer = document.getElementById('productsContainer');
 
+      function updateProducts(page = 0, size = 12) {
+        const searchTerm = searchInput.value;
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        const inStock = document.getElementById('inStock').value;
+        const sortBy = document.getElementById('sortBy').value;
+        const sortDirection = document.getElementById('sortDirection').value;
 
-      searchInput.addEventListener('input', function () {
-        const searchTerm = this.value;
+        const queryParams = new URLSearchParams({
+          searchTerm: searchTerm || "",
+          minPrice: minPrice || "",
+          maxPrice: maxPrice || "",
+          inStock: inStock || "",
+          sortBy: sortBy,
+          sortDirection: sortDirection,
+          page: page,
+          size: size
+        });
 
-        if (searchTerm.length < 2) {
-          fetch('/products')
-            .then(response => response.text())
-            .then(html => {
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = html;
-              const newProductsGrid = tempDiv.querySelector('#productsContainer > div');
-              productsContainer.innerHTML = newProductsGrid.innerHTML;
-            });
-          return;
-        }
-
-        fetch(`/products/search?searchTerm=${encodeURIComponent(searchTerm)}`)
+        fetch(`/products/filter-sort-search?${queryParams}`)
           .then(response => response.text())
           .then(html => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            const newProductsGrid = tempDiv.querySelector('div');
-            productsContainer.innerHTML = newProductsGrid.innerHTML;
+            productsContainer.innerHTML = html;
           })
-          .catch(error => console.error('Помилка пошуку:', error));
+          .catch(error => console.error('Помилка:', error));
+      }
+
+      searchInput.addEventListener('input', function () {
+        updateProducts();
+      });
+
+      filterSortForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        updateProducts();
+      });
+
+      productsContainer.addEventListener('click', function (event) {
+        const pageLink = event.target.closest('.page-link');
+        if (pageLink) {
+          event.preventDefault();
+          const newPage = parseInt(pageLink.textContent) - 1;
+          if (!isNaN(newPage) && newPage >= 0) {
+            updateProducts(newPage, 12);
+          }
+        }
+      });
+
+      const deleteButtons = document.querySelectorAll('.btn-delete');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          const confirmDelete = confirm('Ви справді хочете видалити цей товар?');
+          if (confirmDelete) {
+            window.location.href = event.target.closest('a').href;
+          }
+        });
+      });
+    });
+
+  </script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const productsContainer = document.getElementById('productsContainer');
+
+      productsContainer.addEventListener('click', function (event) {
+        const addToCartButton = event.target.closest('.btn-outline-dark[title="Додати до кошика"]');
+        if (addToCartButton && addToCartButton.classList.contains('disabled')) {
+          event.preventDefault();
+          alert('Товару немає на складі. Додавання до кошика неможливе.');
+        }
       });
     });
   </script>
+
+
 </div>
 </body>
 </html>

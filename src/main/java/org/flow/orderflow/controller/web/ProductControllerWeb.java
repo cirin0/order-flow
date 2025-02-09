@@ -5,6 +5,10 @@ import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.dto.product.ProductDto;
 import org.flow.orderflow.service.CategoryService;
 import org.flow.orderflow.service.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +25,26 @@ public class ProductControllerWeb {
   private final ProductService productService;
   private final CategoryService categoryService;
 
-  @GetMapping
-  public String listProducts(Model model) {
-    List<ProductDto> products = productService.getAllProducts();
-    List<CategoryDto> categories = categoryService.getAllCategories();
 
-    model.addAttribute("products", products);
-    model.addAttribute("categories", categories);
+  @GetMapping
+  public String listProducts(
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "12") int size,
+    @RequestParam(defaultValue = "createdAt") String sortBy,
+    @RequestParam(defaultValue = "desc") String sortDirection,
+    Model model
+  ) {
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<ProductDto> productsPage = productService.getAllProducts(pageable);
+
+
+    model.addAttribute("products", productsPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", productsPage.getTotalPages());
+    model.addAttribute("categories", categoryService.getAllCategories());
+
     return "products/product-list";
   }
 
@@ -99,5 +116,28 @@ public class ProductControllerWeb {
     return "products/product-list :: product-grid";
   }
 
-
+  @GetMapping("/filter-sort-search")
+  public String filterSortAndSearchProducts(
+    @RequestParam(required = false) String searchTerm,
+    @RequestParam(required = false) Double minPrice,
+    @RequestParam(required = false) Double maxPrice,
+    @RequestParam(required = false) Boolean inStock,
+    @RequestParam(defaultValue = "price") String sortBy,
+    @RequestParam(defaultValue = "asc") String sortDirection,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "12") int size,
+    Model model
+  ) {
+    Page<ProductDto> productsPage = productService.filterSortAndSearchProducts(
+      searchTerm, minPrice, maxPrice, inStock, sortBy, sortDirection, page, size
+    );
+    model.addAttribute("products", productsPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", productsPage.getTotalPages());
+    return "products/product-list :: product-grid";
+  }
 }
+
+
+
+
