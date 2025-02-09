@@ -36,7 +36,7 @@
               <select id="sortBy" name="sortBy" class="form-control">
                 <option value="price">Ціною</option>
                 <option value="name">Назвою</option>
-                <option value="createdAt">Датою додавання</option>
+                <option value="createdAt" selected>Датою додавання</option>
                 <option value="stock">Кількістю на складі</option>
               </select>
             </div>
@@ -44,7 +44,7 @@
               <label for="sortDirection">Напрямок:</label>
               <select id="sortDirection" name="sortDirection" class="form-control">
                 <option value="asc">За зростанням</option>
-                <option value="desc">За спаданням</option>
+                <option value="desc" selected>За спаданням</option>
               </select>
             </div>
 
@@ -120,22 +120,50 @@
               <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
                   <a class="page-link"
-                     th:href="@{/products(page=${currentPage - 1}, size=${param.size}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     th:href="@{/products/filter-sort-search(
+                   page=${currentPage - 1},
+                   size=${size},
+                   sortBy=${sortBy},
+                   sortDirection=${sortDirection},
+                   searchTerm=${searchTerm},
+                   minPrice=${minPrice},
+                   maxPrice=${maxPrice},
+                   inStock=${inStock}
+               )}"
                      aria-label="Previous">
                     <span aria-hidden="true">«</span>
                   </a>
                 </li>
 
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                     th:classappend="${currentPage == i} ? 'active' : ''">
                   <a class="page-link"
-                     th:href="@{/products/filter-sort-search(page=${i}, size=${size}, searchTerm=${param.searchTerm}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, inStock=${param.inStock}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     th:href="@{/products/filter-sort-search(
+                   page=${i},
+                   size=${size},
+                   sortBy=${sortBy},
+                   sortDirection=${sortDirection},
+                   searchTerm=${searchTerm},
+                   minPrice=${minPrice},
+                   maxPrice=${maxPrice},
+                   inStock=${inStock}
+               )}"
                      th:text="${i + 1}"></a>
                 </li>
 
                 <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
                   <a class="page-link"
-                     th:href="@{/products(page=${currentPage + 1}, size=${param.size}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"
+                     th:href="@{/products/filter-sort-search(
+                   page=${currentPage + 1},
+                   size=${size},
+                   sortBy=${sortBy},
+                   sortDirection=${sortDirection},
+                   searchTerm=${searchTerm},
+                   minPrice=${minPrice},
+                   maxPrice=${maxPrice},
+                   inStock=${inStock}
+               )}"
                      aria-label="Next">
                     <span aria-hidden="true">»</span>
                   </a>
@@ -161,28 +189,41 @@
         const minPrice = document.getElementById('minPrice').value;
         const maxPrice = document.getElementById('maxPrice').value;
         const inStock = document.getElementById('inStock').value;
-        const sortBy = document.getElementById('sortBy').value;
-        const sortDirection = document.getElementById('sortDirection').value;
+        const sortBy = document.getElementById('sortBy').value || 'createdAt';
+        const sortDirection = document.getElementById('sortDirection').value || 'desc';
 
         const queryParams = new URLSearchParams({
-          searchTerm: searchTerm || "",
-          minPrice: minPrice || "",
-          maxPrice: maxPrice || "",
-          inStock: inStock || "",
+          page: page,
+          size: size,
           sortBy: sortBy,
           sortDirection: sortDirection,
-          page: page,
-          size: size
+          searchTerm: searchTerm || '',
+          minPrice: minPrice || '',
+          maxPrice: maxPrice || '',
+          inStock: inStock || ''
         });
 
         fetch(`/products/filter-sort-search?${queryParams}`)
           .then(response => response.text())
           .then(html => {
             productsContainer.innerHTML = html;
+
+            const newUrl = `${window.location.pathname}?${queryParams}`;
+            window.history.pushState({}, '', newUrl);
           })
           .catch(error => console.error('Помилка:', error));
       }
 
+      document.addEventListener('click', function (e) {
+        if (e.target.closest('.page-link')) {
+          e.preventDefault();
+          const href = e.target.closest('.page-link').getAttribute('href');
+          const url = new URL(href, window.location.origin);
+          const page = url.searchParams.get('page') || 0;
+
+          updateProducts(parseInt(page));
+        }
+      });
       searchInput.addEventListener('input', function () {
         updateProducts();
       });

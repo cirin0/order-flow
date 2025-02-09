@@ -4,7 +4,14 @@
 <body class="bg-gray-100 flex flex-col h-full m-0">
 <header th:replace="~{fragments/header :: header}"></header>
 
-<main class="flex-grow">
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="cityscape-revers"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="content mt-5 flex-grow">
   <div class="container mx-auto p-6">
     <!-- Перевірка сесії користувача -->
     <div th:if="${session.user == null}" class="bg-white p-4 rounded shadow">
@@ -37,7 +44,7 @@
             <th class="text-right">Price</th>
             <th class="text-right">Actions</th>
           </tr>
-          </thead> 
+          </thead>
           <tbody>
           <tr th:each="item : ${cart.items}" class="border-b">
             <td th:text="${item.productName}">Product Name</td>
@@ -83,7 +90,7 @@
     </div>
   </div>
 </main>
-
+</div>
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
 </body>
 </html>
