@@ -1,8 +1,13 @@
 package org.flow.orderflow.controller.web;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.cart.CartDto;
+import org.flow.orderflow.dto.cart.CartItemDto;
 import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.dto.product.ProductDto;
+import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.CategoryService;
 import org.flow.orderflow.service.ProductService;
 import org.springframework.data.domain.Page;
@@ -24,6 +29,7 @@ public class ProductControllerWeb {
 
   private final ProductService productService;
   private final CategoryService categoryService;
+  private final CartService cartService;
 
 
   @GetMapping
@@ -81,6 +87,51 @@ public class ProductControllerWeb {
     redirectAttributes.addFlashAttribute("message", "Product updated successfully");
     return "redirect:/products";
   }
+
+
+  @PostMapping("/{id}/add-to-cart")
+  public String addToCart(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
+    try {
+      // Отримуємо користувача з сесії
+      UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+      if (user == null) {
+        return "redirect:/auth/login";
+      }
+
+      // Отримуємо інформацію про продукт
+      ProductDto product = productService.getProductById(id);
+
+      // Створюємо об'єкт CartItemDto
+      CartItemDto itemDto = new CartItemDto();
+      itemDto.setProductId(id);
+      itemDto.setQuantity(1);
+      itemDto.setProductName(product.getName());
+      itemDto.setPrice(product.getPrice());
+
+      // Отримуємо або створюємо корзину
+      CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
+
+      // Додаємо товар до корзини
+      cartService.addItemToCart(cart.getId(), itemDto);
+
+      // Додаємо повідомлення про успіх
+      redirectAttributes.addFlashAttribute("success", "Товар успішно додано до кошика");
+
+      return "redirect:/cart";
+    } catch (Exception e) {
+      // Додаємо повідомлення про помилку
+      redirectAttributes.addFlashAttribute("error", "Помилка при додаванні товару до кошика: " + e.getMessage());
+      return "redirect:/products/" + id;
+    }
+  }
+
+
+
+
+
+
+
+
 
   @GetMapping("/delete/{id}")
   public String deleteProduct(@PathVariable Long id,

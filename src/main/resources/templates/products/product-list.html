@@ -11,6 +11,7 @@
 
   <main class="container mt-5 content">
     <div class="row">
+      <!-- Фільтри та сортування -->
       <div class="col-md-3">
         <div class="sorting-block">
           <h2>Сортування</h2>
@@ -47,24 +48,20 @@
                 <option value="desc">За спаданням</option>
               </select>
             </div>
-
             <button type="submit" class="btn btn-sort">Застосувати</button>
           </form>
         </div>
       </div>
-      <div class="col-md-9">
 
+      <!-- Основний контент -->
+      <div class="col-md-9">
         <h1>Наш асортимент</h1>
 
         <div class="input-group mb-3">
-          <input
-            type="text"
-            id="searchInput"
-            class="form-control"
-            placeholder="Пошук товарів..."
-          >
+          <input type="text" id="searchInput" class="form-control" placeholder="Пошук товарів...">
         </div>
 
+        <!-- Кнопка додавання для адміна -->
         <div class="col-md-12">
           <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
             <a th:href="@{/products/add}" class="btn btn-admin btn-admin-add btn-success mb-3" title="Додати">
@@ -73,12 +70,15 @@
           </div>
         </div>
 
+        <!-- Контейнер продуктів -->
         <div id="productsContainer">
           <div th:fragment="product-grid">
+            <!-- Повідомлення про відсутність товарів -->
             <div th:if="${products.isEmpty()}" class="alert alert-info">
               Товарів не знайдено
             </div>
 
+            <!-- Сітка продуктів -->
             <div class="row mt-4 background" th:unless="${products.isEmpty()}">
               <div th:each="product : ${products}" class="col-md-3">
                 <div class="card mb-5" th:classappend="${product.stock <= 0} ? 'disabled' : ''">
@@ -90,24 +90,45 @@
                       <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
                       <span th:unless="${product.stock > 0}">Немає на складі</span>
                     </p>
-                    <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark" title="Детальніше">
+
+                    <!-- Кнопка деталей -->
+                    <a th:href="@{/products/{id}(id=${product.id})}"
+                       class="btn btn-outline-dark"
+                       title="Детальніше">
                       <i class="fas fa-info-circle me-2"></i>Детальніше
                     </a>
-                    <a href="#" class="btn btn-outline-dark" title="Додати до кошика" th:if="${product.stock > 0}">
-                      <i class="fas fa-shopping-cart"></i>
-                    </a>
-                    <a href="#" class="btn btn-outline-dark disabled" title="Додати до кошика"
-                       th:unless="${product.stock > 0}">
-                      <i class="fas fa-shopping-cart"></i>
-                    </a>
 
+                    <!-- Форма додавання в кошик -->
+                    <form th:if="${product.stock > 0}"
+                          th:action="@{/cart/add}"
+                          method="post"
+                          class="d-inline add-to-cart-form">
+                      <input type="hidden" name="productId" th:value="${product.id}">
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit"
+                              class="btn btn-outline-dark"
+                              title="Додати до кошика">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </form>
+
+                    <!-- Неактивна кнопка кошика -->
+                    <button th:unless="${product.stock > 0}"
+                            class="btn btn-outline-dark disabled"
+                            title="Додати до кошика">
+                      <i class="fas fa-shopping-cart"></i>
+                    </button>
+
+                    <!-- Кнопки адміністратора -->
                     <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
-                      <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-admin btn-warning"
+                      <a th:href="@{/products/edit/{id}(id=${product.id})}"
+                         class="btn btn-admin btn-warning"
                          title="Змінити">
                         <i class="fas fa-edit"></i> Змінити
                       </a>
                       <a th:href="@{/products/delete/{id}(id=${product.id})}"
-                         class="btn btn-admin btn-danger btn-delete" title="Видалити">
+                         class="btn btn-admin btn-danger btn-delete"
+                         title="Видалити">
                         <i class="fas fa-trash"></i> Видалити
                       </a>
                     </div>
@@ -116,6 +137,7 @@
               </div>
             </div>
 
+            <!-- Пагінація -->
             <nav th:if="${totalPages > 1}" aria-label="Page navigation">
               <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
@@ -126,7 +148,8 @@
                   </a>
                 </li>
 
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                     th:classappend="${currentPage == i} ? 'active' : ''">
                   <a class="page-link"
                      th:href="@{/products/filter-sort-search(page=${i}, size=${size}, searchTerm=${param.searchTerm}, minPrice=${param.minPrice}, maxPrice=${param.maxPrice}, inStock=${param.inStock}, sortBy=${param.sortBy}, sortDirection=${param.sortDirection})}"

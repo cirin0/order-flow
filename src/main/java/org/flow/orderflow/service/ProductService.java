@@ -127,4 +127,10 @@ public class ProductService {
     return productsPage.map(productMapper::toDto);
   }
 
+  public int getProductStock(Long productId) {
+    Product product = productRepository.findById(productId)
+      .orElseThrow(() -> new NotFound("Product not found with id: " + productId));
+    return product.getStock();
+  }
+
 }

@@ -36,7 +36,18 @@
           <strong>Розміщено на продаж:</strong>
           <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
         </div>
-        <a class="buy-button" th:if="${product.stock > 0}">Купити</a>
+
+
+        <!-- Add to Cart Form -->
+        <form th:if="${product.stock > 0}"
+              th:action="@{/cart/add}"
+              method="post">
+          <input type="hidden" name="productId" th:value="${product.id}">
+          <input type="hidden" name="quantity" value="1">
+          <button class="buy-button btn btn-success" type="submit">Додати в кошик</button>
+        </form>
+
+
         <a href="#" class="buy-button disabled" th:unless="${product.stock > 0}">Немає в наявності</a>
       </div>
       <div class="image-container">
