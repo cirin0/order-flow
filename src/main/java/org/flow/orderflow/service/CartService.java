@@ -82,11 +82,15 @@ public class CartService {
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("Item not found in cart"));
 
+    Product product = item.getProduct();
+    if (quantity > product.getStock()) {
+      throw new IllegalArgumentException("Insufficient stock available");
+    }
+
     item.setQuantity(quantity);
     cart.recalculateTotal();
     return cartMapper.toDTO(cartRepository.save(cart));
   }
-
   @Transactional
   public CartDto removeItemFromCart(Long cartId, Long itemId) {
     Cart cart = getCart(cartId);
@@ -121,4 +125,6 @@ public class CartService {
     return cartMapper.toDTO(cartRepository.findByUser(user)
       .orElseThrow(() -> new IllegalArgumentException("Cart not found")));
   }
+
+
 }

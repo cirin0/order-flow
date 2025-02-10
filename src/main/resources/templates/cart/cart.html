@@ -37,7 +37,7 @@
             <th class="text-right">Price</th>
             <th class="text-right">Actions</th>
           </tr>
-          </thead> 
+          </thead>
           <tbody>
           <tr th:each="item : ${cart.items}" class="border-b">
             <td th:text="${item.productName}">Product Name</td>
@@ -45,15 +45,17 @@
               <form th:action="@{/cart/update}" method="post" class="flex items-center justify-center">
                 <input type="hidden" name="itemId" th:value="${item.id}"/>
                 <input
-                  type="number"
-                  name="quantity"
-                  th:value="${item.quantity}"
-                  min="1"
-                  class="w-16 text-center border rounded"
+                        type="number"
+                        name="quantity"
+                        th:value="${item.quantity}"
+                        th:max="${item.stockQuantity}"
+                        min="1"
+                        class="w-16 text-center border rounded"
                 />
                 <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded">
                   Update
                 </button>
+                <span class="ml-2 text-sm text-gray-500" th:text="'Доступно: ' + ${item.stockQuantity}"></span>
               </form>
             </td>
             <td class="text-right" th:text="${#numbers.formatCurrency(item.price * item.quantity)}">$0.00</td>
