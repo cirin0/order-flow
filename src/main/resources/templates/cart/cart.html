@@ -78,6 +78,13 @@
           </tbody>
         </table>
 
+
+        <!-- Замінимо форму на посилання -->
+        <div th:if="${not #lists.isEmpty(cart.items)}">
+          <a href="/orders/create" class="buy-button">Оформити замовлення</a>
+        </div>
+
+
         <div class="mt-4 text-right">
           <p class="text-xl font-bold">
             Total: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">$0.00</span>
