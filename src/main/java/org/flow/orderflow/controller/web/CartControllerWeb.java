@@ -4,8 +4,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.cart.CartItemDto;
+import org.flow.orderflow.dto.order.OrderDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.CartService;
+import org.flow.orderflow.service.OrderService;
 import org.flow.orderflow.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +21,7 @@ public class CartControllerWeb {
 
   private final CartService cartService;
   private final ProductService productService;
+  private final OrderService orderService;
 
 
   @GetMapping
@@ -77,6 +80,37 @@ public class CartControllerWeb {
     }
     return "redirect:/cart";
   }
+
+
+  @PostMapping("/create-order")
+  public String createOrderFromCart(HttpSession session, RedirectAttributes redirectAttributes) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null) {
+      return "redirect:/auth/login";
+    }
+
+    try {
+      CartDto cart = cartService.getCartByUserId(user.getUserId());
+
+      if (cart.getItems().isEmpty()) {
+        redirectAttributes.addFlashAttribute("errorMessage", "Кошик порожній");
+        return "redirect:/cart";
+      }
+
+      OrderDto orderDto = new OrderDto();
+      orderDto.setUserId(user.getUserId());
+      OrderDto createdOrder = orderService.createOrder(orderDto, user.getEmail());
+
+      redirectAttributes.addFlashAttribute("success",
+        "Замовлення успішно створено з ID: " + createdOrder.getId());
+      return "redirect:/orders/" + createdOrder.getId();
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("error",
+        "Помилка створення замовлення: " + e.getMessage());
+      return "redirect:/cart";
+    }
+  }
+
 
   @GetMapping("/{userId}")
   public String showCartPage(@PathVariable Long userId, Model model) {

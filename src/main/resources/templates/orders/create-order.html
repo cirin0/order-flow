@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="h-full">
+<head th:replace="~{fragments/head :: head}"></head>
+<body class="bg-gray-100 flex flex-col h-full m-0">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="cityscape-revers"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="content mt-5 flex-grow">
+    <div class="container mx-auto p-6">
+      <h1 class="text-3xl font-bold mb-6">Створення замовлення</h1>
+
+      <div th:if="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
+        <p>Твій кошик пустий</p>
+        <a href="/cart" class="text-blue-500">Повернутися до кошика</a>
+      </div>
+
+      <div th:unless="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
+        <table class="w-full">
+          <thead>
+          <tr class="border-b">
+            <th class="text-left">Товар</th>
+            <th class="text-center">Кількість</th>
+            <th class="text-right">Ціна</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="item : ${cart.items}" class="border-b">
+            <td th:text="${item.productName}">Назва товару</td>
+            <td class="text-center" th:text="${item.quantity}">Кількість</td>
+            <td class="text-right" th:text="${#numbers.formatCurrency(item.price)}">Ціна</td>
+          </tr>
+          </tbody>
+        </table>
+
+        <p class="text-xl font-bold mt-4">Загальна сума: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">Сума</span>
+        </p>
+
+        <div>
+          <label for="fullName" class="block font-semibold">ПІБ:</label>
+          <input type="text"
+                 id="fullName"
+                 name="fullName"
+                 th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
+                 required
+                 pattern="[А-Яа-яІіЇїЄєҐґ'\s]+"
+                 title="Введіть коректне ПІБ"
+                 class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label for="phone" class="block font-semibold">Номер телефону:</label>
+          <input type="tel" id="phone" name="phone" required pattern="\+?\d{10,13}"
+                 title="Введіть коректний номер телефону" class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label for="email" class="block font-semibold">E-mail:</label>
+          <input type="email"
+                 id="email"
+                 name="email"
+                 th:value="${userDetails != null ? userDetails.email : ''}"
+                 required
+                 class="w-full p-2 border rounded">
+        </div>
+
+        <div>
+          <label for="postOffice" class="block font-semibold">Відділення пошти:</label>
+          <select id="postOffice" name="postOffice" required class="w-full p-2 border rounded">
+            <option value="">Оберіть службу доставки</option>
+            <option value="nova_poshta">Нова Пошта</option>
+            <option value="ukrposhta">Укрпошта</option>
+          </select>
+        </div>
+
+        <form th:action="@{/orders/create}" method="post">
+
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Підтвердити замовлення</button>
+
+        </form>
+        <a href="/cart" class="text-blue-500 mt-4 block text-center">Повернутися до кошика</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
+</body>
+</html>
