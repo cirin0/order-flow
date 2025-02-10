@@ -173,8 +173,8 @@ public class ProductControllerWeb {
     @RequestParam(required = false) Double minPrice,
     @RequestParam(required = false) Double maxPrice,
     @RequestParam(required = false) Boolean inStock,
-    @RequestParam(defaultValue = "price") String sortBy,
-    @RequestParam(defaultValue = "asc") String sortDirection,
+    @RequestParam(defaultValue = "createdAt") String sortBy,
+    @RequestParam(defaultValue = "desc") String sortDirection,
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "12") int size,
     Model model
@@ -182,9 +182,18 @@ public class ProductControllerWeb {
     Page<ProductDto> productsPage = productService.filterSortAndSearchProducts(
       searchTerm, minPrice, maxPrice, inStock, sortBy, sortDirection, page, size
     );
+
     model.addAttribute("products", productsPage.getContent());
     model.addAttribute("currentPage", page);
     model.addAttribute("totalPages", productsPage.getTotalPages());
+    model.addAttribute("size", size);
+    model.addAttribute("sortBy", sortBy);
+    model.addAttribute("sortDirection", sortDirection);
+    model.addAttribute("searchTerm", searchTerm);
+    model.addAttribute("minPrice", minPrice);
+    model.addAttribute("maxPrice", maxPrice);
+    model.addAttribute("inStock", inStock);
+
     return "products/product-list :: product-grid";
   }
 }
