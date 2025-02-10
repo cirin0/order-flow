@@ -5,12 +5,16 @@ import org.flow.orderflow.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+  @Modifying
+  @Query("DELETE FROM CartItem ci WHERE ci.product.id = :productId")
+  void deleteAllByProductId(@Param("productId") Long productId);
   Product findByName(String name);
 
   List<Product> findByCategoryId(Long categoryId);
