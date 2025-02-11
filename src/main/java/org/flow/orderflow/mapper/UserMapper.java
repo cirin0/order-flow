@@ -5,10 +5,7 @@ import org.flow.orderflow.dto.user.UserLoginDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.model.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
@@ -35,4 +32,8 @@ public interface UserMapper {
   @Mapping(target = "userId", source = "id")
   @Mapping(target = "role", source = "role")
   UserSessionDto toSessionEntity(User user);
+
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  User partialUpdate(UserDto userDTO, @MappingTarget User user);
+
 }
