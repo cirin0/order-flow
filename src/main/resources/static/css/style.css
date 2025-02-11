@@ -1268,7 +1268,6 @@ select:focus {
 
 /* Стилі корзини */
 
-/* Cart Container Styles */
 .cart-container {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(15px);
@@ -1287,7 +1286,6 @@ select:focus {
   text-transform: uppercase;
 }
 
-/* Cart Table Styles */
 .cart-table {
   width: 100%;
   border-collapse: separate;
@@ -1295,13 +1293,41 @@ select:focus {
 }
 
 .cart-table thead th {
-  background: rgba(0, 0, 0, 0.05);
+  text-align: left;
   padding: 15px;
+  background: rgba(0, 0, 0, 0.05);
   font-weight: 600;
   color: #333;
   text-transform: uppercase;
   font-size: 0.9rem;
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.cart-table td {
+  text-align: left;
+  padding: 15px;
+  vertical-align: middle;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.cart-table th:nth-child(1),
+.cart-table td:nth-child(1) {
+  width: 40%;
+}
+
+.cart-table th:nth-child(2),
+.cart-table td:nth-child(2) {
+  width: 20%;
+}
+
+.cart-table th:nth-child(3),
+.cart-table td:nth-child(3) {
+  width: 20%;
+}
+
+.cart-table th:nth-child(4),
+.cart-table td:nth-child(4) {
+  width: 20%;
 }
 
 .cart-table tbody tr {
@@ -1314,14 +1340,8 @@ select:focus {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.cart-table td {
-  padding: 20px 15px;
-  vertical-align: middle;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Quantity Input Styles */
 .quantity-control {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1349,7 +1369,6 @@ select:focus {
   margin-top: 5px;
 }
 
-/* Button Styles */
 .cart-btn {
   padding: 8px 15px;
   border-radius: 8px;
@@ -1357,15 +1376,6 @@ select:focus {
   font-weight: 500;
   transition: all 0.3s ease;
   cursor: pointer;
-}
-
-.update-btn {
-  background-color: #007bff;
-  color: white;
-}
-
-.update-btn:hover {
-  background-color: #0056b3;
 }
 
 .remove-btn {
@@ -1388,7 +1398,6 @@ select:focus {
   background-color: #5a6268;
 }
 
-/* Cart Summary Styles */
 .cart-summary {
   margin-top: 30px;
   padding: 20px;
@@ -1421,7 +1430,6 @@ select:focus {
   transform: translateY(-2px);
 }
 
-/* Empty Cart Styles */
 .empty-cart {
   text-align: center;
   padding: 40px 20px;
@@ -1433,7 +1441,6 @@ select:focus {
   margin-bottom: 20px;
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
   .cart-container {
     padding: 15px;
@@ -1456,5 +1463,30 @@ select:focus {
   .cart-btn {
     width: 100%;
     margin-top: 5px;
+  }
+
+  .cart-table th,
+  .cart-table td {
+    padding: 10px;
+  }
+
+  .cart-table th:nth-child(1),
+  .cart-table td:nth-child(1) {
+    width: 30%;
+  }
+
+  .cart-table th:nth-child(2),
+  .cart-table td:nth-child(2) {
+    width: 20%;
+  }
+
+  .cart-table th:nth-child(3),
+  .cart-table td:nth-child(3) {
+    width: 20%;
+  }
+
+  .cart-table th:nth-child(4),
+  .cart-table td:nth-child(4) {
+    width: 30%;
   }
 }

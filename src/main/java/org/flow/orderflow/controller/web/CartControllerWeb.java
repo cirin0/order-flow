@@ -35,11 +35,9 @@ public class CartControllerWeb {
       return "redirect:/auth/login";
     }
 
-    // Отримуємо кошик з перевіркою запасів
     CartDto cart = cartService.getCartByUserId(user.getUserId());
     model.addAttribute("cart", cart);
 
-    // Передаємо попередження на фронтенд
     if (!cart.getWarningMessages().isEmpty()) {
       model.addAttribute("warningMessages", cart.getWarningMessages());
     }
@@ -55,7 +53,6 @@ public class CartControllerWeb {
     RedirectAttributes redirectAttributes
   ) {
     try {
-      // Перевірка наявності на складі
       int stockQuantity = productService.getProductStock(productId);
       if (quantity > stockQuantity) {
         redirectAttributes.addFlashAttribute("errorMessage",
@@ -66,7 +63,6 @@ public class CartControllerWeb {
       UserSessionDto user = (UserSessionDto) session.getAttribute("user");
       CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
 
-      // Перевірка загальної кількості з урахуванням існуючих товарів у кошику
       int existingQuantity = cart.getItems().stream()
         .filter(item -> item.getProductId().equals(productId))
         .mapToInt(CartItemDto::getQuantity)

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="h-full">
-<head th:replace="~{fragments/head :: head}"></head>
+<head th:replace="~{fragments/head :: head}">
+  <meta charset="UTF-8"> <!-- Додано кодування UTF-8 -->
+</head>
 <body class="bg-gray-100 flex flex-col h-full m-0">
 <header th:replace="~{fragments/header :: header}"></header>
 
@@ -26,8 +28,6 @@
       <!-- User Cart -->
       <div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'USER'}"
            class="cart-container bg-white p-6 rounded-lg shadow-md">
-        <h1 class="cart-title text-2xl font-bold mb-4">Кошик для <span
-          th:text="${session.user.email}">email@example.com</span></h1>
 
         <!-- Error Messages -->
         <div th:if="${errorMessage}"
@@ -70,13 +70,15 @@
                     class="quantity-input w-16 px-2 py-1 border rounded"
                   />
                   <div class="stock-info text-sm text-gray-600 ml-2"
-                       th:text="'Доступно: ' + ${item.stockQuantity}"></div>
+                       th:utext="'Доступно: &lt;br&gt;' + ${item.stockQuantity}"></div>
                   <div th:if="${item.quantity > item.stockQuantity}" class="stock-warning text-sm text-red-600 ml-2">
                     Попередження: Доступно лише <span th:text="${item.stockQuantity}"></span> одиниць
                   </div>
                 </form>
               </td>
-              <td class="py-2 px-4" th:text="${#numbers.formatCurrency(item.price * item.quantity)}">$0.00</td>
+              <td class="py-2 px-4">
+                <span th:text="${item.price * item.quantity}"></span> ₴
+              </td>
               <td class="py-2 px-4">
                 <form th:action="@{/cart/remove}" method="post">
                   <input type="hidden" name="itemId" th:value="${item.id}"/>
@@ -92,7 +94,7 @@
 
           <div class="cart-summary bg-gray-100 p-4 rounded-lg">
             <p class="cart-total text-lg font-bold mb-4">
-              Загальна сума: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">$0.00</span>
+              Загальна сума: <span th:text="${cart.totalPrice}"></span> ₴
             </p>
 
             <div class="cart-actions flex justify-between">
