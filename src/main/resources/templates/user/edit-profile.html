@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="h-full">
+<head th:replace="~{fragments/head :: head}"></head>
+<body class="bg-gray-50 flex flex-col h-full m-0 font-sans">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="flex-grow flex items-center justify-center p-6">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full border border-gray-200">
+    <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">Редагування профілю</h1>
+
+    <!-- Повідомлення про успіх -->
+    <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded">
+      <p th:text="${successMessage}"></p>
+    </div>
+
+    <!-- Повідомлення про помилку -->
+    <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+      <p th:text="${errorMessage}"></p>
+    </div>
+
+    <form th:action="@{/user/update}" method="post" class="space-y-4">
+      <div>
+        <label for="firstName" class="block text-sm font-medium text-gray-700">Ім'я:</label>
+        <input type="text" id="firstName" name="firstName" th:value="${userDetails.firstName}"
+               class="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring focus:ring-blue-300">
+      </div>
+
+      <div>
+        <label for="lastName" class="block text-sm font-medium text-gray-700">Прізвище:</label>
+        <input type="text" id="lastName" name="lastName" th:value="${userDetails.lastName}"
+               class="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring focus:ring-blue-300">
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+        <input type="email" id="email" th:value="${userDetails.email}" readonly
+               class="mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 p-2 cursor-not-allowed">
+      </div>
+
+      <div>
+        <label for="phone" class="block text-sm font-medium text-gray-700">Телефон:</label>
+        <input maxlength="10" type="tel" id="phone" name="phone" th:value="${userDetails.phone}" pattern="[0-9]{10}"
+               placeholder="0991234567"
+               class="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring focus:ring-blue-300">
+
+      </div>
+
+      <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">
+        Зберегти зміни
+      </button>
+    </form>
+  </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
+</body>
+</html>

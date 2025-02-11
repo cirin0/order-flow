@@ -42,6 +42,10 @@
     </select>
     <button type="submit">Оновити статус</button>
   </form>
+  <form th:action="@{/payment/create}" method="post" th:if="${order.status.name() == 'NEW'}">
+    <input type="hidden" name="orderId" th:value="${order.id}"/>
+    <button type="submit" class="btn-payment">Оплатити замовлення</button>
+  </form>
 
   <div>
     <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"

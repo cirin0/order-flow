@@ -5,17 +5,14 @@
 </head>
 <body class="bg-gray-100 flex flex-col h-full m-0">
 <header th:replace="~{fragments/header :: header}"></header>
-
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
     <div class="cityscape-revers"></div>
     <div class="smoke-effect"></div>
   </div>
-
   <main class="content mt-5 flex-grow">
     <div class="container mx-auto px-4">
-
       <!-- Admin Check -->
       <div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'ADMIN'}"
            class="cart-container bg-white p-6 rounded-lg shadow-md text-center">

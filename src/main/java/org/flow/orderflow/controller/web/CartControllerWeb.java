@@ -21,11 +21,9 @@ import java.util.Map;
 @RequestMapping("/cart")
 @RequiredArgsConstructor
 public class CartControllerWeb {
-
   private final CartService cartService;
   private final ProductService productService;
   private final OrderService orderService;
-
 
   @GetMapping
   public String showCartPage(HttpSession session, Model model) {
@@ -34,8 +32,8 @@ public class CartControllerWeb {
     if (user == null) {
       return "redirect:/auth/login";
     }
-
-    CartDto cart = cartService.getCartByUserId(user.getUserId());
+    
+    CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
     model.addAttribute("cart", cart);
 
     if (!cart.getWarningMessages().isEmpty()) {
@@ -86,14 +84,12 @@ public class CartControllerWeb {
     return "redirect:/cart";
   }
 
-
   @PostMapping("/create-order")
   public String createOrderFromCart(HttpSession session, RedirectAttributes redirectAttributes) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     if (user == null) {
       return "redirect:/auth/login";
     }
-
     try {
       CartDto cart = cartService.getCartByUserId(user.getUserId());
 

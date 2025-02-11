@@ -7,7 +7,6 @@ import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +17,6 @@ import java.util.stream.Collectors;
 public class UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-  private final CartService cartService;
-  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   public UserDto getUserByEmail(String email) {
     return userRepository.findByEmail(email)
@@ -39,11 +36,9 @@ public class UserService {
       .collect(Collectors.toList());
   }
 
-
   public UserDto updateUser(Long id, UserDto userDto) {
     User existingUser = userRepository.findById(id)
       .orElseThrow(() -> new NotFound("User not found with id: " + id));
-
     // Перевіряємо номер телефону на унікальність, якщо він змінюється
     if (userDto.getPhone() != null && !userDto.getPhone().equals(existingUser.getPhone())) {
       if (userRepository.existsByPhoneAndIdNot(userDto.getPhone(), id)) {
@@ -51,18 +46,9 @@ public class UserService {
       }
       existingUser.setPhone(userDto.getPhone());
     }
-
-    // Оновлюємо інші поля
-    userMapper.partialUpdate(userDto, existingUser);
-
-// Зберігаємо користувача
-    User savedUser = userRepository.save(existingUser);
-
-// Повертаємо оновленого користувача у вигляді DTO
-    return userMapper.toDto(savedUser);
-
+    User user = userMapper.partialUpdate(userDto, existingUser);
+    return userMapper.toDto(userRepository.save(user));
   }
-
 
   public String changeRoleAdmin(Long id) {
     User user = userRepository.findById(id)

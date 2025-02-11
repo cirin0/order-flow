@@ -18,7 +18,7 @@ import java.util.List;
 public class OrderStatusScheduler {
   private final OrderRepository orderRepository;
 
-  @Scheduled(fixedRate = 60000)
+  @Scheduled(fixedRate = 120000)
   @Transactional
   public void processOrders() {
     LocalDateTime time = LocalDateTime.now().minusSeconds(10);
@@ -29,7 +29,7 @@ public class OrderStatusScheduler {
     );
 
     for (Order order : newOrders) {
-      order.setStatus(OrderStatus.PROCESSING);
+      order.setStatus(OrderStatus.TESTING);
       orderRepository.save(order);
       log.info("Order {} status automatically changed from NEW to PROCESSING", order.getId());
     }
