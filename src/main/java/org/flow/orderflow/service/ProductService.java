@@ -9,6 +9,7 @@ import org.flow.orderflow.mapper.ProductMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
 import org.flow.orderflow.repository.CartItemRepository;
+import org.flow.orderflow.repository.OrderItemRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ public class ProductService {
   private final CategoryService categoryService;
   private final ProductMapper productMapper;
   private final CartItemRepository cartItemRepository;
+  private final OrderItemRepository orderItemRepository;
 
   public List<ProductDto> getAllProducts() {
     List<Product> products = productRepository.findAll();
@@ -93,10 +95,14 @@ public class ProductService {
 
   @Transactional
   public void deleteProduct(Long id) {
-    Product product = productRepository.findById(id)
-      .orElseThrow(() -> new NotFound("Product not found with id: " + id));
+    // Спочатку видаляємо всі пов'язані записи з корзини
     cartItemRepository.deleteAllByProductId(id);
-    productRepository.delete(product);
+
+    // Видаляємо всі пов'язані записи з замовлень
+    orderItemRepository.deleteAllByProductId(id);
+
+    // Тепер можемо безпечно видалити сам продукт
+    productRepository.deleteById(id);
   }
 
   public List<ProductDto> searchProducts(String query, int size) {
