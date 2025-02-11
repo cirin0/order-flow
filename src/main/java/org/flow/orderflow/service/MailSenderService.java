@@ -42,7 +42,7 @@ public class MailSenderService {
 
       helper.setFrom(from);
       helper.setTo(to);
-      helper.setSubject("Order Confirmation #" + order.getId());
+      helper.setSubject("Підтвердження замовлення #" + order.getId());
       helper.setText(createOrderConfirmationHtml(order), true);
 
       mailSender.send(message);
