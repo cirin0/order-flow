@@ -11,7 +11,7 @@ public class SiteInfoControllerWeb {
     return "about-contact/about";
   }
 
-  @GetMapping("/delivery")
+  @GetMapping("/contact")
   public String contactUs() {
     return "about-contact/contact";
   }
