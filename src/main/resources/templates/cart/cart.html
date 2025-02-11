@@ -4,7 +4,14 @@
 <body class="bg-gray-100 flex flex-col h-full m-0">
 <header th:replace="~{fragments/header :: header}"></header>
 
-<main class="flex-grow">
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="cityscape-revers"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="content mt-5 flex-grow">
   <div class="container mx-auto p-6">
     <!-- Перевірка сесії користувача -->
     <div th:if="${session.user == null}" class="bg-white p-4 rounded shadow">
@@ -37,7 +44,7 @@
             <th class="text-right">Price</th>
             <th class="text-right">Actions</th>
           </tr>
-          </thead> 
+          </thead>
           <tbody>
           <tr th:each="item : ${cart.items}" class="border-b">
             <td th:text="${item.productName}">Product Name</td>
@@ -45,15 +52,17 @@
               <form th:action="@{/cart/update}" method="post" class="flex items-center justify-center">
                 <input type="hidden" name="itemId" th:value="${item.id}"/>
                 <input
-                  type="number"
-                  name="quantity"
-                  th:value="${item.quantity}"
-                  min="1"
-                  class="w-16 text-center border rounded"
+                        type="number"
+                        name="quantity"
+                        th:value="${item.quantity}"
+                        th:max="${item.stockQuantity}"
+                        min="1"
+                        class="w-16 text-center border rounded"
                 />
                 <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded">
                   Update
                 </button>
+                <span class="ml-2 text-sm text-gray-500" th:text="'Доступно: ' + ${item.stockQuantity}"></span>
               </form>
             </td>
             <td class="text-right" th:text="${#numbers.formatCurrency(item.price * item.quantity)}">$0.00</td>
@@ -69,6 +78,13 @@
           </tbody>
         </table>
 
+
+        <!-- Замінимо форму на посилання -->
+        <div th:if="${not #lists.isEmpty(cart.items)}">
+          <a href="/orders/create" class="buy-button">Оформити замовлення</a>
+        </div>
+
+
         <div class="mt-4 text-right">
           <p class="text-xl font-bold">
             Total: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">$0.00</span>
@@ -83,7 +99,7 @@
     </div>
   </div>
 </main>
-
+</div>
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
 </body>
 </html>

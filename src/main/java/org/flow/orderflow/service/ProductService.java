@@ -1,5 +1,6 @@
 package org.flow.orderflow.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.dto.product.ProductDto;
@@ -7,6 +8,8 @@ import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.ProductMapper;
 import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
+import org.flow.orderflow.repository.CartItemRepository;
+import org.flow.orderflow.repository.OrderItemRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,8 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryService categoryService;
   private final ProductMapper productMapper;
+  private final CartItemRepository cartItemRepository;
+  private final OrderItemRepository orderItemRepository;
 
   public List<ProductDto> getAllProducts() {
     List<Product> products = productRepository.findAll();
@@ -88,9 +93,12 @@ public class ProductService {
     return productMapper.toDto(productRepository.save(updatedProduct));
   }
 
+  @Transactional
   public void deleteProduct(Long id) {
     Product product = productRepository.findById(id)
       .orElseThrow(() -> new NotFound("Product not found with id: " + id));
+    cartItemRepository.deleteAllByProductId(id);
+    orderItemRepository.deleteAllByProductId(id);
     productRepository.delete(product);
   }
 
@@ -125,6 +133,12 @@ public class ProductService {
     Page<Product> productsPage = productRepository
       .filterSortAndSearchProducts(searchTerm, minPrice, maxPrice, inStock, pageable);
     return productsPage.map(productMapper::toDto);
+  }
+
+  public int getProductStock(Long productId) {
+    Product product = productRepository.findById(productId)
+      .orElseThrow(() -> new NotFound("Product not found with id: " + productId));
+    return product.getStock();
   }
 
 }

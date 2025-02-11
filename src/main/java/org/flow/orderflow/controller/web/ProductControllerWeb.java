@@ -1,8 +1,13 @@
 package org.flow.orderflow.controller.web;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.cart.CartDto;
+import org.flow.orderflow.dto.cart.CartItemDto;
 import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.dto.product.ProductDto;
+import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.CategoryService;
 import org.flow.orderflow.service.ProductService;
 import org.springframework.data.domain.Page;
@@ -24,6 +29,7 @@ public class ProductControllerWeb {
 
   private final ProductService productService;
   private final CategoryService categoryService;
+  private final CartService cartService;
 
 
   @GetMapping
@@ -82,6 +88,51 @@ public class ProductControllerWeb {
     return "redirect:/products";
   }
 
+
+  @PostMapping("/{id}/add-to-cart")
+  public String addToCart(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
+    try {
+      // Отримуємо користувача з сесії
+      UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+      if (user == null) {
+        return "redirect:/auth/login";
+      }
+
+      // Отримуємо інформацію про продукт
+      ProductDto product = productService.getProductById(id);
+
+      // Створюємо об'єкт CartItemDto
+      CartItemDto itemDto = new CartItemDto();
+      itemDto.setProductId(id);
+      itemDto.setQuantity(1);
+      itemDto.setProductName(product.getName());
+      itemDto.setPrice(product.getPrice());
+
+      // Отримуємо або створюємо корзину
+      CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
+
+      // Додаємо товар до корзини
+      cartService.addItemToCart(cart.getId(), itemDto);
+
+      // Додаємо повідомлення про успіх
+      redirectAttributes.addFlashAttribute("success", "Товар успішно додано до кошика");
+
+      return "redirect:/cart";
+    } catch (Exception e) {
+      // Додаємо повідомлення про помилку
+      redirectAttributes.addFlashAttribute("error", "Помилка при додаванні товару до кошика: " + e.getMessage());
+      return "redirect:/products/" + id;
+    }
+  }
+
+
+
+
+
+
+
+
+
   @GetMapping("/delete/{id}")
   public String deleteProduct(@PathVariable Long id,
                               RedirectAttributes redirectAttributes) {
@@ -122,8 +173,8 @@ public class ProductControllerWeb {
     @RequestParam(required = false) Double minPrice,
     @RequestParam(required = false) Double maxPrice,
     @RequestParam(required = false) Boolean inStock,
-    @RequestParam(defaultValue = "price") String sortBy,
-    @RequestParam(defaultValue = "asc") String sortDirection,
+    @RequestParam(defaultValue = "createdAt") String sortBy,
+    @RequestParam(defaultValue = "desc") String sortDirection,
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "12") int size,
     Model model
@@ -131,9 +182,18 @@ public class ProductControllerWeb {
     Page<ProductDto> productsPage = productService.filterSortAndSearchProducts(
       searchTerm, minPrice, maxPrice, inStock, sortBy, sortDirection, page, size
     );
+
     model.addAttribute("products", productsPage.getContent());
     model.addAttribute("currentPage", page);
     model.addAttribute("totalPages", productsPage.getTotalPages());
+    model.addAttribute("size", size);
+    model.addAttribute("sortBy", sortBy);
+    model.addAttribute("sortDirection", sortDirection);
+    model.addAttribute("searchTerm", searchTerm);
+    model.addAttribute("minPrice", minPrice);
+    model.addAttribute("maxPrice", maxPrice);
+    model.addAttribute("inStock", inStock);
+
     return "products/product-list :: product-grid";
   }
 }

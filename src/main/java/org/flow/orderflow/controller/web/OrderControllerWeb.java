@@ -2,10 +2,14 @@ package org.flow.orderflow.controller.web;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.order.OrderDto;
+import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.model.OrderStatus;
+import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.OrderService;
+import org.flow.orderflow.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +18,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /*
    !!! ЦЕ ПРОСТО ТЕСТ !!!
    Можете міняти як треба. з цього прикладу все працює, але ви можете змінити його як вам зручно.
- */
+*/
 
 @Controller
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderControllerWeb {
   private final OrderService orderService;
+  private final CartService cartService;
+  private final UserService userService;
 
   @GetMapping
   public String getAllOrders(Model model, HttpSession session) {
@@ -30,6 +36,21 @@ public class OrderControllerWeb {
     }
     model.addAttribute("orders", orderService.getAllOrders());
     return "orders/list";
+  }
+
+  @GetMapping("/create")
+  public String showCreateOrderPage(HttpSession session, Model model) {
+    UserSessionDto userSession = (UserSessionDto) session.getAttribute("user");
+    if (userSession == null) {
+      return "redirect:/auth/login";
+    }
+
+    UserDto userDetails = userService.getUserById(userSession.getUserId());
+    CartDto cart = cartService.getCartByUserId(userSession.getUserId());
+
+    model.addAttribute("cart", cart);
+    model.addAttribute("userDetails", userDetails);
+    return "orders/create-order";
   }
 
   @GetMapping("/my")

@@ -24,6 +24,8 @@ public class User {
 
   private String email;
 
+  private String phone;
+
   @Column(nullable = false)
   private String password;
 
@@ -33,7 +35,7 @@ public class User {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Order> orders;
-  
+
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
