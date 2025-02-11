@@ -77,17 +77,6 @@ public class OrderService {
         .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
       .totalPrice(cart.getTotalPrice())
       .build();
-
-//    List<OrderItem> orderItems = cart.getItems().stream()
-//      .map(cartItem -> OrderItem.builder()
-//        .order(order)
-//        .product(productRepository.findById(cartItem.getProductId())
-//          .orElseThrow(() -> new NotFound("Product not found with id: " + cartItem.getProductId())))
-//        .quantity(cartItem.getQuantity())
-//        .price(cartItem.getPrice())
-//        .build())
-//      .collect(Collectors.toList());
-
     List<OrderItem> orderItems = cart.getItems().stream()
       .map(cartItem -> {
         Product product = productRepository.findById(cartItem.getProductId())
@@ -167,34 +156,10 @@ public class OrderService {
   @Async
   public void sendOrderConfirmationEmail(OrderDto orderDto, String userEmail) {
     try {
-//      String email = "ivan.gruziv@gmail.com";
-      String orderDetails = createOrderDetailsMessage(orderDto);
-      mailSenderService.sendOrderConfirmationMail(userEmail, orderDetails);
+      mailSenderService.sendOrderConfirmationMail(userEmail, orderDto);
       log.info("Order confirmation email sent to {}", userEmail);
     } catch (Exception e) {
       log.error("Failed to send order confirmation email", e);
     }
-  }
-
-  private String createOrderDetailsMessage(OrderDto orderDto) {
-    // Створення тексту листа
-    StringBuilder message = new StringBuilder();
-    message.append("Thank you for your order!\n\n");
-    message.append("Order Details:\n");
-    message.append("Order ID: ").append(orderDto.getId()).append("\n");
-    message.append("Total Price: ").append(orderDto.getTotalPrice()).append("\n\n");
-    message.append("Items:\n");
-
-    orderDto.getItems().forEach(item ->
-      message.append("- ")
-        .append(item.getProductName())
-        .append(" x ")
-        .append(item.getQuantity())
-        .append(" = ")
-        .append(item.getPrice())
-        .append("\n")
-    );
-
-    return message.toString();
   }
 }

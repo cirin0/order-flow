@@ -95,14 +95,11 @@ public class ProductService {
 
   @Transactional
   public void deleteProduct(Long id) {
-    // Спочатку видаляємо всі пов'язані записи з корзини
+    Product product = productRepository.findById(id)
+      .orElseThrow(() -> new NotFound("Product not found with id: " + id));
     cartItemRepository.deleteAllByProductId(id);
-
-    // Видаляємо всі пов'язані записи з замовлень
     orderItemRepository.deleteAllByProductId(id);
-
-    // Тепер можемо безпечно видалити сам продукт
-    productRepository.deleteById(id);
+    productRepository.delete(product);
   }
 
   public List<ProductDto> searchProducts(String query, int size) {
