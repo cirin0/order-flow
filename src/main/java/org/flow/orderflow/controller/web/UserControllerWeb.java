@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserControllerWeb {
-
   private final AuthenticationService authenticationService;
   private final UserService userService;
 
@@ -35,14 +34,17 @@ public class UserControllerWeb {
     return "user/profile";
   }
 
-  @GetMapping("/logout")
-  public String logout(HttpSession session) {
-    String sessionToken = (String) session.getAttribute("sessionToken");
-    if (sessionToken != null) {
-      authenticationService.logout(sessionToken);
+  @GetMapping("/edit-profile")
+  public String editProfile(Model model, HttpSession session) {
+    UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    if (sessionUser == null) {
+      return "redirect:/auth/login";
     }
-    session.invalidate();
-    return "redirect:/auth/login";
+
+    UserDto userDetails = userService.getUserById(sessionUser.getUserId());
+    model.addAttribute("userDetails", userDetails);
+
+    return "user/edit-profile";
   }
 
   @PostMapping("/update")
@@ -55,29 +57,29 @@ public class UserControllerWeb {
         return "redirect:/auth/login";
       }
 
-      // Отримуємо поточні дані користувача
       UserDto currentUser = userService.getUserById(sessionUser.getUserId());
-
-      // Оновлюємо тільки дозволені поля, зберігаючи незмінні дані
       userDto.setId(sessionUser.getUserId());
-      userDto.setEmail(currentUser.getEmail());  // Email не можна змінити
-      userDto.setRole(currentUser.getRole());    // Роль не можна змінити через цей endpoint
+      userDto.setEmail(currentUser.getEmail());
+      userDto.setRole(currentUser.getRole());
 
-      // Оновлюємо користувача
       UserDto updatedUser = userService.updateUser(sessionUser.getUserId(), userDto);
-
-      // Додаємо повідомлення про успіх
-      redirectAttributes.addFlashAttribute("successMessage",
-        "Профіль успішно оновлено!");
+      redirectAttributes.addFlashAttribute("successMessage", "Профіль успішно оновлено!");
 
       return "redirect:/user/profile";
-
     } catch (Exception e) {
-      // Додаємо повідомлення про помилку
       redirectAttributes.addFlashAttribute("errorMessage",
         "Помилка при оновленні профілю: " + e.getMessage());
-
-      return "redirect:/user/profile";
+      return "redirect:/user/edit-profile";
     }
+  }
+
+  @GetMapping("/logout")
+  public String logout(HttpSession session) {
+    String sessionToken = (String) session.getAttribute("sessionToken");
+    if (sessionToken != null) {
+      authenticationService.logout(sessionToken);
+    }
+    session.invalidate();
+    return "redirect:/auth/login";
   }
 }

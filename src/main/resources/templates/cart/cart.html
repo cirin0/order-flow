@@ -22,7 +22,9 @@
     <!-- Повідомлення для адміністраторів -->
     <div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'ADMIN'}"
          class="bg-white p-4 rounded shadow">
-      <p>Administrators cannot use the shopping cart. Please use a regular user account for shopping.</p>
+      <p>Адміністратори не можуть користуватися кошиком. Будь ласка, використовуйте обліковий запис звичайного
+        користувача для покупок.
+      </p>
       <a href="/" class="text-blue-500">Return to Home</a>
     </div>
 
