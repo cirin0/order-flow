@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
   Product findByName(String name);
 
   List<Product> findByCategoryId(Long categoryId);
