@@ -45,11 +45,26 @@ public class CartService {
     return cartMapper.toDTO(cart);
   }
 
+  @Transactional
   public CartDto getCartByUserId(Long userId) {
     User user = userRepository.findById(userId)
-      .orElseThrow(() -> new IllegalArgumentException("User not found"));
-    return cartMapper.toDTO(cartRepository.findByUser(user)
-      .orElseThrow(() -> new IllegalArgumentException("Cart not found")));
+      .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
+
+    Cart cart = cartRepository.findByUser(user)
+      .orElseThrow(() -> new IllegalArgumentException("Кошик не знайдено"));
+
+    for (CartItem item : cart.getItems()) {
+      Product product = item.getProduct();
+      if (item.getQuantity() > product.getStock()) {
+        item.setQuantity(product.getStock());
+        cart.addWarningMessage("Товар '" + product.getName() + "' має недостатній запас. Доступно: " + product.getStock());
+      }
+    }
+
+    cart.recalculateTotal();
+    cartRepository.save(cart);
+
+    return cartMapper.toDTO(cart);
   }
 
   @Transactional
@@ -91,6 +106,7 @@ public class CartService {
     cart.recalculateTotal();
     return cartMapper.toDTO(cartRepository.save(cart));
   }
+
   @Transactional
   public CartDto removeItemFromCart(Long cartId, Long itemId) {
     Cart cart = getCart(cartId);
