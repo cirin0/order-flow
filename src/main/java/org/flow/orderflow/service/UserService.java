@@ -39,6 +39,7 @@ public class UserService {
       .collect(Collectors.toList());
   }
 
+
   public UserDto updateUser(Long id, UserDto userDto) {
     User existingUser = userRepository.findById(id)
       .orElseThrow(() -> new NotFound("User not found with id: " + id));
@@ -52,17 +53,16 @@ public class UserService {
     }
 
     // Оновлюємо інші поля
-    if (userDto.getFirstName() != null) {
-      existingUser.setFirst_name(userDto.getFirstName());
-    }
-    if (userDto.getLastName() != null) {
-      existingUser.setLast_name(userDto.getLastName());
-    }
+    userMapper.partialUpdate(userDto, existingUser);
 
-    // Зберігаємо користувача
+// Зберігаємо користувача
     User savedUser = userRepository.save(existingUser);
+
+// Повертаємо оновленого користувача у вигляді DTO
     return userMapper.toDto(savedUser);
+
   }
+
 
   public String changeRoleAdmin(Long id) {
     User user = userRepository.findById(id)

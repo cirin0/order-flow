@@ -17,37 +17,6 @@
         Вітаємо, <span th:text="${userDetails.email}">Користувач</span>!
       </h1>
 
-      <!-- Інформація про роль -->
-      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-        <div class="mb-4">
-          <p class="text-lg">
-            Ваша роль:
-            <span th:text="${userDetails.role}"
-                  class="font-semibold px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
-                        </span>
-          </p>
-        </div>
-
-        <!-- Блок для адміністратора -->
-        <div th:if="${userDetails.role == 'ADMIN'}"
-             class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-          <p class="text-lg font-medium text-yellow-800 mb-3">
-            Ви адміністратор! Можете керувати системою.
-          </p>
-          <a href="/user/admin"
-             class="inline-block bg-yellow-500 text-black px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors">
-            Перейти в адмін-панель
-          </a>
-        </div>
-
-        <!-- Блок для звичайного користувача -->
-        <div th:if="${userDetails.role == 'USER'}"
-             class="p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p class="text-lg font-medium text-blue-800 mb-3">
-            Ви звичайний користувач.
-          </p>
-        </div>
-      </div>
 
       <!-- Основна інформація користувача -->
       <div class="bg-white p-6 rounded-lg shadow-md">
