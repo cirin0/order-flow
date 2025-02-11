@@ -9,10 +9,13 @@ import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.OrderService;
 import org.flow.orderflow.service.ProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
 
 @Controller
 @RequestMapping("/cart")
@@ -32,9 +35,15 @@ public class CartControllerWeb {
       return "redirect:/auth/login";
     }
 
-    // Отримуємо або створюємо кошик
-    CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
+    // Отримуємо кошик з перевіркою запасів
+    CartDto cart = cartService.getCartByUserId(user.getUserId());
     model.addAttribute("cart", cart);
+
+    // Передаємо попередження на фронтенд
+    if (!cart.getWarningMessages().isEmpty()) {
+      model.addAttribute("warningMessages", cart.getWarningMessages());
+    }
+
     return "cart/cart";
   }
 
@@ -120,22 +129,30 @@ public class CartControllerWeb {
   }
 
   @PostMapping("/update")
-  public String updateCartItem(
+  @ResponseBody
+  public ResponseEntity<?> updateCartItem(
     HttpSession session,
     @RequestParam Long itemId,
-    @RequestParam Integer quantity,
-    RedirectAttributes redirectAttributes
+    @RequestParam Integer quantity
   ) {
     try {
       UserSessionDto user = (UserSessionDto) session.getAttribute("user");
       CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       cartService.updateItemQuantity(cart.getId(), itemId, quantity);
-      redirectAttributes.addFlashAttribute("successMessage", "Cart updated successfully");
+      CartDto updatedCart = cartService.getCartByUserId(user.getUserId());
+
+      return ResponseEntity.ok().body(Map.of(
+        "success", true,
+        "message", "Кошик успішно оновлено",
+        "totalPrice", updatedCart.getTotalPrice(),
+        "warningMessage", updatedCart.getWarningMessages().isEmpty() ? "" : updatedCart.getWarningMessages().get(0)
+      ));
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
     } catch (Exception e) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Failed to update cart");
+      return ResponseEntity.internalServerError().body(Map.of("success", false, "message", "Не вдалося оновити кошик"));
     }
-    return "redirect:/cart";
   }
 
   @PostMapping("/remove")
@@ -149,9 +166,9 @@ public class CartControllerWeb {
       CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       cartService.removeItemFromCart(cart.getId(), itemId);
-      redirectAttributes.addFlashAttribute("successMessage", "Item removed successfully");
+      redirectAttributes.addFlashAttribute("successMessage", "Товар видалено з кошику");
     } catch (Exception e) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Failed to remove item");
+      redirectAttributes.addFlashAttribute("errorMessage", "не вдалося видалити товар");
     }
     return "redirect:/cart";
   }
@@ -166,9 +183,9 @@ public class CartControllerWeb {
       CartDto cart = cartService.getCartByUserId(user.getUserId());
 
       cartService.clearCart(cart.getId());
-      redirectAttributes.addFlashAttribute("successMessage", "Cart cleared successfully");
+      redirectAttributes.addFlashAttribute("successMessage", "Кошик очищено");
     } catch (Exception e) {
-      redirectAttributes.addFlashAttribute("errorMessage", "Failed to clear cart");
+      redirectAttributes.addFlashAttribute("errorMessage", "Не вдалося очистити кошик");
     }
     return "redirect:/cart";
   }
