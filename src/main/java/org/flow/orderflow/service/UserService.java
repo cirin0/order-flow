@@ -36,7 +36,6 @@ public class UserService {
       .collect(Collectors.toList());
   }
 
-
   public UserDto updateUser(Long id, UserDto userDto) {
     User existingUser = userRepository.findById(id)
       .orElseThrow(() -> new NotFound("User not found with id: " + id));

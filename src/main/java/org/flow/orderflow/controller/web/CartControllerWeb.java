@@ -18,11 +18,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/cart")
 @RequiredArgsConstructor
 public class CartControllerWeb {
-
   private final CartService cartService;
   private final ProductService productService;
   private final OrderService orderService;
-
 
   @GetMapping
   public String showCartPage(HttpSession session, Model model) {
@@ -32,7 +30,6 @@ public class CartControllerWeb {
       return "redirect:/auth/login";
     }
 
-    // Отримуємо або створюємо кошик
     CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
     model.addAttribute("cart", cart);
     return "cart/cart";
@@ -81,14 +78,12 @@ public class CartControllerWeb {
     return "redirect:/cart";
   }
 
-
   @PostMapping("/create-order")
   public String createOrderFromCart(HttpSession session, RedirectAttributes redirectAttributes) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     if (user == null) {
       return "redirect:/auth/login";
     }
-
     try {
       CartDto cart = cartService.getCartByUserId(user.getUserId());
 
