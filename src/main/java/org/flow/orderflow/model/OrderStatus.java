@@ -9,7 +9,8 @@ public enum OrderStatus {
   SHIPPED("Відправлено"),
   DELIVERED("Доставлено"),
   COMPLETED("Завершено"),
-  CANCELED("Скасовано");
+  CANCELED("Скасовано"),
+  TESTING("Тестування");
 
   private final String description;
 
