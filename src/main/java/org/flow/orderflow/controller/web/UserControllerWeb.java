@@ -48,7 +48,7 @@ public class UserControllerWeb {
   }
 
   @PostMapping("/update")
-  public String updateProfile(@ModelAttribute UserDto userDto,
+  public String updateProfile(@ModelAttribute("userDetails") UserDto userDto,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
     try {
@@ -62,9 +62,12 @@ public class UserControllerWeb {
       userDto.setEmail(currentUser.getEmail());
       userDto.setRole(currentUser.getRole());
 
-      UserDto updatedUser = userService.updateUser(sessionUser.getUserId(), userDto);
-      redirectAttributes.addFlashAttribute("successMessage", "Профіль успішно оновлено!");
+      userService.updateUser(sessionUser.getUserId(), userDto);
 
+      if (userDto.getAddress() != null) {
+        userService.addOrUpdateDeliveryAddress(sessionUser.getUserId(), userDto.getAddress());
+      }
+      redirectAttributes.addFlashAttribute("successMessage", "Профіль успішно оновлено!");
       return "redirect:/user/profile";
     } catch (Exception e) {
       redirectAttributes.addFlashAttribute("errorMessage",

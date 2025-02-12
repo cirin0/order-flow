@@ -12,6 +12,7 @@ import org.mapstruct.*;
 public interface UserMapper {
   @Mapping(target = "firstName", source = "first_name")
   @Mapping(target = "lastName", source = "last_name")
+  @Mapping(source = "deliveryAddress", target = "address")
   UserDto toDto(User user);
 
   User toEntity(UserDto dto);
