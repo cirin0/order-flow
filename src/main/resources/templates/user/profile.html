@@ -14,9 +14,12 @@
     <div class="profile-container">
       <div class="profile-header">
         <h2 class="profile-title">
-          Вітаємо, <span th:text="${userDetails.firstName + ' ' + userDetails.lastName}"></span>!
+          <i class="fas fa-user-circle"></i> Вітаємо, <span
+          th:text="${userDetails.firstName + ' ' + userDetails.lastName}"></span>!
         </h2>
-        <a th:href="@{/user/edit-profile}" class="btn btn-outline-light">Редагувати</a>
+        <a th:href="@{/user/edit-profile}" class="btn btn-outline-light edit-button">
+          <i class="fas fa-edit"></i> Редагувати
+        </a>
       </div>
       <div class="profile-body">
         <div th:if="${successMessage}" class="alert alert-success success-message" role="alert"
@@ -24,59 +27,65 @@
         <div th:if="${errorMessage}" class="alert alert-danger error-message" role="alert"
              th:text="${errorMessage}"></div>
 
-        <div class="profile-info-item">
-          <label>Ім'я:</label>
-          <p th:text="${userDetails.firstName}"></p>
+        <div class="profile-info-row">
+          <div class="profile-info-item">
+            <label><i class="fas fa-user"></i> Ім'я:</label>
+            <p th:text="${userDetails.firstName}"></p>
+          </div>
+          <div class="profile-info-item">
+            <label><i class="fas fa-user-tag"></i> Прізвище:</label>
+            <p th:text="${userDetails.lastName}"></p>
+          </div>
         </div>
-        <div class="profile-info-item">
-          <label>Прізвище:</label>
-          <p th:text="${userDetails.lastName}"></p>
-        </div>
-        <div class="profile-info-item">
-          <label>Email:</label>
+
+        <div class="profile-info-item" style="padding-bottom: 1.5rem">
+          <label><i class="fas fa-envelope"></i> Email:</label>
           <p th:text="${userDetails.email}"></p>
         </div>
         <div class="profile-info-item">
-          <label>Номер телефону:</label>
+          <label><i class="fas fa-phone"></i> Номер:</label>
           <p th:if="${userDetails.phone != null and !userDetails.phone.isEmpty()}" th:text="${userDetails.phone}"></p>
-          <p th:unless="${userDetails.phone != null and !userDetails.phone.isEmpty()}" class="text-muted">Номер телефону
-            не вказано</p>
+          <p th:unless="${userDetails.phone != null and !userDetails.phone.isEmpty()}" class="text-muted">
+            <i class="fas fa-exclamation-circle"></i> Номер телефону не вказано
+          </p>
         </div>
         <div class="profile-info-section">
-          <h3>Адреса доставки</h3>
-          <div th:if="${userDetails.address != null}">
+          <h3><i class="fas fa-map-marker-alt"></i> Адреса доставки</h3>
+          <div th:if="${userDetails.address != null}" class="address-fields">
             <div class="profile-info-item">
-              <label>Область:</label>
+              <label><i class="fas fa-map"></i> Область:</label>
               <p th:text="${userDetails.address.region}"></p>
             </div>
             <div class="profile-info-item">
-              <label>Місто:</label>
+              <label><i class="fas fa-city"></i> Місто:</label>
               <p th:text="${userDetails.address.city}"></p>
             </div>
             <div class="profile-info-item">
-              <label>Район:</label>
+              <label><i class="fas fa-map-pin"></i> Район:</label>
               <p th:text="${userDetails.address.area}"></p>
             </div>
             <div class="profile-info-item">
-              <label>Вулиця:</label>
+              <label><i class="fas fa-road"></i> Вулиця:</label>
               <p th:text="${userDetails.address.street}"></p>
             </div>
             <div class="profile-info-item">
-              <label>Будинок:</label>
+              <label><i class="fas fa-home"></i> Будинок:</label>
               <p th:text="${userDetails.address.house}"></p>
             </div>
             <div class="profile-info-item">
-              <label>Квартира:</label>
+              <label><i class="fas fa-building"></i> Квартира:</label>
               <p th:text="${userDetails.address.apartment}"></p>
             </div>
           </div>
           <div th:unless="${userDetails.address != null}" class="text-muted">
-            <p>Адреса доставки не вказана</p>
+            <p><i class="fas fa-exclamation-circle"></i> Адреса доставки не вказана</p>
           </div>
         </div>
       </div>
       <div class="profile-logout-button">
-        <a th:href="@{/user/logout}" class="btn btn-danger">Вийти з системи</a>
+        <a th:href="@{/user/logout}" class="btn btn-danger">
+          <i class="fas fa-sign-out-alt"></i> Вийти з системи
+        </a>
       </div>
     </div>
   </main>
@@ -84,4 +93,3 @@
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
 </body>
 </html>
-
