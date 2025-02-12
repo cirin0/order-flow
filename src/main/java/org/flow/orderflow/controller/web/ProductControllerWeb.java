@@ -53,7 +53,11 @@ public class ProductControllerWeb {
   }
 
   @GetMapping("/add")
-  public String showAddProductForm(Model model) {
+  public String showAddProductForm(Model model, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null || !user.getRole().name().equals("ADMIN")) {
+      return "redirect:/";
+    }
     model.addAttribute("product", new ProductDto());
     model.addAttribute("categories", categoryService.getAllCategories());
     return "products/product-add";
@@ -68,7 +72,11 @@ public class ProductControllerWeb {
   }
 
   @GetMapping("/edit/{id}")
-  public String showEditProductForm(@PathVariable Long id, Model model) {
+  public String showEditProductForm(@PathVariable Long id, Model model, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null || !user.getRole().name().equals("ADMIN")) {
+      return "redirect:/";
+    }
     ProductDto productDto = productService.getProductById(id);
     List<CategoryDto> categories = categoryService.getAllCategories();
 
@@ -117,7 +125,12 @@ public class ProductControllerWeb {
 
   @GetMapping("/delete/{id}")
   public String deleteProduct(@PathVariable Long id,
+                              HttpSession session,
                               RedirectAttributes redirectAttributes) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null || !user.getRole().name().equals("ADMIN")) {
+      return "redirect:/";
+    }
     productService.deleteProduct(id);
     redirectAttributes.addFlashAttribute("message", "Product deleted successfully");
     return "redirect:/products";
