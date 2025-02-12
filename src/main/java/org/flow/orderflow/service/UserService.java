@@ -1,11 +1,16 @@
 package org.flow.orderflow.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.user.AddressDto;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.exception.NotFound;
+import org.flow.orderflow.mapper.AddressMapper;
 import org.flow.orderflow.mapper.UserMapper;
+import org.flow.orderflow.model.Address;
 import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
+import org.flow.orderflow.repository.AddressRepository;
 import org.flow.orderflow.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +22,8 @@ import java.util.stream.Collectors;
 public class UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final AddressMapper addressMapper;
+  private final AddressRepository addressRepository;
 
   public UserDto getUserByEmail(String email) {
     return userRepository.findByEmail(email)
@@ -61,4 +68,22 @@ public class UserService {
   public boolean existsByEmail(String email) {
     return userRepository.findByEmail(email).isPresent();
   }
+
+  @Transactional
+  public AddressDto addOrUpdateDeliveryAddress(Long userId, AddressDto addressDto) {
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new NotFound("User not found with id: " + userId));
+
+    Address address;
+    if (user.getDeliveryAddress() == null) {
+      address = addressMapper.toEntity(addressDto);
+    } else {
+      address = addressMapper.partialUpdate(addressDto, user.getDeliveryAddress());
+    }
+    addressRepository.save(address);
+    user.setDeliveryAddress(address);
+    userRepository.save(user);
+    return addressMapper.toDto(address);
+  }
 }
+

@@ -42,7 +42,38 @@
           <p th:unless="${userDetails.phone != null and !userDetails.phone.isEmpty()}" class="text-muted">Номер телефону
             не вказано</p>
         </div>
-
+        <div class="profile-info-section">
+          <h3>Адреса доставки</h3>
+          <div th:if="${userDetails.address != null}">
+            <div class="profile-info-item">
+              <label>Область:</label>
+              <p th:text="${userDetails.address.region}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Місто:</label>
+              <p th:text="${userDetails.address.city}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Район:</label>
+              <p th:text="${userDetails.address.area}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Вулиця:</label>
+              <p th:text="${userDetails.address.street}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Будинок:</label>
+              <p th:text="${userDetails.address.house}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Квартира:</label>
+              <p th:text="${userDetails.address.apartment}"></p>
+            </div>
+          </div>
+          <div th:unless="${userDetails.address != null}" class="text-muted">
+            <p>Адреса доставки не вказана</p>
+          </div>
+        </div>
       </div>
       <div class="profile-logout-button">
         <a th:href="@{/user/logout}" class="btn btn-danger">Вийти з системи</a>

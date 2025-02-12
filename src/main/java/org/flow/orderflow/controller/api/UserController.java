@@ -1,6 +1,7 @@
 package org.flow.orderflow.controller.api;
 
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.user.AddressDto;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +38,11 @@ public class UserController {
   @PostMapping("/admin/{id}")
   public ResponseEntity<String> changeRoleAdmin(@PathVariable Long id) {
     return ResponseEntity.ok(userService.changeRoleAdmin(id));
+  }
+
+  @PostMapping("/{userId}/address")
+  public ResponseEntity<AddressDto> addOrUpdateAddress(@PathVariable Long userId,
+                                                       @RequestBody AddressDto addressDto) {
+    return ResponseEntity.ok(userService.addOrUpdateDeliveryAddress(userId, addressDto));
   }
 }
