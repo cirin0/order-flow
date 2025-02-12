@@ -1,8 +1,10 @@
 package org.flow.orderflow.controller.web;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.category.CategoryDto;
 import org.flow.orderflow.dto.product.ProductDto;
+import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.CategoryService;
 import org.flow.orderflow.service.ProductService;
 import org.springframework.stereotype.Controller;
@@ -26,10 +28,15 @@ public class CategoryControllerWeb {
   }
 
   @GetMapping("/add")
-  public String showAddCategoryForm(Model model) {
+  public String showAddCategoryForm(Model model, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null || !user.getRole().name().equals("ADMIN")) {
+      return "redirect:/";
+    }
     model.addAttribute("category", new CategoryDto());
     return "categories/category-add";
   }
+
 
   @PostMapping("/add")
   public String addCategory(@ModelAttribute CategoryDto categoryDto) {
@@ -37,8 +44,13 @@ public class CategoryControllerWeb {
     return "redirect:/categories";
   }
 
+
   @GetMapping("/edit/{id}")
-  public String showEditCategoryForm(@PathVariable Long id, Model model) {
+  public String showEditCategoryForm(@PathVariable Long id, Model model, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null || !user.getRole().name().equals("ADMIN")) {
+      return "redirect:/";
+    }
     CategoryDto categoryDto = categoryService.getCategoryById(id);
     model.addAttribute("category", categoryDto);
     return "categories/category-edit";
@@ -52,7 +64,11 @@ public class CategoryControllerWeb {
   }
 
   @GetMapping("/delete/{id}")
-  public String deleteCategory(@PathVariable Long id) {
+  public String deleteCategory(@PathVariable Long id, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null || !user.getRole().name().equals("ADMIN")) {
+      return "redirect:/";
+    }
     categoryService.deleteCategory(id);
     return "redirect:/categories";
   }
