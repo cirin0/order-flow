@@ -24,8 +24,9 @@
           <p th:text="${product.description}"></p>
         </div>
         <div class="detail-item">
-          <strong>Ціна:</strong>
-          <span class="price" th:text="${#numbers.formatCurrency(product.price)}"></span>
+          <strong>Ціна:
+            <span class="price" th:text="${product.price}"></span> ₴
+          </strong>
         </div>
         <div class="detail-item">
           <strong>Залишилось на складі:</strong>
@@ -38,7 +39,6 @@
         </div>
 
 
-        <!-- Add to Cart Form -->
         <form th:if="${product.stock > 0}"
               th:action="@{/cart/add}"
               method="post">

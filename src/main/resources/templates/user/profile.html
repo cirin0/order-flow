@@ -1,61 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" class="h-full">
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head}"></head>
-<body class="bg-gradient-to-r from-blue-50 to-gray-100 flex flex-col min-h-screen text-gray-900">
-<header th:replace="~{fragments/header :: header}"></header>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
 
-<main class="relative container mx-auto px-6 py-12 flex-grow">
-  <!-- Додаємо привітання з повним ім'ям -->
-  <h1 class="text-3xl font-bold text-center mb-8">
-    Вітаємо, <span th:text="${userDetails.firstName + ' ' + userDetails.lastName}">Прізвище Ім'я</span>!
-  </h1>
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+  </div>
 
-  <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-200">
-    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-black py-6 px-8 flex justify-between items-center">
-      <h2 class="text-2xl font-bold">Особиста інформація</h2>
-      <a th:href="@{/user/edit-profile}"
-         class="inline-flex items-center px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg shadow-md hover:bg-gray-100 transition-all duration-200">
-        Редагувати
-      </a>
-    </div>
+  <main class="container mt-5 content">
+    <div class="profile-container">
+      <div class="profile-header">
+        <h2 class="profile-title">
+          Вітаємо, <span th:text="${userDetails.firstName + ' ' + userDetails.lastName}"></span>!
+        </h2>
+        <a th:href="@{/user/edit-profile}" class="btn btn-outline-light">Редагувати</a>
+      </div>
+      <div class="profile-body">
+        <div th:if="${successMessage}" class="alert alert-success success-message" role="alert"
+             th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger error-message" role="alert"
+             th:text="${errorMessage}"></div>
 
-    <div class="px-8 py-6 space-y-6">
-      <div class="grid md:grid-cols-2 gap-8">
-        <div>
-          <label class="text-sm font-medium text-gray-500">Ім'я</label>
-          <p class="text-lg font-medium text-gray-900" th:text="${userDetails.firstName}">Ім'я користувача</p>
+        <div class="profile-info-item">
+          <label>Ім'я:</label>
+          <p th:text="${userDetails.firstName}"></p>
         </div>
-        <div>
-          <label class="text-sm font-medium text-gray-500">Прізвище</label>
-          <p class="text-lg font-medium text-gray-900" th:text="${userDetails.lastName}">Прізвище користувача</p>
+        <div class="profile-info-item">
+          <label>Прізвище:</label>
+          <p th:text="${userDetails.lastName}"></p>
         </div>
-        <div>
-          <label class="text-sm font-medium text-gray-500">Email</label>
-          <p class="text-lg font-medium text-gray-900" th:text="${userDetails.email}">email@example.com</p>
+        <div class="profile-info-item">
+          <label>Email:</label>
+          <p th:text="${userDetails.email}"></p>
         </div>
-        <div>
-          <label class="text-sm font-medium text-gray-500">Телефон</label>
-          <p class="text-lg font-medium text-gray-900" th:text="${userDetails.phone}">0991234567</p>
+        <div class="profile-info-item">
+          <label>Номер телефону:</label>
+          <p th:if="${userDetails.phone != null and !userDetails.phone.isEmpty()}" th:text="${userDetails.phone}"></p>
+          <p th:unless="${userDetails.phone != null and !userDetails.phone.isEmpty()}" class="text-muted">Номер телефону
+            не вказано</p>
         </div>
+
+      </div>
+      <div class="profile-logout-button">
+        <a th:href="@{/user/logout}" class="btn btn-danger">Вийти з системи</a>
       </div>
     </div>
-
-    <div th:if="${successMessage}" class="p-4 bg-green-50 border-l-4 border-green-500 text-green-700 px-6">
-      <p th:text="${successMessage}"></p>
-    </div>
-    <div th:if="${errorMessage}" class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-6">
-      <p th:text="${errorMessage}"></p>
-    </div>
-
-    <div class="px-8 py-5 bg-gray-50 border-t border-gray-200 text-center">
-      <a th:href="@{/user/logout}"
-         class="inline-flex items-center justify-center w-full px-4 py-3 bg-red-600 text-black rounded-xl shadow-md hover:bg-red-700 transition-all duration-200">
-        Вийти з системи
-      </a>
-    </div>
-  </div>
-</main>
-
+  </main>
+</div>
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
 </body>
 </html>
+
