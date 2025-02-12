@@ -9,11 +9,21 @@ import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.model.OrderStatus;
 import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.OrderService;
+import org.flow.orderflow.service.PdfService;
 import org.flow.orderflow.service.UserService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /*
    !!! ЦЕ ПРОСТО ТЕСТ !!!
@@ -27,6 +37,7 @@ public class OrderControllerWeb {
   private final OrderService orderService;
   private final CartService cartService;
   private final UserService userService;
+  private final PdfService pdfService;
 
   @GetMapping
   public String getAllOrders(Model model, HttpSession session) {
@@ -172,5 +183,35 @@ public class OrderControllerWeb {
         "Помилка видалення замовлення: " + e.getMessage());
     }
     return "redirect:/orders";
+  }
+
+  @GetMapping("/{id}/download-invoice")
+  public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long id, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    try {
+      OrderDto order = orderService.getOrderById(id);
+      byte[] pdfContent = pdfService.generateInvoice(order);
+
+      String dateStr = order.getOrderDate() != null
+        ? order.getOrderDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+        : LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+
+      String filename = String.format("Чек-%s-Замовлення-%d.pdf", dateStr, order.getId());
+
+      String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
+        .replace("+", "%20");
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFilename);
+
+      return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 }
