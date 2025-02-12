@@ -2,16 +2,15 @@ package org.flow.orderflow.controller.web;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.user.ChangePasswordDto;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.service.AuthenticationService;
 import org.flow.orderflow.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -45,6 +44,25 @@ public class UserControllerWeb {
     model.addAttribute("userDetails", userDetails);
 
     return "user/edit-profile";
+  }
+
+  @PostMapping("/change-password")
+  @ResponseBody
+  public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto changePasswordDto,
+                                          HttpSession session) {
+    UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    if (sessionUser == null) {
+      return ResponseEntity.status(401).body("Необхідно увійти в систему");
+    }
+
+    try {
+      userService.changePassword(sessionUser.getUserId(), changePasswordDto);
+      return ResponseEntity.ok("Пароль успішно змінено");
+    } catch (IllegalStateException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("Помилка при зміні паролю: " + e.getMessage());
+    }
   }
 
   @PostMapping("/update")

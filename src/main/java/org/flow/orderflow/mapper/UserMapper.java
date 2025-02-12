@@ -1,9 +1,6 @@
 package org.flow.orderflow.mapper;
 
-import org.flow.orderflow.dto.user.UserDto;
-import org.flow.orderflow.dto.user.UserLoginDto;
-import org.flow.orderflow.dto.user.UserRegistrationDto;
-import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.dto.user.*;
 import org.flow.orderflow.model.User;
 import org.mapstruct.*;
 
@@ -34,9 +31,12 @@ public interface UserMapper {
   @Mapping(target = "role", source = "role")
   UserSessionDto toSessionEntity(User user);
 
+  @Mapping(target = "password", source = "password")
   @Mapping(target = "first_name", source = "firstName")
   @Mapping(target = "last_name", source = "lastName")
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   User partialUpdate(UserDto userDTO, @MappingTarget User user);
+
+  User partialUpdate(ChangePasswordDto changePasswordDto, @MappingTarget User user);
 
 }

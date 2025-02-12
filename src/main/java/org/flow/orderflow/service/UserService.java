@@ -1,12 +1,14 @@
 package org.flow.orderflow.service;
 
 import lombok.RequiredArgsConstructor;
+import org.flow.orderflow.dto.user.ChangePasswordDto;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.stream.Collectors;
 public class UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
+  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
 
   public UserDto getUserByEmail(String email) {
     return userRepository.findByEmail(email)
@@ -48,6 +53,22 @@ public class UserService {
     }
     User user = userMapper.partialUpdate(userDto, existingUser);
     return userMapper.toDto(userRepository.save(user));
+  }
+
+  public UserDto changePassword(Long userId, ChangePasswordDto changePasswordDto) {
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new NotFound("Користувача не знайдено"));
+
+    if (!passwordEncoder.matches(changePasswordDto.getCurrentPassword(), user.getPassword())) {
+      throw new IllegalStateException("Неправильний поточний пароль");
+    }
+
+    // Використовуємо MapStruct для оновлення
+    User updatedUser = userMapper.partialUpdate(changePasswordDto, user);
+    // Хешуємо новий пароль
+    updatedUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+
+    return userMapper.toDto(userRepository.save(updatedUser));
   }
 
   public String changeRoleAdmin(Long id) {
