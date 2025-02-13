@@ -9,11 +9,23 @@ import org.flow.orderflow.dto.user.UserSessionDto;
 import org.flow.orderflow.model.OrderStatus;
 import org.flow.orderflow.service.CartService;
 import org.flow.orderflow.service.OrderService;
+import org.flow.orderflow.service.PdfService;
 import org.flow.orderflow.service.UserService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
    !!! ЦЕ ПРОСТО ТЕСТ !!!
@@ -27,6 +39,7 @@ public class OrderControllerWeb {
   private final OrderService orderService;
   private final CartService cartService;
   private final UserService userService;
+  private final PdfService pdfService;
 
   @GetMapping
   public String getAllOrders(Model model, HttpSession session) {
@@ -34,15 +47,39 @@ public class OrderControllerWeb {
     if (user == null) {
       return "redirect:/auth/login";
     }
-    model.addAttribute("orders", orderService.getAllOrders());
+
+    List<OrderDto> orders;
+    try {
+      // Перевіряємо роль через name()
+      if (user.getRole().name().equals("ADMIN")) {
+        // Для адміна отримуємо всі замовлення користувачів
+        orders = orderService.getAllOrdersWithUserDetails();
+      } else {
+        // Для звичайного користувача - тільки його замовлення
+        orders = orderService.getOrdersByUserId(user.getUserId());
+      }
+      model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
+      model.addAttribute("orders", orders);
+    } catch (Exception e) {
+      model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
+      model.addAttribute("orders", new ArrayList<>());
+    }
+
     return "orders/list";
   }
+
+
 
   @GetMapping("/create")
   public String showCreateOrderPage(HttpSession session, Model model) {
     UserSessionDto userSession = (UserSessionDto) session.getAttribute("user");
     if (userSession == null) {
       return "redirect:/auth/login";
+    }
+
+    // Якщо користувач адмін - перенаправляємо на список замовлень
+    if ("ADMIN".equals(userSession.getRole())) {
+      return "redirect:/orders";
     }
 
     UserDto userDetails = userService.getUserById(userSession.getUserId());
@@ -70,10 +107,23 @@ public class OrderControllerWeb {
       return "redirect:/auth/login";
     }
 
-    OrderDto order = orderService.getOrderById(id);
-    model.addAttribute("order", order);
-    model.addAttribute("statuses", OrderStatus.values());
-    return "orders/details";
+    try {
+      OrderDto order = orderService.getOrderById(id);
+
+      // Перевіряємо чи має користувач доступ до цього замовлення
+      if (!user.getRole().name().equals("ADMIN") && !order.getUserId().equals(user.getUserId())) {
+        return "redirect:/orders";
+      }
+
+      model.addAttribute("order", order);
+      model.addAttribute("statuses", OrderStatus.values());
+      model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
+
+      return "orders/details"; // Переконайтеся, що шлях до шаблону вірний
+    } catch (Exception e) {
+      model.addAttribute("error", "Помилка при завантаженні замовлення: " + e.getMessage());
+      return "redirect:/orders";
+    }
   }
 
   @PostMapping("/create")
@@ -108,6 +158,13 @@ public class OrderControllerWeb {
       return "redirect:/auth/login";
     }
 
+    // Перевіряємо чи користувач є адміном
+    if (!user.getRole().name().equals("ADMIN")) {
+      redirectAttributes.addFlashAttribute("error",
+        "У вас немає прав для зміни статусу замовлення");
+      return "redirect:/orders/" + id;
+    }
+
     try {
       orderService.updateOrderStatus(id, status);
       redirectAttributes.addFlashAttribute("success",
@@ -130,7 +187,7 @@ public class OrderControllerWeb {
 
     try {
       orderService.cancelOrder(id);
-      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано");
+      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано. Ми звяжемось з Вами блищим ");
     } catch (IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
     }
@@ -172,5 +229,35 @@ public class OrderControllerWeb {
         "Помилка видалення замовлення: " + e.getMessage());
     }
     return "redirect:/orders";
+  }
+
+  @GetMapping("/{id}/download-invoice")
+  public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long id, HttpSession session) {
+    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    if (user == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    try {
+      OrderDto order = orderService.getOrderById(id);
+      byte[] pdfContent = pdfService.generateInvoice(order);
+
+      String dateStr = order.getOrderDate() != null
+        ? order.getOrderDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+        : LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+
+      String filename = String.format("Чек-%s-Замовлення-%d.pdf", dateStr, order.getId());
+
+      String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
+        .replace("+", "%20");
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFilename);
+
+      return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 }
