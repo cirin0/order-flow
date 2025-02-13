@@ -99,6 +99,7 @@ public class OrderService {
     }
 
     Order order = Order.builder()
+      .orderNumber(generateUniqueOrderNumber())
       .user(userRepository.findById(orderDto.getUserId())
         .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
       .totalPrice(cart.getTotalPrice())
@@ -190,7 +191,7 @@ public class OrderService {
       log.error("Failed to send order confirmation email", e);
     }
   }
-
+  
   private void createConfirmationPdf(OrderDto orderDto) {
     byte[] pdf = pdfService.generateInvoice(orderDto);
     HttpHeaders headers = new HttpHeaders();
@@ -198,4 +199,15 @@ public class OrderService {
     headers.setContentDispositionFormData("filename", "invoice-" + orderDto.getId() + ".pdf");
     new ResponseEntity<>(pdf, headers, HttpStatus.OK);
   }
+
+  private String generateUniqueOrderNumber() {
+    while (true) {
+      StringBuilder orderNumber = new StringBuilder();
+      for (int i = 0; i < 10; i++) {
+        orderNumber.append((int) (Math.random() * 10));
+      }
+      if (!orderRepository.existsByOrderNumber(orderNumber.toString())) {
+        return orderNumber.toString();
+      }
+    }
 }

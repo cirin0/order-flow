@@ -12,6 +12,8 @@
 <div>
   <p>Статус: <span th:text="${order.status.description}"></span></p>
   <p>Загальна сума: <span th:text="${order.totalPrice}"></span></p>
+  <p>Дата замовлення: <span th:text="${order.orderDate}"></span></p>
+  <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
 
   <h3>Товари:</h3>
   <table>

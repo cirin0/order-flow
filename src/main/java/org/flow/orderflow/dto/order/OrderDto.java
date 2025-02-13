@@ -18,4 +18,5 @@ public class OrderDto {
   private LocalDateTime orderDate;
   private OrderStatus status;
   private String statusDescription;
+  private String orderNumber;
 }
