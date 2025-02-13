@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="container mt-5 content">
+    <h1 class="edit-product-title">Редагувати категорію</h1>
+    <form class="edit-product-form" th:action="@{/categories/edit/{id}(id=${category.id})}"
+          th:object="${category}" method="post">
+      <div class="form-group">
+        <label class="form-label">Назва:</label>
+        <input type="text" th:field="*{name}" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Покликання на зображення:</label>
+        <input type="text" th:field="*{imageUrl}" class="form-input">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">Оновити</button>
+        <a href="/categories" class="btn btn-secondary">Зберегти</a>
+      </div>
+    </form>
+  </main>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+</body>
+</html>

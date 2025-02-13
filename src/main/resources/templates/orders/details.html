@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Деталі замовлення</title>
+</head>
+<body>
+<h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
+
+<div th:if="${success}" th:text="${success}"></div>
+<div th:if="${error}" th:text="${error}"></div>
+
+<div>
+  <p>Статус: <span th:text="${order.status.description}"></span></p>
+  <p>Загальна сума: <span th:text="${order.totalPrice}"></span></p>
+
+  <h3>Товари:</h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Назва</th>
+      <th>Кількість</th>
+      <th>Ціна</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${order.items}">
+      <td th:text="${item.productName}"></td>
+      <td th:text="${item.quantity}"></td>
+      <td th:text="${item.price}"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h3>Змінити статус:</h3>
+  <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post">
+    <select name="status">
+      <option th:each="status : ${statuses}"
+              th:value="${status}"
+              th:text="${status.description}"
+              th:selected="${status == order.status}">
+      </option>
+    </select>
+    <button type="submit">Оновити статус</button>
+  </form>
+  <form th:action="@{/payment/create}" method="post" th:if="${order.status.name() == 'NEW'}">
+    <input type="hidden" name="orderId" th:value="${order.id}"/>
+    <button type="submit" class="btn-payment">Оплатити замовлення</button>
+  </form>
+
+  <div>
+    <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
+          th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
+      <button type="submit">Скасувати замовлення</button>
+    </form>
+
+    <form th:action="@{/orders/{id}/complete(id=${order.id})}" method="post"
+          th:if="${order.status.name() == 'DELIVERED'}">
+      <button type="submit">Завершити замовлення</button>
+    </form>
+
+    <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post">
+      <button type="submit" onclick="return confirm('Ви впевнені?')">Видалити замовлення</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

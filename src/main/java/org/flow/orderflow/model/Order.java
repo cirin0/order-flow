@@ -29,6 +29,10 @@ public class Order {
 
   private Double totalPrice;
 
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private OrderStatus status = OrderStatus.NEW;
+  
   @Column(nullable = false)
   private LocalDateTime orderDate;
 

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+    <div class="cityscape-revers"></div>
+  </div>
+
+  <main class="container mt-5 content">
+    <div class="product-detail-container" th:if="${product}">
+      <div class="product-info">
+        <h1 class="product-title" th:text="${product.name}"></h1>
+        <div class="detail-item">
+          <strong>Категорія:</strong>
+          <span th:text="${product.categoryName}"></span>
+        </div>
+        <div class="detail-item">
+          <strong>Опис:</strong>
+          <p th:text="${product.description}"></p>
+        </div>
+        <div class="detail-item">
+          <strong>Ціна:
+            <span class="price" th:text="${product.price}"></span> ₴
+          </strong>
+        </div>
+        <div class="detail-item">
+          <strong>Залишилось на складі:</strong>
+          <span class="stock" th:classappend="${product.stock <= 0} ? 'out-of-stock' : 'available'"
+                th:text="${product.stock}"></span>
+        </div>
+        <div class="detail-item">
+          <strong>Розміщено на продаж:</strong>
+          <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+        </div>
+
+
+        <form th:if="${product.stock > 0}"
+              th:action="@{/cart/add}"
+              method="post">
+          <input type="hidden" name="productId" th:value="${product.id}">
+          <input type="hidden" name="quantity" value="1">
+          <button class="buy-button" type="submit">Додати в кошик</button>
+        </form>
+
+
+        <a href="#" class="buy-button disabled" th:unless="${product.stock > 0}">Немає в наявності</a>
+      </div>
+      <div class="image-container">
+        <img class="product-image" th:src="${product.imageUrl}" alt="Product Image">
+      </div>
+    </div>
+  </main>
+  <div>
+    <a href="/products" class="back-button">Назад до товарів</a>
+
+
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+</body>
+</html>

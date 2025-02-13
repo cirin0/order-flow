@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="cityscape-revers"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <div class="container">
+    <div class="registration-container">
+      <h2>Реєстрація</h2>
+
+      <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+      <form th:action="@{/auth/register}" method="post" id="registrationForm">
+        <div class="form-group">
+          <label for="firstName" class="form-label">Ім'я:</label>
+          <input type="text" class="form-control" id="firstName" name="firstName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName" class="form-label">Прізвище:</label>
+          <input type="text" class="form-control" id="lastName" name="lastName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email:</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Пароль:</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">Підтвердження пароля:</label>
+          <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+          <div class="password-feedback text-danger" id="passwordFeedback" style="display: none;">
+            Паролі не співпадають
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-register" id="submitButton">Зареєструватися</button>
+      </form>
+
+      <div class="login-link">
+        <p class="mb-0">Вже є акаунт? <a th:href="@{/auth/login}">Увійти</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('registrationForm');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const feedback = document.getElementById('passwordFeedback');
+    const submitButton = document.getElementById('submitButton');
+
+    function checkPasswords() {
+      if (password.value !== confirmPassword.value) {
+        confirmPassword.classList.add('password-mismatch');
+        confirmPassword.classList.remove('password-match');
+        feedback.style.display = 'block';
+        submitButton.disabled = true;
+      } else {
+        confirmPassword.classList.remove('password-mismatch');
+        confirmPassword.classList.add('password-match');
+        feedback.style.display = 'none';
+        submitButton.disabled = false;
+      }
+    }
+
+    password.addEventListener('input', checkPasswords);
+    confirmPassword.addEventListener('input', checkPasswords);
+
+    form.addEventListener('submit', function (e) {
+      if (password.value !== confirmPassword.value) {
+        e.preventDefault();
+        feedback.style.display = 'block';
+      }
+    });
+  });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

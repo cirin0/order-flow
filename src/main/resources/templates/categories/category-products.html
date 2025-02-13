@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
+
+<body>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+    <div class="cityscape-revers"></div>
+  </div>
+
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <main class="container mt-5 content">
+    <h1 class="page-title" th:text="'Товари в категорії: ' + ${categoryName}"></h1>
+
+    <div th:if="${#lists.isEmpty(products)}" class="empty-message">
+      <p>В даній категорії немає товарів</p>
+    </div>
+
+    <div class="product-list">
+      <div th:each="product : ${products}" class="product-list-item">
+        <img th:src="${product.imageUrl}" class="product-list-image" th:alt="${product.name}">
+        <div class="product-list-details">
+          <h5 th:text="${product.name}"></h5>
+          <p>
+            <strong>Категорія:</strong> <span th:text="${product.categoryName}"></span><br>
+            <strong>Ціна:</strong> <span th:text="${product.price} + ' грн'"></span>
+          </p>
+          <div class="product-list-actions">
+        <span th:if="${product.stock > 0}" class="product-badge product-stock">
+          В наявності: <span th:text="${product.stock}"></span> шт.
+        </span>
+            <span th:unless="${product.stock > 0}" class="product-badge product-out-of-stock">
+          Немає в наявності
+        </span>
+            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-info">Детальніше</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a href="/categories" class="back-button">Назад до категорій</a>
+  </main>
+
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+</body>
+</html>

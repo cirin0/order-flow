@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+    <div class="cityscape-revers"></div>
+  </div>
+
+  <main class="container mt-5 content">
+    <h1>Категорії</h1>
+    <br>
+    <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}">
+      <a th:href="@{/categories/add}" class="btn btn-admin-category btn-success mb-3" title="Додати">
+        <i class="fas fa-plus-circle"></i> Додати категорію
+      </a>
+    </div>
+    <div th:if="${message}" class="alert alert-success">
+      <span th:text="${message}"></span>
+    </div>
+
+    <div class="row">
+      <div th:each="category : ${categories}" class="col-md-3 mb-4">
+        <a th:href="@{/categories/{id}/products(id=${category.id})}" class="category-card-link">
+          <div class="category-card" th:style="'background-image: url(' + ${category.imageUrl} + ')'">
+            <div class="category-card-overlay">
+              <h3 class="category-card-title" th:text="${category.name}"></h3>
+            </div>
+          </div>
+        </a>
+        <div th:if="${session.user != null && session.user.role.toString() == 'ADMIN'}" class="mt-2">
+          <a th:href="@{/categories/edit/{id}(id=${category.id})}" class="btn btn-admin-category btn-warning"
+             title="Змінити">
+            <i class="fas fa-edit"></i> Змінити
+          </a>
+          <a th:href="@{/categories/delete/{id}(id=${category.id})}"
+             class="btn btn-admin-category btn-danger btn-delete" title="Видалити">
+            <i class="fas fa-trash"></i> Видалити
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        const confirmDelete = confirm('Ви справді хочете видалити цю категорію?');
+        if (confirmDelete) {
+          window.location.href = event.target.closest('a').href;
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

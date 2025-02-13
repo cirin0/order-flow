@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="container mt-5 content">
+    <div class="profile-container">
+      <div class="profile-header">
+        <h2 class="profile-title">
+          Вітаємо, <span th:text="${userDetails.firstName + ' ' + userDetails.lastName}"></span>!
+        </h2>
+        <a th:href="@{/user/edit-profile}" class="btn btn-outline-light">Редагувати</a>
+      </div>
+      <div class="profile-body">
+        <div th:if="${successMessage}" class="alert alert-success success-message" role="alert"
+             th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger error-message" role="alert"
+             th:text="${errorMessage}"></div>
+
+        <div class="profile-info-item">
+          <label>Ім'я:</label>
+          <p th:text="${userDetails.firstName}"></p>
+        </div>
+        <div class="profile-info-item">
+          <label>Прізвище:</label>
+          <p th:text="${userDetails.lastName}"></p>
+        </div>
+        <div class="profile-info-item">
+          <label>Email:</label>
+          <p th:text="${userDetails.email}"></p>
+        </div>
+        <div class="profile-info-item">
+          <label>Номер телефону:</label>
+          <p th:if="${userDetails.phone != null and !userDetails.phone.isEmpty()}" th:text="${userDetails.phone}"></p>
+          <p th:unless="${userDetails.phone != null and !userDetails.phone.isEmpty()}" class="text-muted">Номер телефону
+            не вказано</p>
+        </div>
+        <div class="profile-info-section">
+          <h3>Адреса доставки</h3>
+          <div th:if="${userDetails.address != null}">
+            <div class="profile-info-item">
+              <label>Область:</label>
+              <p th:text="${userDetails.address.region}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Місто:</label>
+              <p th:text="${userDetails.address.city}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Район:</label>
+              <p th:text="${userDetails.address.area}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Вулиця:</label>
+              <p th:text="${userDetails.address.street}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Будинок:</label>
+              <p th:text="${userDetails.address.house}"></p>
+            </div>
+            <div class="profile-info-item">
+              <label>Квартира:</label>
+              <p th:text="${userDetails.address.apartment}"></p>
+            </div>
+          </div>
+          <div th:unless="${userDetails.address != null}" class="text-muted">
+            <p>Адреса доставки не вказана</p>
+          </div>
+        </div>
+      </div>
+      <div class="profile-logout-button">
+        <a th:href="@{/user/logout}" class="btn btn-danger">Вийти з системи</a>
+      </div>
+    </div>
+  </main>
+</div>
+<footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
+</body>
+</html>
+

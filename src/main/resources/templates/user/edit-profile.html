@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="page-wrapper">
+  <div class="background-wrapper">
+    <div class="cityscape"></div>
+    <div class="smoke-effect"></div>
+  </div>
+
+  <main class="container mt-5 content">
+    <div class="edit-profile-container">
+      <h1>Редагування профілю</h1>
+
+      <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+      <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+      <form th:action="@{/user/update}" method="post" class="edit-profile-form">
+        <div class="form-group">
+          <label for="firstName">Ім'я:</label>
+          <input type="text" id="firstName" name="firstName" th:value="${userDetails.firstName}" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="lastName">Прізвище:</label>
+          <input type="text" id="lastName" name="lastName" th:value="${userDetails.lastName}" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" th:value="${userDetails.email}" readonly class="form-control-plaintext">
+        </div>
+        <div class="form-group">
+          <label for="phone">Телефон:</label>
+          <input maxlength="10" type="tel" id="phone" name="phone" th:value="${userDetails.phone}" pattern="[0-9]{10}"
+                 placeholder="0991234567" class="form-control">
+        </div>
+        <h3 class="mt-4">Адреса доставки</h3>
+        <div class="form-group">
+          <label for="region">Область:</label>
+          <input type="text" id="region" name="address.region" th:value="${userDetails.address?.region}"
+                 class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="city">Місто:</label>
+          <input type="text" id="city" name="address.city" th:value="${userDetails.address?.city}" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="area">Район:</label>
+          <input type="text" id="area" name="address.area" th:value="${userDetails.address?.area}" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="street">Вулиця:</label>
+          <input type="text" id="street" name="address.street" th:value="${userDetails.address?.street}"
+                 class="form-control">
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="house">Будинок:</label>
+            <input type="text" id="house" name="address.house" th:value="${userDetails.address?.house}"
+                   class="form-control">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="apartment">Квартира:</label>
+            <input type="text" id="apartment" name="address.apartment" th:value="${userDetails.address?.apartment}"
+                   class="form-control">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-dark">Зберегти зміни</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
+</body>
+</html>

@@ -29,10 +29,18 @@ public class Cart {
   @Builder.Default
   private Double totalPrice = 0.0;
 
+  @Transient
+  @Builder.Default
+  private List<String> warningMessages = new ArrayList<>();
+
   public void recalculateTotal() {
     totalPrice = items
       .stream()
       .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
       .sum();
+  }
+
+  public void addWarningMessage(String message) {
+    this.warningMessages.add(message);
   }
 }

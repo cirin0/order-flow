@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="header" class="header">
+  <div class="header-container">
+    <div class="header-left">
+      <div class="header-nav">
+        <a href="/categories" class="nav-link">
+          <i class="bi bi-card-list"></i> КАТЕГОРІЇ
+        </a>
+        <a href="/products" class="nav-link">
+          <i class="bi bi-box"></i> ПРОДУКТИ
+        </a>
+      </div>
+    </div>
+    <div class="header-center">
+      <h1 class="header-title">Order Flow</h1>
+    </div>
+    <div class="header-icons">
+      <a href="/orders" class="icon-link">
+        <i class="bi fa-brands fa-jedi-order"></i>
+      </a>
+      <a href="/cart" class="icon-link">
+        <i class="bi bi-basket"></i>
+      </a>
+      <a href="/user/profile" class="icon-link">
+        <i class="bi bi-person"></i>
+      </a>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Пошук">
+        <button class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-gradient"></div>
+</header>
+
+</body>
+</html>
