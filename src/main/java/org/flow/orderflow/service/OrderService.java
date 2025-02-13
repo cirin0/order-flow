@@ -14,6 +14,10 @@ import org.flow.orderflow.model.Product;
 import org.flow.orderflow.repository.OrderRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,7 @@ public class OrderService {
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
   private final MailSenderService mailSenderService;
+  private final PdfService pdfService;
 
   public List<OrderDto> getAllOrders() {
     List<Order> orders = orderRepository.findAll();
@@ -116,6 +121,7 @@ public class OrderService {
     order.setItems(orderItems);
     Order savedOrder = orderRepository.save(order);
     sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
+    createConfirmationPdf(orderMapper.toDto(savedOrder));
 //    cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);
   }
@@ -176,12 +182,20 @@ public class OrderService {
   }
 
   @Async
-  public void sendOrderConfirmationEmail(OrderDto orderDto, String userEmail) {
+  protected void sendOrderConfirmationEmail(OrderDto orderDto, String userEmail) {
     try {
       mailSenderService.sendOrderConfirmationMail(userEmail, orderDto);
       log.info("Order confirmation email sent to {}", userEmail);
     } catch (Exception e) {
       log.error("Failed to send order confirmation email", e);
     }
+  }
+
+  private void createConfirmationPdf(OrderDto orderDto) {
+    byte[] pdf = pdfService.generateInvoice(orderDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDispositionFormData("filename", "invoice-" + orderDto.getId() + ".pdf");
+    new ResponseEntity<>(pdf, headers, HttpStatus.OK);
   }
 }
