@@ -966,18 +966,31 @@ select:focus {
 
 .detail-item {
   margin-bottom: 15px;
+  display: flex;
+  align-items: flex-start;
 }
 
 .detail-item strong {
   font-weight: 600;
   color: #222;
+  margin-right: 5px;
+  white-space: nowrap;
 }
 
 .detail-item p,
 .detail-item span {
   display: inline-block;
-  margin-left: 10px;
   color: rgba(0, 0, 0, 0.8);
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.description-text {
+  display: inline;
+  color: rgba(0, 0, 0, 0.8);
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .price {
@@ -1233,10 +1246,11 @@ select:focus {
   margin-bottom: 5px;
 }
 
-.recipe em {
+em {
   font-style: italic;
   color: #d00;
 }
+
 
 /* term */
 .page-title {
