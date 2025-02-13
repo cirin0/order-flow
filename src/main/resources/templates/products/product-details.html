@@ -7,7 +7,6 @@
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
-    <div class="smoke-effect"></div>
     <div class="cityscape-revers"></div>
   </div>
 
@@ -21,7 +20,7 @@
         </div>
         <div class="detail-item">
           <strong>Опис:</strong>
-          <p th:text="${product.description}"></p>
+          <span class="description-text" th:text="${product.description}"></span>
         </div>
         <div class="detail-item">
           <strong>Ціна:
@@ -38,7 +37,6 @@
           <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
         </div>
 
-
         <form th:if="${product.stock > 0}"
               th:action="@{/cart/add}"
               method="post">
@@ -46,7 +44,6 @@
           <input type="hidden" name="quantity" value="1">
           <button class="buy-button" type="submit">Додати в кошик</button>
         </form>
-
 
         <a href="#" class="buy-button disabled" th:unless="${product.stock > 0}">Немає в наявності</a>
       </div>
@@ -57,8 +54,6 @@
   </main>
   <div>
     <a href="/products" class="back-button">Назад до товарів</a>
-
-
   </div>
   <div th:replace="~{fragments/footer :: footer}"></div>
 </div>

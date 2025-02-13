@@ -93,7 +93,7 @@ body, html {
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   gap: 30px;
 }
 
@@ -165,9 +165,7 @@ body, html {
 
 .search-container {
   position: relative;
-  display: inline-block;
-  margin-top: 9px;
-
+  display: flex;
 }
 
 .search-input {
@@ -209,9 +207,10 @@ body, html {
   color: #666;
 }
 
-.search-button {
-  position: absolute;
-  right: 1px;
+.search-container .search-button {
+  position: static;
+  transform: translateX(-29px);
+  right: 10px;
   bottom: 3px;
   background: none;
   border: none;
@@ -225,7 +224,7 @@ body, html {
 }
 
 .search-container:hover .search-button {
-  transform: translateY(-3px);
+  transform: translateX(-35px);
 }
 
 .header-title {
@@ -325,6 +324,21 @@ body, html {
 .search-item-price {
   font-size: 12px;
   color: #666;
+}
+
+.no-results-message,
+.error-message {
+  padding: 10px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  background-color: #f8f8f8;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.error-message {
+  color: #dc3545;
 }
 
 @media (max-width: 768px) {
@@ -952,18 +966,31 @@ select:focus {
 
 .detail-item {
   margin-bottom: 15px;
+  display: flex;
+  align-items: flex-start;
 }
 
 .detail-item strong {
   font-weight: 600;
   color: #222;
+  margin-right: 5px;
+  white-space: nowrap;
 }
 
 .detail-item p,
 .detail-item span {
   display: inline-block;
-  margin-left: 10px;
   color: rgba(0, 0, 0, 0.8);
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.description-text {
+  display: inline;
+  color: rgba(0, 0, 0, 0.8);
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .price {
@@ -1219,10 +1246,11 @@ select:focus {
   margin-bottom: 5px;
 }
 
-.recipe em {
+em {
   font-style: italic;
   color: #d00;
 }
+
 
 /* term */
 .page-title {
@@ -1483,11 +1511,11 @@ select:focus {
   }
 }
 
-/* */
+/* СТИЛІ ПРОФІЛЮ */
 
 .profile-container {
-  max-width: 600px; /* Зменшена ширина */
-  margin: 3rem auto; /* Більше відступів зверху та знизу */
+  max-width: 800px;
+  margin: 3rem auto;
   background-color: white;
   border-radius: 0.75rem;
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
@@ -1506,44 +1534,83 @@ select:focus {
 .profile-header h2 {
   font-size: 1.75rem;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.profile-header .btn {
+.profile-header .edit-button {
   background-color: transparent;
   border: 2px solid white;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: background-color 0.3s ease, color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: auto;
 }
 
-.profile-header .btn:hover {
+.profile-header .edit-button:hover {
   background-color: white;
   color: #222;
 }
-
 
 .profile-body {
   padding: 2rem;
 }
 
+.profile-info-row {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
 .profile-info-item {
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .profile-info-item label {
   font-weight: 600;
   color: #555;
-  width: 150px;
-  margin-right: 1rem;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .profile-info-item p {
   flex: 1;
+  margin: 0;
+  color: #333;
+  word-break: break-word;
 }
 
+.profile-info-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.profile-info-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.address-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
 
 .profile-logout-button {
   background-color: #f8f8f8;
@@ -1559,13 +1626,39 @@ select:focus {
   border-radius: 0.5rem;
   font-size: 1.1rem;
   transition: background-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
-
 
 .profile-logout-button .btn:hover {
   background-color: #c9302c;
 }
 
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.text-muted {
+  color: #6c757d !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 /*  СТИЛІ ДЛЯ СТОРІНКИ РЕДАГУВАННЯ ПРОФІЛЮ */
 
@@ -1597,6 +1690,7 @@ select:focus {
   display: block;
   margin-bottom: 0.5rem;
   color: #555;
+  font-size: 0.9rem;
 }
 
 .edit-profile-form button[type="submit"] {
@@ -1606,13 +1700,37 @@ select:focus {
   font-size: 1.1rem;
   transition: all 0.3s ease;
   margin-top: 1rem;
-
 }
 
 .edit-profile-form button[type="submit"]:hover {
-
   transform: translateY(-2px);
 }
 
+/* Стилі для компактного блоку адреси */
+.address-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
 
+.address-fields .form-group {
+  margin-bottom: 0;
+}
 
+.address-fields .form-group label {
+  font-size: 0.85rem;
+}
+
+.address-fields .form-group input {
+  padding: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.address-fields .form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.address-fields .form-row .form-group {
+  flex: 1;
+}
