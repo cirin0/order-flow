@@ -73,6 +73,7 @@ public class OrderService {
     }
 
     Order order = Order.builder()
+      .orderNumber(generateUniqueOrderNumber())
       .user(userRepository.findById(orderDto.getUserId())
         .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
       .totalPrice(cart.getTotalPrice())
@@ -160,6 +161,18 @@ public class OrderService {
       log.info("Order confirmation email sent to {}", userEmail);
     } catch (Exception e) {
       log.error("Failed to send order confirmation email", e);
+    }
+  }
+
+  private String generateUniqueOrderNumber() {
+    while (true) {
+      StringBuilder orderNumber = new StringBuilder();
+      for (int i = 0; i < 10; i++) {
+        orderNumber.append((int) (Math.random() * 10));
+      }
+      if (!orderRepository.existsByOrderNumber(orderNumber.toString())) {
+        return orderNumber.toString();
+      }
     }
   }
 }

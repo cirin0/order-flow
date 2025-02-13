@@ -14,4 +14,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
   List<Order> findByStatusAndOrderDateBefore(OrderStatus status, LocalDateTime dateTime);
 
   Optional<Order> findByUserEmail(String email);
+
+  boolean existsByOrderNumber(String string);
 }
