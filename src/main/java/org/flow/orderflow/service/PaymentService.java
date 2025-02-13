@@ -80,7 +80,7 @@ public class PaymentService {
         Order order = orderRepository.findById(Long.parseLong(orderId))
             .orElseThrow(() -> new PaymentException("Order not found"));
 
-        order.setStatus(OrderStatus.PROCESSING);
+        order.setStatus(OrderStatus.PAID);
         orderRepository.save(order);
         log.info("Payment successful for order: {}", orderId);
       }

@@ -13,6 +13,9 @@ public interface OrderMapper {
 
   @Mapping(target = "items", source = "items")
   @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "userEmail", source = "user.email")
+  @Mapping(target = "userFirstName", source = "user.first_name")
+  @Mapping(target = "userLastName", source = "user.last_name")
   @Mapping(target = "statusDescription", source = "status.description")
   OrderDto toDto(Order order);
 
