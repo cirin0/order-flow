@@ -191,7 +191,7 @@ public class OrderService {
       log.error("Failed to send order confirmation email", e);
     }
   }
-  
+
   private void createConfirmationPdf(OrderDto orderDto) {
     byte[] pdf = pdfService.generateInvoice(orderDto);
     HttpHeaders headers = new HttpHeaders();
@@ -210,4 +210,5 @@ public class OrderService {
         return orderNumber.toString();
       }
     }
+  }
 }
