@@ -60,7 +60,7 @@ public class OrderStatusScheduler {
     LocalDateTime time = LocalDateTime.now().minusMinutes(10);
     log.info("Checking for orders from status PAID to SHIPPED");
     List<Order> processingOrders = orderRepository.findByStatusAndOrderDateBefore(
-      OrderStatus.PROCESSING,
+      OrderStatus.PAID,
       time
     );
 
