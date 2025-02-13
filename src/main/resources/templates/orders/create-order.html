@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="h-full">
 <head th:replace="~{fragments/head :: head}"></head>
-<body class="bg-gray-100 flex flex-col h-full m-0">
+<body class="bg-gray-100 flex flex-col h-full m-0"> <!-- Світлий фон для body -->
 <header th:replace="~{fragments/header :: header}"></header>
 
 <div class="page-wrapper">
@@ -12,97 +12,92 @@
   </div>
 
   <main class="content mt-5 flex-grow">
-    <div class="container mx-auto p-6">
-      <h1 class="text-3xl font-bold mb-6">Створення замовлення</h1>
+    <div class="order-create-page">
+      <h1>Створення замовлення</h1>
 
-      <div th:if="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
+      <div th:if="${cart.items.isEmpty()}" class="cart-empty">
         <p>Твій кошик пустий</p>
-        <a href="/cart" class="text-blue-500">Повернутися до кошика</a>
+        <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
 
-      <div th:unless="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
-        <table class="w-full mb-6">
+      <div th:unless="${cart.items.isEmpty()}" class="cart-items">
+        <table class="cart-items-table">
           <thead>
-          <tr class="border-b">
-            <th class="text-left">Товар</th>
+          <tr>
+            <th>Товар</th>
             <th class="text-center">Кількість</th>
             <th class="text-right">Ціна</th>
           </tr>
           </thead>
           <tbody>
-          <tr th:each="item : ${cart.items}" class="border-b">
+          <tr th:each="item : ${cart.items}">
             <td th:text="${item.productName}">Назва товару</td>
             <td class="text-center" th:text="${item.quantity}">Кількість</td>
-            <td class="text-right" th:text="${#numbers.formatCurrency(item.price)}">Ціна</td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(item.price, 1, 2)}">Ціна</td>
           </tr>
           </tbody>
         </table>
 
-        <p class="text-xl font-bold mb-6">Загальна сума: <span th:text="${#numbers.formatCurrency(cart.totalPrice)}">Сума</span>
-        </p>
+        <p class="cart-total">Загальна сума: <span
+          th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 2)}">Сума</span></p>
 
-        <form th:action="@{/orders/create}" method="post" class="space-y-6">
+        <form th:action="@{/orders/create}" method="post" class="form-section">
           <!-- Контактна інформація -->
-          <div class="border-b pb-6">
-            <h2 class="text-xl font-semibold mb-4">Контактна інформація</h2>
-            <div class="space-y-4">
-              <div>
-                <label for="fullName" class="block font-semibold">ПІБ:</label>
-                <input type="text"
-                       id="fullName"
-                       name="fullName"
-                       th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
-                       required
-                       pattern="[А-Яа-яІіЇїЄєҐґ'\s]+"
-                       title="Введіть коректне ПІБ"
-                       class="w-full p-2 border rounded">
-              </div>
+          <div class="form-section">
+            <h2>Контактна інформація</h2>
+            <div class="form-group">
+              <label for="fullName">ПІБ:</label>
+              <input type="text"
+                     id="fullName"
+                     name="fullName"
+                     th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
+                     required
+                     pattern="[А-Яа-яІіЇїЄєҐґ'\s]+"
+                     title="Введіть коректне ПІБ">
+            </div>
 
-              <div>
-                <label for="phone" class="block font-semibold">Номер телефону:</label>
-                <input type="tel"
-                       id="phone"
-                       name="phone"
-                       th:value="${userDetails != null ? userDetails.phone : ''}"
-                       required
-                       pattern="\+?\d{10,13}"
-                       title="Введіть коректний номер телефону"
-                       class="w-full p-2 border rounded">
-              </div>
+            <div class="form-group">
+              <label for="phone">Номер телефону:</label>
+              <input type="tel"
+                     id="phone"
+                     name="phone"
+                     th:value="${userDetails != null ? userDetails.phone : ''}"
+                     required
+                     pattern="\+?\d{10,13}"
+                     title="Введіть коректний номер телефону">
+            </div>
 
-              <div>
-                <label for="email" class="block font-semibold">E-mail:</label>
-                <input type="email"
-                       id="email"
-                       name="email"
-                       th:value="${userDetails != null ? userDetails.email : ''}"
-                       required
-                       class="w-full p-2 border rounded">
-              </div>
+            <div class="form-group">
+              <label for="email">E-mail:</label>
+              <input type="email"
+                     id="email"
+                     name="email"
+                     th:value="${userDetails != null ? userDetails.email : ''}"
+                     required>
             </div>
           </div>
 
           <!-- Адреса доставки -->
-          <div class="border-b pb-6">
-            <h2 class="text-xl font-semibold mb-4">Адреса доставки</h2>
+          <div class="form-section">
+            <h2>Адреса доставки</h2>
 
             <!-- Вибір джерела адреси -->
-            <div class="mb-4">
-              <div class="flex items-center space-x-4">
+            <div class="address-radio-group">
+              <div>
                 <input type="radio"
                        id="useProfileAddress"
                        name="addressSource"
                        value="profile"
-                       class="form-radio"
                        th:checked="${userDetails != null && userDetails.address != null}"
                        onchange="toggleAddressForm(this)">
                 <label for="useProfileAddress">Використати адресу з профілю</label>
+              </div>
 
+              <div>
                 <input type="radio"
                        id="useNewAddress"
                        name="addressSource"
                        value="new"
-                       class="form-radio"
                        th:checked="${userDetails == null || userDetails.address == null}"
                        onchange="toggleAddressForm(this)">
                 <label for="useNewAddress">Вказати нову адресу</label>
@@ -112,7 +107,7 @@
             <!-- Адреса з профілю -->
             <div id="profileAddressSection"
                  th:style="${userDetails != null && userDetails.address != null ? 'display: block' : 'display: none'}"
-                 class="mb-4 p-4 bg-gray-50 rounded">
+                 class="profile-address-section">
               <div th:if="${userDetails != null && userDetails.address != null}">
                 <p><strong>Регіон:</strong> <span th:text="${userDetails.address.region}"></span></p>
                 <p><strong>Місто:</strong> <span th:text="${userDetails.address.city}"></span></p>
@@ -126,57 +121,60 @@
             <!-- Форма нової адреси -->
             <div id="newAddressSection"
                  th:style="${userDetails == null || userDetails.address == null ? 'display: block' : 'display: none'}"
-                 class="space-y-4">
-              <div>
-                <label for="region" class="block font-semibold">Регіон:</label>
-                <input type="text" id="region" name="region" class="w-full p-2 border rounded">
-              </div>
+                 class="new-address-section">
+              <div class="address-fields">
+                <div class="form-group">
+                  <label for="region">Регіон:</label>
+                  <input type="text" id="region" name="region">
+                </div>
 
-              <div>
-                <label for="city" class="block font-semibold">Місто:</label>
-                <input type="text" id="city" name="city" class="w-full p-2 border rounded">
-              </div>
+                <div class="form-group">
+                  <label for="city">Місто:</label>
+                  <input type="text" id="city" name="city">
+                </div>
 
-              <div>
-                <label for="area" class="block font-semibold">Район:</label>
-                <input type="text" id="area" name="area" class="w-full p-2 border rounded">
-              </div>
+                <div class="form-group">
+                  <label for="area">Район:</label>
+                  <input type="text" id="area" name="area">
+                </div>
 
-              <div>
-                <label for="street" class="block font-semibold">Вулиця:</label>
-                <input type="text" id="street" name="street" class="w-full p-2 border rounded">
-              </div>
+                <div class="form-group">
+                  <label for="street">Вулиця:</label>
+                  <input type="text" id="street" name="street">
+                </div>
 
-              <div>
-                <label for="house" class="block font-semibold">Будинок:</label>
-                <input type="text" id="house" name="house" class="w-full p-2 border rounded">
-              </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="house">Будинок:</label>
+                    <input type="text" id="house" name="house">
+                  </div>
 
-              <div>
-                <label for="apartment" class="block font-semibold">Квартира:</label>
-                <input type="text" id="apartment" name="apartment" class="w-full p-2 border rounded">
+                  <div class="form-group">
+                    <label for="apartment">Квартира:</label>
+                    <input type="text" id="apartment" name="apartment">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Служба доставки -->
-          <div>
-            <label for="postOffice" class="block font-semibold">Служба доставки:</label>
-            <select id="postOffice" name="postOffice" required class="w-full p-2 border rounded">
+          <div class="form-group">
+            <label for="postOffice">Служба доставки:</label>
+            <select id="postOffice" name="postOffice" required>
               <option value="">Оберіть службу доставки</option>
               <option value="nova_poshta">Нова Пошта</option>
               <option value="ukrposhta">Укрпошта</option>
             </select>
           </div>
 
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">
-            Підтвердити замовлення
-          </button>
+          <button type="submit" class="btn-submit">Підтвердити замовлення</button>
         </form>
 
-        <a href="/cart" class="text-blue-500 mt-4 block text-center">Повернутися до кошика</a>
+        <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
     </div>
+
   </main>
 </div>
 

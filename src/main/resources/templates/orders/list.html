@@ -1,126 +1,80 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>Замовлення</title>
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .btn-details {
-      padding: 5px 10px;
-      background-color: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border-radius: 3px;
-    }
-
-    .status-badge {
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.9em;
-      color: white;
-    }
-
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      color: white;
-      font-size: 0.9em;
-      display: inline-block;
-    }
-
-    select {
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-
-    select:hover {
-      border-color: #666;
-    }
-  </style>
-</head>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
-<h1 th:text="${isAdmin ? 'Всі замовлення користувачів' : 'Мої замовлення'}">Замовлення</h1>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="page-wrapper">
+  <div class="cityscape"></div>
+  <div class="cityscape-revers"></div>
 
-<div th:if="${success}" th:text="${success}" style="color: green;"></div>
-<div th:if="${error}" th:text="${error}" style="color: red;"></div>
+  <main class="content mt-5">
+    <div class="order-page">
+      <h1 th:text="${isAdmin ? 'Всі замовлення користувачів' : 'Мої замовлення'}">Замовлення</h1>
 
-<!-- Показуємо кнопку створення замовлення тільки для звичайних користувачів -->
-<a th:if="${!isAdmin}" href="/orders/create" class="btn-details" style="display: inline-block; margin-bottom: 20px;">
-  Створити нове замовлення
-</a>
+      <div th:if="${success}" th:text="${success}" class="text-green"></div>
+      <div th:if="${error}" th:text="${error}" class="text-red"></div>
 
-<!-- Оновлена таблиця зі списком замовлень -->
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Дата замовлення</th>
-    <th th:if="${isAdmin}">Ім'я користувача</th>
-    <th th:if="${isAdmin}">Email користувача</th>
-    <th>Статус</th>
-    <th>Сума</th>
-    <th>Дії</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="order : ${orders}">
-    <td th:text="${order.id}"></td>
-    <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
-    <td th:if="${isAdmin}" th:text="${order.userFirstName + ' ' + order.userLastName}"></td>
-    <td th:if="${isAdmin}" th:text="${order.userEmail}"></td>
-    <td>
-      <!-- Для адміна - випадаючий список -->
-      <div th:if="${isAdmin}" class="flex items-center gap-2">
-        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="flex items-center gap-2">
-          <select name="status" class="p-1 rounded border" onchange="this.form.submit()">
-            <option value="NEW" th:selected="${order.status.name() == 'NEW'}">Нове замовлення</option>
-            <option value="PAID" th:selected="${order.status.name() == 'PAID'}" disabled>Оплачено</option>
-            <option value="PROCESSING" th:selected="${order.status.name() == 'PROCESSING'}">В обробці</option>
-            <option value="SHIPPED" th:selected="${order.status.name() == 'SHIPPED'}">Відправлено</option>
-            <option value="DELIVERED" th:selected="${order.status.name() == 'DELIVERED'}">Доставлено</option>
-            <option value="COMPLETED" th:selected="${order.status.name() == 'COMPLETED'}" disabled>Завершено</option>
-            <option value="CANCELED" th:selected="${order.status.name() == 'CANCELED'}">Скасовано</option>
-          </select>
-        </form>
-      </div>
-      <!-- Для користувача - просто текст статусу -->
-      <span th:unless="${isAdmin}" class="status-badge" th:switch="${order.status.name()}">
-        <span th:case="'NEW'" style="background-color: #9E9E9E;" th:text="'Нове замовлення'"></span>
-        <span th:case="'PAID'" style="background-color: #4CAF50;" th:text="'Оплачено'"></span>
-        <span th:case="'PROCESSING'" style="background-color: #2196F3;" th:text="'В обробці'"></span>
-        <span th:case="'SHIPPED'" style="background-color: #FF9800;" th:text="'Відправлено'"></span>
-        <span th:case="'DELIVERED'" style="background-color: #4CAF50;" th:text="'Доставлено'"></span>
-        <span th:case="'COMPLETED'" style="background-color: #4CAF50;" th:text="'Завершено'"></span>
-        <span th:case="'CANCELED'" style="background-color: #f44336;" th:text="'Скасовано'"></span>
-      </span>
-    </td>
-    <td th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2) + ' грн'}"></td>
-    <td>
-      <a th:href="@{/orders/{id}(id=${order.id})}" class="btn-details">
-        Деталі
-      </a>
-    </td>
-  </tr>
-  </tbody>
-</table>
+      <!-- Оновлена таблиця зі списком замовлень -->
+      <table class="order-table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Дата замовлення</th>
+          <th th:if="${isAdmin}">Ім'я користувача</th>
+          <th th:if="${isAdmin}">Email користувача</th>
+          <th>Статус</th>
+          <th>Сума</th>
+          <th>Дії</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+          <td th:text="${order.id}"></td>
+          <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
+          <td th:if="${isAdmin}" th:text="${order.userFirstName + ' ' + order.userLastName}"></td>
+          <td th:if="${isAdmin}" th:text="${order.userEmail}"></td>
+          <td>
+            <!-- Для адміна - випадаючий список -->
+            <div th:if="${isAdmin}" class="flex items-center gap-2">
+              <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="flex items-center gap-2">
+                <select name="status" class="p-1 rounded border" onchange="this.form.submit()">
+                  <option value="NEW" th:selected="${order.status.name() == 'NEW'}">Нове замовлення</option>
+                  <option value="PAID" th:selected="${order.status.name() == 'PAID'}" disabled>Оплачено</option>
+                  <option value="PROCESSING" th:selected="${order.status.name() == 'PROCESSING'}">В обробці</option>
+                  <option value="SHIPPED" th:selected="${order.status.name() == 'SHIPPED'}">Відправлено</option>
+                  <option value="DELIVERED" th:selected="${order.status.name() == 'DELIVERED'}">Доставлено</option>
+                  <option value="COMPLETED" th:selected="${order.status.name() == 'COMPLETED'}" disabled>Завершено
+                  </option>
+                  <option value="CANCELED" th:selected="${order.status.name() == 'CANCELED'}">Скасовано</option>
+                </select>
+              </form>
+            </div>
+            <!-- Для користувача - просто текст статусу -->
+            <span th:unless="${isAdmin}" class="status-badge"
+                  th:classappend="${'status-badge ' + order.status.name().toLowerCase()}">
+                  <span th:switch="${order.status.name()}">
+                    <span th:case="'NEW'" th:text="'Нове замовлення'"></span>
+                    <span th:case="'PAID'" th:text="'Оплачено'"></span>
+                    <span th:case="'PROCESSING'" th:text="'В обробці'"></span>
+                    <span th:case="'SHIPPED'" th:text="'Відправлено'"></span>
+                    <span th:case="'DELIVERED'" th:text="'Доставлено'"></span>
+                    <span th:case="'COMPLETED'" th:text="'Завершено'"></span>
+                    <span th:case="'CANCELED'" th:text="'Скасовано'"></span>
+                  </span>
+                </span>
+          </td>
+          <td th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2) + ' грн'}"></td>
+          <td>
+            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn-details">
+              Деталі
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
 </body>
 </html>

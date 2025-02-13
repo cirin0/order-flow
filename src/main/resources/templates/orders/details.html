@@ -1,84 +1,85 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>Деталі замовлення</title>
-</head>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}"></head>
 <body>
-<h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="page-wrapper">
+  <div class="cityscape"></div>
+  <div class="cityscape-revers"></div>
 
-<div th:if="${success}" th:text="${success}"></div>
-<div th:if="${error}" th:text="${error}"></div>
+  <main class="content mt-5">
+    <div class="order-detail-page">
+      <h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
 
-<div>
-  <p>Статус: <span th:text="${order.status.description}"></span></p>
-  <p>Загальна сума: <span th:text="${order.totalPrice}"></span></p>
-  <p>Дата замовлення: <span th:text="${order.orderDate}"></span></p>
-  <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
+      <div th:if="${success}" th:text="${success}" class="text-green"></div>
+      <div th:if="${error}" th:text="${error}" class="text-red"></div>
 
-  <h3>Товари:</h3>
-  <table>
-    <thead>
-    <tr>
-      <th>Назва</th>
-      <th>Кількість</th>
-      <th>Ціна</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="item : ${order.items}">
-      <td th:text="${item.productName}"></td>
-      <td th:text="${item.quantity}"></td>
-      <td th:text="${item.price}"></td>
-    </tr>
-    </tbody>
-  </table>
+      <div class="order-info">
+        <p>Статус: <span th:text="${order.status.description}"></span></p>
+        <p>Загальна сума: <span th:text="${order.totalPrice}"></span> ₴</p>
+        <p>Дата замовлення: <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}"></span></p>
+        <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
+      </div>
 
-  <div th:if="${isAdmin}">
-    <h3>Змінити статус:</h3>
-    <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post">
-      <select name="status">
-        <option th:each="status : ${statuses}"
-                th:value="${status}"
-                th:text="${status.description}"
-                th:selected="${status == order.status}">
-        </option>
-      </select>
-      <button type="submit">Оновити статус</button>
-    </form>
-  </div>
-  <form th:action="@{/payment/create}" method="post"
-        th:if="${order.status.name() == 'NEW' and !isAdmin}">
-    <input type="hidden" name="orderId" th:value="${order.id}"/>
-    <button type="submit" class="btn-payment">Оплатити замовлення</button>
-  </form>
-  <div class="order-actions">
-    <form th:action="@{/payment/create}" method="post"
-          th:if="${order.status.name() == 'NEW' and !isAdmin}">
-      <input type="hidden" name="orderId" th:value="${order.id}"/>
-      <button type="submit" class="btn-payment">Оплатити замовлення</button>
-    </form>
-    
-    <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
-      class="btn-download"
-      target="_blank">
-      Завантажити pdf замовлення
-    </a>
-  <div>
-    <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
-          th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
-      <button type="submit">Скасувати замовлення</button>
-    </form>
+      <h3>Товари:</h3>
+      <table class="order-items-table">
+        <thead>
+        <tr>
+          <th>Назва</th>
+          <th>Кількість</th>
+          <th>Ціна</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.items}">
+          <td th:text="${item.productName}"></td>
+          <td th:text="${item.quantity}"></td>
+          <td th:text="${item.price}"></td>
+        </tr>
+        </tbody>
+      </table>
 
-    <form th:action="@{/orders/{id}/complete(id=${order.id})}" method="post"
-          th:if="${order.status.name() == 'DELIVERED'}">
-      <button type="submit">Завершити замовлення</button>
-    </form>
+      <div th:if="${isAdmin}" class="status-form">
+        <h3>Змінити статус:</h3>
+        <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post">
+          <select name="status">
+            <option th:each="status : ${statuses}"
+                    th:value="${status}"
+                    th:text="${status.description}"
+                    th:selected="${status == order.status}">
+            </option>
+          </select>
+          <button type="submit">Оновити статус</button>
+        </form>
+      </div>
 
+      <div class="order-actions">
+        <form th:action="@{/payment/create}" method="post"
+              th:if="${order.status.name() == 'NEW' and !isAdmin}">
+          <input type="hidden" name="orderId" th:value="${order.id}"/>
+          <button type="submit" class="btn-payment">Оплатити замовлення</button>
+        </form>
 
-    <!--    <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post">-->
-    <!--      <button type="submit" onclick="return confirm('Ви впевнені?')">Видалити замовлення</button>-->
-    <!--    </form>-->
-  </div>
+        <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
+           class="btn-download"
+           target="_blank">
+          Завантажити pdf замовлення
+        </a>
+
+        <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
+              th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
+          <button type="submit">Скасувати замовлення</button>
+        </form>
+
+        <form th:action="@{/orders/{id}/complete(id=${order.id})}" method="post"
+              th:if="${order.status.name() == 'DELIVERED'}">
+          <button type="submit">Завершити замовлення</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
 </div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>
