@@ -64,7 +64,13 @@
       <input type="hidden" name="orderId" th:value="${order.id}"/>
       <button type="submit" class="btn-payment">Оплатити замовлення</button>
     </form>
-
+    
+    <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
+      class="btn-download"
+      target="_blank">
+      Завантажити pdf замовлення
+    </a>
+  <div>
     <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
           th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
       <button type="submit">Скасувати замовлення</button>
