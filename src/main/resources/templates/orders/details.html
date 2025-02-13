@@ -6,28 +6,15 @@
 <body>
 <h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
 
-<div th:if="${success}" th:text="${success}" class="alert alert-success"></div>
-<div th:if="${error}" th:text="${error}" class="alert alert-danger"></div>
+<div th:if="${success}" th:text="${success}"></div>
+<div th:if="${error}" th:text="${error}"></div>
 
-<div class="order-details">
-  <p>Статус: <span th:text="${order.statusDescription}"></span></p>
+<div>
+  <p>Статус: <span th:text="${order.status.description}"></span></p>
   <p>Загальна сума: <span th:text="${order.totalPrice}"></span></p>
 
-  <!-- Додаємо секцію з адресою доставки -->
-  <div class="delivery-address" th:if="${order.address != null}">
-    <h3>Адреса доставки:</h3>
-    <div class="address-details">
-      <p>Регіон: <span th:text="${order.address.region}"></span></p>
-      <p>Місто: <span th:text="${order.address.city}"></span></p>
-      <p>Район: <span th:text="${order.address.area}"></span></p>
-      <p>Вулиця: <span th:text="${order.address.street}"></span></p>
-      <p>Будинок: <span th:text="${order.address.house}"></span></p>
-      <p>Квартира: <span th:text="${order.address.apartment}"></span></p>
-    </div>
-  </div>
-
   <h3>Товари:</h3>
-  <table class="order-items">
+  <table>
     <thead>
     <tr>
       <th>Назва</th>
@@ -57,7 +44,11 @@
       <button type="submit">Оновити статус</button>
     </form>
   </div>
-
+  <form th:action="@{/payment/create}" method="post"
+        th:if="${order.status.name() == 'NEW' and !isAdmin}">
+    <input type="hidden" name="orderId" th:value="${order.id}"/>
+    <button type="submit" class="btn-payment">Оплатити замовлення</button>
+  </form>
   <div class="order-actions">
     <form th:action="@{/payment/create}" method="post"
           th:if="${order.status.name() == 'NEW' and !isAdmin}">
@@ -80,6 +71,11 @@
           th:if="${order.status.name() == 'DELIVERED'}">
       <button type="submit">Завершити замовлення</button>
     </form>
+
+
+    <!--    <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post">-->
+    <!--      <button type="submit" onclick="return confirm('Ви впевнені?')">Видалити замовлення</button>-->
+    <!--    </form>-->
   </div>
 </div>
 </body>
