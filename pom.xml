@@ -31,16 +31,6 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
   </properties>
-  <repositories>
-    <repository>
-      <id>repository</id>
-      <url>https://github.com/liqpay/sdk-java/raw/repository</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
   <dependencies>
     <!-- Spring Boot Starters -->
     <dependency>
@@ -64,46 +54,38 @@
       <artifactId>spring-security-crypto</artifactId>
       <version>6.4.2</version>
     </dependency>
-
     <!-- Swagger -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>2.5.0</version>
     </dependency>
-
     <!-- database -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
-
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-
     <!-- DevTools -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>com.liqpay</groupId>
       <artifactId>liqpay-sdk</artifactId>
       <version>0.8-SNAPSHOT</version>
     </dependency>
-
     <!-- MapStruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
@@ -117,35 +99,30 @@
       <version>1.6.2</version>
       <scope>provided</scope>
     </dependency>
-
-
     <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
-
     <!-- Email -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-mail</artifactId>
     </dependency>
-
     <!-- Stripe -->
     <dependency>
       <groupId>com.stripe</groupId>
       <artifactId>stripe-java</artifactId>
       <version>28.0.1</version>
     </dependency>
-
+    <!-- PDF -->
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>itextpdf</artifactId>
       <version>5.5.13.4</version>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -196,5 +173,4 @@
       </resource>
     </resources>
   </build>
-
 </project>

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/invoice")
 @RequiredArgsConstructor
-public class InvoiceController {
+public class PdfController {
   private final PdfService pdfService;
 
   @GetMapping("/order/{orderId}/invoice")
