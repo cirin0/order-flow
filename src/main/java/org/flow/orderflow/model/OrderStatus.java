@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum OrderStatus {
   NEW("Нове замовлення"),
+  PAID("Оплачено"),
   PROCESSING("В обробці"),
   SHIPPED("Відправлено"),
   DELIVERED("Доставлено"),

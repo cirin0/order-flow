@@ -55,11 +55,32 @@ public class OrderService {
     return orderMapper.toDtoList(orders);
   }
 
+  public List<OrderDto> getAllOrdersWithUserDetails() {
+    List<Order> orders = orderRepository.findAll();
+    // Використовуємо оновлений маппер, який тепер знає про поля first_name та last_name
+    return orderMapper.toDtoList(orders);
+  }
+
   public OrderDto getOrderByUserEmail(String email) {
     Order order = orderRepository.findByUserEmail(email)
       .orElseThrow(() -> new NotFound("Order not found for user with email: " + email));
     return orderMapper.toDto(order);
   }
+
+  @Transactional
+  public OrderDto updateOrderToPaid(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+      .orElseThrow(() -> new NotFound("Замовлення не знайдено з id: " + orderId));
+
+    if (order.getStatus() != OrderStatus.NEW) {
+      throw new IllegalStateException("Можна оплатити тільки нове замовлення");
+    }
+
+    order.setStatus(OrderStatus.PAID);
+    Order savedOrder = orderRepository.save(order);
+    return orderMapper.toDto(savedOrder);
+  }
+
 
   @Transactional
   public OrderDto createOrder(OrderDto orderDto, String userEmail) {
@@ -105,11 +126,12 @@ public class OrderService {
     return orderMapper.toDto(savedOrder);
   }
 
+
   public OrderDto updateOrderStatus(Long id, OrderStatus newStatus) {
     Order order = orderRepository.findById(id)
       .orElseThrow(() -> new NotFound("Order not found with id: " + id));
     if (order.getStatus() == OrderStatus.CANCELED || order.getStatus() == OrderStatus.COMPLETED) {
-      throw new IllegalStateException("Cannot change status of canceled or completed order");
+      throw new IllegalStateException("Не можна змінити статус скасованого або завершеного замовлення");
     }
     order.setStatus(newStatus);
     Order savedOrder = orderRepository.save(order);
