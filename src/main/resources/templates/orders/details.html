@@ -58,7 +58,7 @@
         <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
            class="btn-download"
            target="_blank"
-           th:if="${order.status.name() == 'PAID' || order.status.name() == 'DELIVERED' || order.status.name() == 'COMPLETED'}">
+           th:if="${order.status.name() == 'PAID' || order.status.name()  == 'SHIPPED' || order.status.name() == 'DELIVERED' || order.status.name() == 'COMPLETED'}">
           Завантажити pdf замовлення
         </a>
 
