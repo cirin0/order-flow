@@ -4,19 +4,19 @@
   <title>Деталі замовлення</title>
 </head>
 <body>
-<h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
+<h1 th:if="${order != null}">Деталі замовлення #<span th:text="${order.id}"></span></h1>
 
-<div th:if="${success}" th:text="${success}"></div>
-<div th:if="${error}" th:text="${error}"></div>
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-<div>
-  <p>Статус: <span th:text="${order.status.description}"></span></p>
-  <p>Загальна сума: <span th:text="${order.totalPrice}"></span></p>
-  <p>Дата замовлення: <span th:text="${order.orderDate}"></span></p>
-  <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
+<div class="order-details" th:if="${order != null}">
+  <p>Статус: <span th:text="${order?.status?.description}"></span></p>
+  <p>Загальна сума: <span th:text="${order?.totalPrice}"></span></p>
+  <p>Дата замовлення: <span th:text="${#temporals.format(order?.orderDate, 'dd-MM-yyyy HH:mm')}"></span></p>
+  <p>ТТН номер: <span th:text="${order?.orderNumber}"></span></p>
 
   <h3>Товари:</h3>
-  <table>
+  <table class="table">
     <thead>
     <tr>
       <th>Назва</th>
@@ -25,59 +25,71 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="item : ${order.items}">
-      <td th:text="${item.productName}"></td>
-      <td th:text="${item.quantity}"></td>
-      <td th:text="${item.price}"></td>
+    <tr th:if="${order != null && order.items != null}"
+        th:each="item : ${order.items}">
+      <td th:text="${item?.productName}"></td>
+      <td th:text="${item?.quantity}"></td>
+      <td th:text="${item?.price}"></td>
     </tr>
     </tbody>
   </table>
 
-  <div th:if="${isAdmin}">
+  <h3>Адреса доставки:</h3>
+  <div class="delivery-address">
+    <div th:if="${address != null}">
+      <p>
+        <strong>Область:</strong> <span th:text="${address?.region}"></span><br/>
+        <strong>Місто:</strong> <span th:text="${address?.city}"></span><br/>
+        <strong>Район:</strong> <span th:text="${address?.area}"></span><br/>
+        <strong>Вулиця:</strong> <span th:text="${address?.street}"></span><br/>
+        <strong>Будинок:</strong> <span th:text="${address?.house}"></span><br/>
+        <strong>Квартира:</strong> <span th:text="${address?.apartment}"></span>
+      </p>
+    </div>
+    <p th:unless="${address != null}" class="text-muted">
+      <i class="fas fa-exclamation-circle"></i> Адреса доставки не вказана
+    </p>
+  </div>
+
+  <div th:if="${isAdmin != null && isAdmin && statuses != null}">
     <h3>Змінити статус:</h3>
-    <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post">
-      <select name="status">
+    <form th:action="@{/orders/{id}/status(id=${order?.id})}" method="post">
+      <select name="status" class="form-select">
         <option th:each="status : ${statuses}"
                 th:value="${status}"
                 th:text="${status.description}"
-                th:selected="${status == order.status}">
+                th:selected="${status == order?.status}">
         </option>
       </select>
-      <button type="submit">Оновити статус</button>
+      <button type="submit" class="btn btn-primary mt-2">Оновити статус</button>
     </form>
   </div>
-  <form th:action="@{/payment/create}" method="post"
-        th:if="${order.status.name() == 'NEW' and !isAdmin}">
-    <input type="hidden" name="orderId" th:value="${order.id}"/>
-    <button type="submit" class="btn-payment">Оплатити замовлення</button>
-  </form>
-  <div class="order-actions">
+
+  <div class="order-actions mt-4">
     <form th:action="@{/payment/create}" method="post"
-          th:if="${order.status.name() == 'NEW' and !isAdmin}">
-      <input type="hidden" name="orderId" th:value="${order.id}"/>
-      <button type="submit" class="btn-payment">Оплатити замовлення</button>
+          th:if="${order?.status?.name() == 'NEW' and !isAdmin}">
+      <input type="hidden" name="orderId" th:value="${order?.id}"/>
+      <button type="submit" class="btn btn-success">Оплатити замовлення</button>
     </form>
-    
-    <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
-      class="btn-download"
-      target="_blank">
-      Завантажити pdf замовлення
+
+    <a th:href="@{/orders/{id}/download-invoice(id=${order?.id})}"
+       class="btn btn-secondary mt-2"
+       target="_blank"
+       download>
+      Завантажити PDF замовлення
     </a>
-  <div>
-    <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
-          th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
-      <button type="submit">Скасувати замовлення</button>
+  </div>
+
+  <div class="mt-4">
+    <form th:action="@{/orders/{id}/cancel(id=${order?.id})}" method="post"
+          th:if="${order?.status?.name() == 'NEW' || order?.status?.name() == 'PROCESSING'}">
+      <button type="submit" class="btn btn-danger">Скасувати замовлення</button>
     </form>
 
-    <form th:action="@{/orders/{id}/complete(id=${order.id})}" method="post"
-          th:if="${order.status.name() == 'DELIVERED'}">
-      <button type="submit">Завершити замовлення</button>
+    <form th:action="@{/orders/{id}/complete(id=${order?.id})}" method="post"
+          th:if="${order?.status?.name() == 'DELIVERED'}">
+      <button type="submit" class="btn btn-success">Завершити замовлення</button>
     </form>
-
-
-    <!--    <form th:action="@{/orders/{id}/delete(id=${order.id})}" method="post">-->
-    <!--      <button type="submit" onclick="return confirm('Ви впевнені?')">Видалити замовлення</button>-->
-    <!--    </form>-->
   </div>
 </div>
 </body>
