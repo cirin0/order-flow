@@ -54,7 +54,6 @@ public class OrderService {
 
   public List<OrderDto> getAllOrdersWithUserDetails() {
     List<Order> orders = orderRepository.findAll();
-    // Використовуємо оновлений маппер, який тепер знає про поля first_name та last_name
     return orderMapper.toDtoList(orders);
   }
 
