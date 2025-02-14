@@ -1298,10 +1298,8 @@ em {
 }
 
 
-/* Стилі корзини */
-
 .cart-container {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
   border-radius: 15px;
   padding: 30px;
@@ -1316,6 +1314,7 @@ em {
   margin-bottom: 1.5rem;
   font-weight: 600;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .cart-table {
@@ -1445,19 +1444,20 @@ em {
 }
 
 .checkout-btn {
-  background-color: #28a745;
-  color: white;
+  background-color: #ffffff;
+  color: #000000;
   padding: 12px 25px;
   font-size: 1.1rem;
   border-radius: 8px;
-  border: none;
+  border: 1px solid black;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
 }
 
 .checkout-btn:hover {
-  background-color: #218838;
+  background-color: #000000;
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -1521,7 +1521,6 @@ em {
     width: 30%;
   }
 }
-
 /* СТИЛІ ПРОФІЛЮ */
 
 .profile-container {
@@ -2058,11 +2057,11 @@ em {
   font-weight: 600;
   text-transform: uppercase;
   text-align: center;
-  color: #333; /* Темний заголовок */
+  color: #333;
 }
 
 .order-create-page .cart-empty {
-  background-color: rgba(0, 0, 0, 0.05); /* Світлий фон з прозорістю */
+  background-color: rgba(0, 0, 0, 0.05);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -2070,51 +2069,51 @@ em {
 }
 
 .order-create-page .cart-empty a {
-  color: #007bff; /* Синій колір для посилань */
+  color: #007bff;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .order-create-page .cart-empty a:hover {
-  color: #0056b3; /* Темніший синій при наведенні */
+  color: #0056b3;
 }
 
 .order-create-page .cart-items-table {
   width: 100%;
-  border-collapse: collapse; /* Злиття границь */
+  border-collapse: collapse;
   margin-bottom: 20px;
-  background-color: white; /* Білий фон таблиці */
-  border-radius: 8px; /* Закруглені кути */
-  overflow: hidden; /* Щоб закруглені кути працювали */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Легка тінь */
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .order-create-page .cart-items-table thead th {
-  background-color: #f8f9fa; /* Світлий фон для заголовків */
+  background-color: #f8f9fa;
   color: #333;
   font-weight: 600;
   padding: 12px 15px;
   text-align: left;
   text-transform: uppercase;
-  border-bottom: 2px solid #e9ecef; /* Лінія під заголовками */
+  border-bottom: 2px solid #e9ecef;
 }
 
 .order-create-page .cart-items-table tbody tr {
-  transition: background-color 0.3s ease; /* Плавний перехід при наведенні */
+  transition: background-color 0.3s ease;
 }
 
 .order-create-page .cart-items-table tbody tr:hover {
-  background-color: #f8f9fa; /* Світлий фон при наведенні */
+  background-color: #f8f9fa;
 }
 
 .order-create-page .cart-items-table td {
   padding: 12px 15px;
   color: #333;
-  border-bottom: 1px solid #e9ecef; /* Лінія між рядками */
+  border-bottom: 1px solid #e9ecef;
 }
 
 .order-create-page .cart-items-table td:first-child {
-  font-weight: 500; /* Назва товару виділена */
+  font-weight: 500;
 }
 
 .order-create-page .cart-items-table td.text-center {
@@ -2181,9 +2180,9 @@ em {
 .order-create-page .form-group select {
   width: 100%;
   padding: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.2); /* Світла рамка */
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.9); /* Білий фон */
+  background-color: rgba(255, 255, 255, 0.9);
   color: #333;
   transition: border-color 0.3s ease;
 }
@@ -2191,12 +2190,12 @@ em {
 .order-create-page .form-group input:focus,
 .order-create-page .form-group select:focus {
   outline: none;
-  border-color: rgba(0, 0, 0, 0.5); /* Темніша рамка при фокусі */
+  border-color: rgba(0, 0, 0, 0.5);
 }
 
 .order-create-page .form-group input:hover,
 .order-create-page .form-group select:hover {
-  border-color: rgba(0, 0, 0, 0.5); /* Темніша рамка при наведенні */
+  border-color: rgba(0, 0, 0, 0.5);
 }
 
 .order-create-page .address-radio-group {
@@ -2240,7 +2239,7 @@ em {
 }
 
 .order-create-page .btn-submit {
-  background-color: rgba(0, 0, 0, 0.8); /* Темний фон для кнопки */
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 12px 20px;
   border-radius: 8px;
@@ -2253,11 +2252,11 @@ em {
 }
 
 .order-create-page .btn-submit:hover {
-  background-color: rgba(0, 0, 0, 1); /* Темніший фон при наведенні */
+  background-color: rgba(0, 0, 0, 1);
 }
 
 .order-create-page .btn-back {
-  color: #007bff; /* Синій колір для посилання */
+  color: #007bff;
   text-decoration: none;
   display: block;
   text-align: center;
@@ -2266,5 +2265,5 @@ em {
 }
 
 .order-create-page .btn-back:hover {
-  color: #0056b3; /* Темніший синій при наведенні */
+  color: #0056b3;
 }

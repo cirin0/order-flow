@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="h-full">
 <head th:replace="~{fragments/head :: head}">
-  <meta charset="UTF-8"> <!-- Додано кодування UTF-8 -->
+  <meta charset="UTF-8">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 flex flex-col h-full m-0">
 <header th:replace="~{fragments/header :: header}"></header>
@@ -35,15 +36,14 @@
 
         <!-- Empty Cart -->
         <div th:if="${cart.items.isEmpty()}" class="empty-cart text-center">
-          <p class=" text-black mb-4 " style="font-size: xx-large ">Ваш кошик порожній</p>
+          <p class="text-black mb-4" style="font-size: xx-large">Ваш кошик порожній</p>
           <a href="/" class="btn btn-outline-dark px-4 py-2 rounded hover:bg-blue-600">Продовжити
             покупки</a>
         </div>
 
-        <h1>Ваш кошик</h1>
-
         <!-- Cart Items -->
         <div th:unless="${cart.items.isEmpty()}">
+          <h2 class="cart-title text-3xl font-bold mb-6 text-center">Ваш кошик</h2>
           <table class="cart-table w-full mb-4">
             <thead>
             <tr class="bg-gray-200">
@@ -82,7 +82,7 @@
                   <input type="hidden" name="itemId" th:value="${item.id}"/>
                   <button type="submit"
                           class="cart-btn remove-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                    Видалити
+                    <i class="fas fa-trash"></i> Видалити
                   </button>
                 </form>
               </td>
@@ -98,13 +98,13 @@
             <div class="cart-actions flex justify-between">
               <form th:action="@{/cart/clear}" method="post" style="display: inline-block">
                 <button type="submit"
-                        class="cart-btn clear-cart-btn bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                  Очистити кошик
+                        class="cart-btn clear-cart-btn  px-4 py-2">
+                  <i class="fas fa-broom"></i> Очистити кошик
                 </button>
               </form>
 
-              <a href="/orders/create" class="checkout-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Оформити замовлення
+              <a href="/orders/create" class="checkout-btn px-4 py-2 rounded">
+                <i class="fas fa-shopping-cart"></i> Оформити замовлення
               </a>
             </div>
           </div>
@@ -134,13 +134,11 @@
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              // Оновити загальну суму кошика
               const totalPriceElement = document.querySelector('.cart-total span');
               if (totalPriceElement) {
                 totalPriceElement.textContent = data.totalPrice;
               }
 
-              // Оновити попередження про запас
               const stockWarningElement = this.closest('td').querySelector('.stock-warning');
               if (stockWarningElement) {
                 stockWarningElement.textContent = data.warningMessage || '';
