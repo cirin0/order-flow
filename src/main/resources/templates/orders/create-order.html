@@ -52,7 +52,6 @@
                      name="fullName"
                      th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
                      required
-                     pattern="[А-Яа-яІіЇїЄєҐґ'\s]+"
                      title="Введіть коректне ПІБ">
             </div>
 
@@ -63,7 +62,9 @@
                      name="phone"
                      th:value="${userDetails != null ? userDetails.phone : ''}"
                      required
-                     pattern="\+?\d{10,13}"
+                     pattern="[0-9]{10}"
+                     placeholder="0991234567"
+                     maxlength="10"
                      title="Введіть коректний номер телефону">
             </div>
 
@@ -157,20 +158,8 @@
               </div>
             </div>
           </div>
-
-          <!-- Служба доставки -->
-          <div class="form-group">
-            <label for="postOffice">Служба доставки:</label>
-            <select id="postOffice" name="postOffice" required>
-              <option value="">Оберіть службу доставки</option>
-              <option value="nova_poshta">Нова Пошта</option>
-              <option value="ukrposhta">Укрпошта</option>
-            </select>
-          </div>
-
           <button type="submit" class="btn-submit">Підтвердити замовлення</button>
         </form>
-
         <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
     </div>
