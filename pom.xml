@@ -117,9 +117,14 @@
       <artifactId>itextpdf</artifactId>
       <version>5.5.13.4</version>
     </dependency>
+    <!-- Flyway -->
     <dependency>
-      <groupId>org.liquibase</groupId>
-      <artifactId>liquibase-core</artifactId>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
     </dependency>
   </dependencies>
   <build>
