@@ -40,7 +40,7 @@ public class OrderStatusScheduler {
   @Scheduled(timeUnit = SECONDS, fixedRate = 300)
   @Transactional
   public void cancelOrders() {
-    LocalDateTime time = LocalDateTime.now().minusMinutes(10);
+    LocalDateTime time = LocalDateTime.now().minusMinutes(30);
     log.info("Checking for orders from status DELIVERED to CANCELLED");
     List<Order> processingOrders = orderRepository.findByStatusAndOrderDateBefore(
       OrderStatus.DELIVERED,
