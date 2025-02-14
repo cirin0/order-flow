@@ -76,7 +76,7 @@ public class PaymentService {
       PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
       String orderId = paymentIntent.getMetadata().get("orderId");
 
-      if (orderId != null && "succeeded".equals(paymentIntent.getStatus())) {
+      if (orderId != null) {
         Order order = orderRepository.findById(Long.parseLong(orderId))
           .orElseThrow(() -> new PaymentException("Order not found"));
 
