@@ -50,25 +50,26 @@ public class OrderControllerWeb {
 
     List<OrderDto> orders;
     try {
-      // Перевіряємо роль через name()
       if (user.getRole().name().equals("ADMIN")) {
-        // Для адміна отримуємо всі замовлення користувачів
         orders = orderService.getAllOrdersWithUserDetails();
+        model.addAttribute("pageTitle", "Всі замовлення");
       } else {
-        // Для звичайного користувача - тільки його замовлення
         orders = orderService.getOrdersByUserId(user.getUserId());
+        model.addAttribute("pageTitle", "Мої замовлення");
       }
       model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
       model.addAttribute("orders", orders);
+
+
+      if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
+        model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
+      }
     } catch (Exception e) {
       model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
       model.addAttribute("orders", new ArrayList<>());
     }
-
     return "orders/list";
   }
-
-
 
   @GetMapping("/create")
   public String showCreateOrderPage(HttpSession session, Model model) {
@@ -77,7 +78,6 @@ public class OrderControllerWeb {
       return "redirect:/auth/login";
     }
 
-    // Якщо користувач адмін - перенаправляємо на список замовлень
     if ("ADMIN".equals(userSession.getRole())) {
       return "redirect:/orders";
     }
@@ -87,22 +87,14 @@ public class OrderControllerWeb {
 
     model.addAttribute("cart", cart);
     model.addAttribute("userDetails", userDetails);
+    model.addAttribute("pageTitle", "Створити замовлення");
     return "orders/create-order";
-  }
-
-  @GetMapping("/my")
-  public String getMyOrders(Model model, HttpSession session) {
-    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
-    if (user == null) {
-      return "redirect:/auth/login";
-    }
-    model.addAttribute("orders", orderService.getOrderByUserEmail(user.getEmail()));
-    return "orders/my-orders";
   }
 
   @GetMapping("/{id}")
   public String getOrderDetails(@PathVariable Long id, Model model, HttpSession session) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Деталі замовлення");
     if (user == null) {
       return "redirect:/auth/login";
     }
@@ -110,7 +102,6 @@ public class OrderControllerWeb {
     try {
       OrderDto order = orderService.getOrderById(id);
 
-      // Перевіряємо чи має користувач доступ до цього замовлення
       if (!user.getRole().name().equals("ADMIN") && !order.getUserId().equals(user.getUserId())) {
         return "redirect:/orders";
       }
@@ -119,7 +110,7 @@ public class OrderControllerWeb {
       model.addAttribute("statuses", OrderStatus.values());
       model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
 
-      return "orders/details"; // Переконайтеся, що шлях до шаблону вірний
+      return "orders/details";
     } catch (Exception e) {
       model.addAttribute("error", "Помилка при завантаженні замовлення: " + e.getMessage());
       return "redirect:/orders";

@@ -28,11 +28,12 @@ public class CartControllerWeb {
   @GetMapping
   public String showCartPage(HttpSession session, Model model) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Корзина");
 
     if (user == null) {
       return "redirect:/auth/login";
     }
-    
+
     CartDto cart = cartService.getOrCreateCartByUserId(user.getUserId());
     model.addAttribute("cart", cart);
 

@@ -25,6 +25,7 @@ public class UserControllerWeb {
   @GetMapping("/profile")
   public String dashboard(Model model, HttpSession session) {
     UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Профіль");
     if (sessionUser == null) {
       return "redirect:/auth/login";
     }
@@ -38,6 +39,7 @@ public class UserControllerWeb {
   @GetMapping("/edit-profile")
   public String editProfile(Model model, HttpSession session) {
     UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Редагування профілю");
     if (sessionUser == null) {
       return "redirect:/auth/login";
     }
@@ -88,7 +90,8 @@ public class UserControllerWeb {
   }
 
   @GetMapping("/profile/admin-role")
-  public String adminRolePage() {
+  public String adminRolePage(Model model) {
+    model.addAttribute("pageTitle", "Адмін");
     return "user/secret-admin";
   }
 

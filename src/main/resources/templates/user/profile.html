@@ -15,7 +15,7 @@
       <div class="profile-header">
         <h2 class="profile-title">
           <i class="fas fa-user-circle"></i> Вітаємо, <span
-          th:text="${userDetails.firstName + ' ' + userDetails.lastName}"></span>!
+          th:text="${userDetails.firstName + ' ' + userDetails.lastName}"></span>
         </h2>
         <a th:href="@{/user/edit-profile}" class="btn btn-outline-light edit-button">
           <i class="fas fa-edit"></i> Редагувати
@@ -61,7 +61,7 @@
               <p th:text="${userDetails.address.city}"></p>
             </div>
             <div class="profile-info-item">
-              <label><i class="fas fa-map-pin"></i> Район:</label>
+              <label><i class="fas fa-map-pin"></i> <span style="padding-left: 9px">Район:</span></label>
               <p th:text="${userDetails.address.area}"></p>
             </div>
             <div class="profile-info-item">
@@ -73,7 +73,7 @@
               <p th:text="${userDetails.address.house}"></p>
             </div>
             <div class="profile-info-item">
-              <label><i class="fas fa-building"></i> Квартира:</label>
+              <label><i class="fas fa-building"></i> <span style="padding-left: 3px">Квартира:</span></label>
               <p th:text="${userDetails.address.apartment}"></p>
             </div>
           </div>

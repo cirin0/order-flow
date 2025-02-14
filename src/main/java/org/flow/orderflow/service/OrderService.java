@@ -49,15 +49,11 @@ public class OrderService {
 
   public List<OrderDto> getOrdersByUserId(Long userId) {
     List<Order> orders = orderRepository.findByUserId(userId);
-    if (orders.isEmpty()) {
-      throw new NotFound("Orders not found for user with id: " + userId);
-    }
     return orderMapper.toDtoList(orders);
   }
 
   public List<OrderDto> getAllOrdersWithUserDetails() {
     List<Order> orders = orderRepository.findAll();
-    // Використовуємо оновлений маппер, який тепер знає про поля first_name та last_name
     return orderMapper.toDtoList(orders);
   }
 

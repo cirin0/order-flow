@@ -48,6 +48,7 @@ public class ProductControllerWeb {
     model.addAttribute("currentPage", page);
     model.addAttribute("totalPages", productsPage.getTotalPages());
     model.addAttribute("categories", categoryService.getAllCategories());
+    model.addAttribute("pageTitle", "Головна сторінка");
 
     return "products/product-list";
   }
@@ -60,7 +61,10 @@ public class ProductControllerWeb {
     }
     model.addAttribute("product", new ProductDto());
     model.addAttribute("categories", categoryService.getAllCategories());
+    model.addAttribute("pageTitle", "Додати товар");
     return "products/product-add";
+
+
   }
 
   @PostMapping("/add")
@@ -82,6 +86,7 @@ public class ProductControllerWeb {
 
     model.addAttribute("product", productDto);
     model.addAttribute("categories", categories);
+    model.addAttribute("pageTitle", "Змінити товар");
     return "products/product-edit";
   }
 
@@ -140,6 +145,7 @@ public class ProductControllerWeb {
   public String showProductDetails(@PathVariable Long id, Model model) {
     ProductDto productDto = productService.getProductById(id);
     model.addAttribute("product", productDto);
+    model.addAttribute("pageTitle", productDto.getName());
     return "products/product-details";
   }
 
