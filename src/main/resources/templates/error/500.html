@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
-</head>
 <body>
-<main class="container my-4 text-center">
-  <div class="py-5">
-    <h1 class="display-1">500</h1>
-    <h2 class="lead">Помилка сервера</h2>
-    <p class="lead">Щось пішло не так. Спробуйте оновити сторінку або повернутися пізніше.</p>
-    <a th:href="@{/}" class="btn btn-primary">На головну</a>
-  </div>
-</main>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="page-wrapper">
+  <div class="cityscape"></div>
+  <div class="cityscape-revers"></div>
+
+  <main class="content">
+    <div class="py-5 text-center">
+      <h1 class="display-1 text-black">500</h1>
+      <h2 class="text-black">Помилка сервера</h2>
+      <p class="lead text-black">Щось пішло не так. Спробуйте оновити сторінку або повернутися пізніше.</p>
+      <div class="gif-container mb-4">
+        <img src="/images/500.gif" alt="500 Error GIF" class="error-gif" style="width: 400px">
+      </div>
+      <a th:href="@{/}" class="btn btn-dark">На головну</a>
+    </div>
+  </main>
+  <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
+</div>
 </body>
 </html>
