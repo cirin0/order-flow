@@ -14,6 +14,10 @@ import org.flow.orderflow.model.Product;
 import org.flow.orderflow.repository.OrderRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,7 @@ public class OrderService {
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
   private final MailSenderService mailSenderService;
+  private final PdfService pdfService;
 
   public List<OrderDto> getAllOrders() {
     List<Order> orders = orderRepository.findAll();
@@ -44,9 +49,11 @@ public class OrderService {
 
   public List<OrderDto> getOrdersByUserId(Long userId) {
     List<Order> orders = orderRepository.findByUserId(userId);
-    if (orders.isEmpty()) {
-      throw new NotFound("Orders not found for user with id: " + userId);
-    }
+    return orderMapper.toDtoList(orders);
+  }
+
+  public List<OrderDto> getAllOrdersWithUserDetails() {
+    List<Order> orders = orderRepository.findAll();
     return orderMapper.toDtoList(orders);
   }
 
@@ -55,6 +62,21 @@ public class OrderService {
       .orElseThrow(() -> new NotFound("Order not found for user with email: " + email));
     return orderMapper.toDto(order);
   }
+
+  @Transactional
+  public OrderDto updateOrderToPaid(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+      .orElseThrow(() -> new NotFound("Замовлення не знайдено з id: " + orderId));
+
+    if (order.getStatus() != OrderStatus.NEW) {
+      throw new IllegalStateException("Можна оплатити тільки нове замовлення");
+    }
+
+    order.setStatus(OrderStatus.PAID);
+    Order savedOrder = orderRepository.save(order);
+    return orderMapper.toDto(savedOrder);
+  }
+
 
   @Transactional
   public OrderDto createOrder(OrderDto orderDto, String userEmail) {
@@ -73,6 +95,7 @@ public class OrderService {
     }
 
     Order order = Order.builder()
+      .orderNumber(generateUniqueOrderNumber())
       .user(userRepository.findById(orderDto.getUserId())
         .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
       .totalPrice(cart.getTotalPrice())
@@ -95,15 +118,17 @@ public class OrderService {
     order.setItems(orderItems);
     Order savedOrder = orderRepository.save(order);
     sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
+    createConfirmationPdf(orderMapper.toDto(savedOrder));
 //    cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);
   }
+
 
   public OrderDto updateOrderStatus(Long id, OrderStatus newStatus) {
     Order order = orderRepository.findById(id)
       .orElseThrow(() -> new NotFound("Order not found with id: " + id));
     if (order.getStatus() == OrderStatus.CANCELED || order.getStatus() == OrderStatus.COMPLETED) {
-      throw new IllegalStateException("Cannot change status of canceled or completed order");
+      throw new IllegalStateException("Не можна змінити статус скасованого або завершеного замовлення");
     }
     order.setStatus(newStatus);
     Order savedOrder = orderRepository.save(order);
@@ -154,12 +179,32 @@ public class OrderService {
   }
 
   @Async
-  public void sendOrderConfirmationEmail(OrderDto orderDto, String userEmail) {
+  protected void sendOrderConfirmationEmail(OrderDto orderDto, String userEmail) {
     try {
       mailSenderService.sendOrderConfirmationMail(userEmail, orderDto);
       log.info("Order confirmation email sent to {}", userEmail);
     } catch (Exception e) {
       log.error("Failed to send order confirmation email", e);
+    }
+  }
+
+  private void createConfirmationPdf(OrderDto orderDto) {
+    byte[] pdf = pdfService.generateInvoice(orderDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDispositionFormData("filename", "invoice-" + orderDto.getId() + ".pdf");
+    new ResponseEntity<>(pdf, headers, HttpStatus.OK);
+  }
+
+  private String generateUniqueOrderNumber() {
+    while (true) {
+      StringBuilder orderNumber = new StringBuilder();
+      for (int i = 0; i < 10; i++) {
+        orderNumber.append((int) (Math.random() * 10));
+      }
+      if (!orderRepository.existsByOrderNumber(orderNumber.toString())) {
+        return orderNumber.toString();
+      }
     }
   }
 }

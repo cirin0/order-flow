@@ -1,6 +1,5 @@
 package org.flow.orderflow.repository;
 
-import org.flow.orderflow.model.Category;
 import org.flow.orderflow.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +14,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   Product findByName(String name);
 
   List<Product> findByCategoryId(Long categoryId);
-
-  List<Product> findByCategory(Category category);
 
   @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(concat('%', :query, '%'))")
   List<Product> searchByNameContaining(@Param("query") String query, Pageable pageable);
@@ -34,8 +31,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Pageable pageable
   );
 
-
   @Override
   Page<Product> findAll(Pageable pageable);
-
 }

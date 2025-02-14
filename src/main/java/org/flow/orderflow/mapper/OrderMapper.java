@@ -13,12 +13,13 @@ public interface OrderMapper {
 
   @Mapping(target = "items", source = "items")
   @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "userEmail", source = "user.email")
+  @Mapping(target = "userFirstName", source = "user.first_name")
+  @Mapping(target = "userLastName", source = "user.last_name")
   @Mapping(target = "statusDescription", source = "status.description")
   OrderDto toDto(Order order);
 
   List<OrderDto> toDtoList(List<Order> orders);
-
-  List<OrderItemDto> toOrderItemDtoList(List<OrderItemDto> items);
 
   @Mapping(target = "productId", source = "product.id")
   @Mapping(target = "productName", source = "product.name")

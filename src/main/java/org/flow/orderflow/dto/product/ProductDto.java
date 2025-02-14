@@ -21,8 +21,4 @@ public class ProductDto {
   private LocalDateTime createdAt;
   private Long categoryId;
   private String categoryName;
-
-  private Double minPrice;
-  private Double maxPrice;
-  private Boolean inStock;
 }

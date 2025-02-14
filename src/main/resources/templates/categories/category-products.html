@@ -7,7 +7,6 @@
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
-    <div class="smoke-effect"></div>
     <div class="cityscape-revers"></div>
   </div>
 
@@ -27,7 +26,7 @@
           <h5 th:text="${product.name}"></h5>
           <p>
             <strong>Категорія:</strong> <span th:text="${product.categoryName}"></span><br>
-            <strong>Ціна:</strong> <span th:text="${product.price} + ' грн'"></span>
+            <strong>Ціна:</strong> <span th:text="${product.price} + ' ₴'"></span>
           </p>
           <div class="product-list-actions">
         <span th:if="${product.stock > 0}" class="product-badge product-stock">
@@ -36,7 +35,8 @@
             <span th:unless="${product.stock > 0}" class="product-badge product-out-of-stock">
           Немає в наявності
         </span>
-            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-info">Детальніше</a>
+            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark"><i
+              class="fas fa-info-circle me-2"></i>Детальніше</a>
           </div>
         </div>
       </div>

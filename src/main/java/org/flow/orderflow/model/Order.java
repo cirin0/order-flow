@@ -32,7 +32,10 @@ public class Order {
   @Enumerated(EnumType.STRING)
   @Builder.Default
   private OrderStatus status = OrderStatus.NEW;
-  
+
+  @Column(unique = true, nullable = true, length = 10)
+  private String orderNumber;
+
   @Column(nullable = false)
   private LocalDateTime orderDate;
 

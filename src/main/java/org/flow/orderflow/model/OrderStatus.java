@@ -6,12 +6,11 @@ import lombok.Getter;
 public enum OrderStatus {
   NEW("Нове замовлення"),
   PROCESSING("В обробці"),
+  PAID("Оплачено"),
   SHIPPED("Відправлено"),
   DELIVERED("Доставлено"),
   COMPLETED("Завершено"),
-  CANCELED("Скасовано"),
-  TESTING("Тестування");
-
+  CANCELED("Скасовано");
   private final String description;
 
   OrderStatus(String description) {

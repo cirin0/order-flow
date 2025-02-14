@@ -20,14 +20,21 @@ document.addEventListener('DOMContentLoaded', function () {
       fetch(`/api/search?query=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
-          searchResults.innerHTML = '';
+          searchResults.innerHTML = ''; // Очистити попередні результати
 
+          // Перевірка, чи є результати
           if (data.products.length === 0 && data.categories.length === 0) {
-            searchResults.style.display = 'none';
-            searchInput.classList.remove('active');
+            // Вивести повідомлення "Товарів не знайдено"
+            const noResultsMessage = document.createElement('div');
+            noResultsMessage.className = 'no-results-message';
+            noResultsMessage.textContent = 'Товарів не знайдено';
+            searchResults.appendChild(noResultsMessage);
+            searchResults.style.display = 'block';
+            searchInput.classList.add('active');
             return;
           }
 
+          // Додати результати пошуку
           if (data.products.length > 0) {
             const productsSection = document.createElement('div');
             productsSection.className = 'search-section';
@@ -38,14 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
               item.href = `/products/${product.id}`;
               item.className = 'search-item';
               item.innerHTML = `
-                                <div class="search-item-image">
-                                    <img src="${product.imageUrl || '/images/placeholder.png'}" alt="${product.name}">
-                                </div>
-                                <div class="search-item-info">
-                                    <div class="search-item-name">${product.name}</div>
-                                    <div class="search-item-price">${product.price} грн</div>
-                                </div>
-                            `;
+                <div class="search-item-image">
+                  <img src="${product.imageUrl || '/images/placeholder.png'}" alt="${product.name}">
+                </div>
+                <div class="search-item-info">
+                  <div class="search-item-name">${product.name}</div>
+                  <div class="search-item-price">${product.price} грн</div>
+                </div>
+              `;
               productsSection.appendChild(item);
             });
             searchResults.appendChild(productsSection);
@@ -61,13 +68,13 @@ document.addEventListener('DOMContentLoaded', function () {
               item.href = `/categories/${category.id}/products`;
               item.className = 'search-item';
               item.innerHTML = `
-                                <div class="search-item-image">
-                                    <img src="${category.imageUrl || '/images/placeholder.png'}" alt="${category.name}">
-                                </div>
-                                <div class="search-item-info">
-                                    <div class="search-item-name">${category.name}</div>
-                                </div>
-                            `;
+                <div class="search-item-image">
+                  <img src="${category.imageUrl || '/images/placeholder.png'}" alt="${category.name}">
+                </div>
+                <div class="search-item-info">
+                  <div class="search-item-name">${category.name}</div>
+                </div>
+              `;
               categoriesSection.appendChild(item);
             });
             searchResults.appendChild(categoriesSection);
@@ -75,10 +82,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
           searchResults.style.display = 'block';
           searchInput.classList.add('active');
+        })
+        .catch(error => {
+          console.error('Помилка пошуку:', error);
+          // Вивести повідомлення про помилку
+          const errorMessage = document.createElement('div');
+          errorMessage.className = 'error-message';
+          errorMessage.textContent = 'Помилка завантаження результатів';
+          searchResults.appendChild(errorMessage);
+          searchResults.style.display = 'block';
+          searchInput.classList.add('active');
         });
     }, 300);
   });
-
 
   document.addEventListener('click', function (e) {
     if (!e.target.closest('.search-container')) {

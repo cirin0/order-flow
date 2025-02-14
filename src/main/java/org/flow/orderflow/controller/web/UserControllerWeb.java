@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.model.Role;
 import org.flow.orderflow.service.AuthenticationService;
 import org.flow.orderflow.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ public class UserControllerWeb {
   @GetMapping("/profile")
   public String dashboard(Model model, HttpSession session) {
     UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Профіль");
     if (sessionUser == null) {
       return "redirect:/auth/login";
     }
@@ -37,6 +39,7 @@ public class UserControllerWeb {
   @GetMapping("/edit-profile")
   public String editProfile(Model model, HttpSession session) {
     UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Редагування профілю");
     if (sessionUser == null) {
       return "redirect:/auth/login";
     }
@@ -84,5 +87,30 @@ public class UserControllerWeb {
     }
     session.invalidate();
     return "redirect:/auth/login";
+  }
+
+  @GetMapping("/profile/admin-role")
+  public String adminRolePage(Model model) {
+    model.addAttribute("pageTitle", "Адмін");
+    return "user/secret-admin";
+  }
+
+  @PostMapping("/profile/admin-role")
+  public String changeRoleToAdmin(HttpSession session, RedirectAttributes redirectAttributes) {
+    UserSessionDto sessionUser = (UserSessionDto) session.getAttribute("user");
+    if (sessionUser == null) {
+      return "redirect:/auth/login";
+    }
+
+    try {
+      userService.changeRoleAdmin(sessionUser.getUserId());
+      sessionUser.setRole(Role.ADMIN);
+      session.setAttribute("user", sessionUser);
+
+      redirectAttributes.addFlashAttribute("successMessage", "Роль успішно змінена на ADMIN");
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMessage", "Помилка при зміні ролі: " + e.getMessage());
+    }
+    return "redirect:/user/profile";
   }
 }

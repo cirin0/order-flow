@@ -5,7 +5,6 @@
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
-    <div class="smoke-effect"></div>
     <div class="cityscape-revers"></div>
   </div>
 
@@ -85,7 +84,7 @@
                   <img th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
                   <div class="card-body">
                     <h5 class="card-title" th:text="${product.name}"></h5>
-                    <p class="card-text">Ціна: <span th:text="${product.price}"></span></p>
+                    <p class="card-text">Ціна: <span th:text="${product.price}"></span> ₴</p>
                     <p class="card-text">
                       <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
                       <span th:unless="${product.stock > 0}">Немає на складі</span>
