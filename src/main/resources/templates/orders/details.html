@@ -54,21 +54,23 @@
       </div>
 
       <div class="order-actions">
-        <form th:action="@{/payment/create}" method="post"
-              th:if="${order.status.name() == 'NEW' and !isAdmin}">
-          <input type="hidden" name="orderId" th:value="${order.id}"/>
-          <button type="submit" class="btn-payment">Оплатити замовлення</button>
-        </form>
 
         <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
            class="btn-download"
-           target="_blank">
+           target="_blank"
+           th:if="${order.status.name() == 'PAID' || order.status.name() == 'DELIVERED' || order.status.name() == 'COMPLETED'}">
           Завантажити pdf замовлення
         </a>
 
         <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
               th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
           <button type="submit">Скасувати замовлення</button>
+        </form>
+
+        <form th:action="@{/payment/create}" method="post"
+              th:if="${order.status.name() == 'NEW' and !isAdmin}">
+          <input type="hidden" name="orderId" th:value="${order.id}"/>
+          <button type="submit" class="btn-payment">Оплатити замовлення</button>
         </form>
 
         <form th:action="@{/orders/{id}/complete(id=${order.id})}" method="post"

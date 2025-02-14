@@ -1962,18 +1962,6 @@ em {
   display: inline-block;
 }
 
-.order-detail-page .order-actions .btn-payment {
-  background-color: #409c56;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-}
-
-.order-detail-page .order-actions .btn-payment:hover {
-  background-color: #218838;
-}
 
 .order-detail-page .order-actions .btn-download {
   background-color: #000000;
@@ -1984,7 +1972,20 @@ em {
   transition: background-color 0.3s ease;
 }
 
+.order-detail-page .order-actions .btn-payment {
+  background-color: #000000;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
 .order-detail-page .order-actions .btn-download:hover {
+  background-color: rgba(18, 17, 17, 0.8);
+}
+
+.order-detail-page .order-actions .btn-payment:hover {
   background-color: rgba(18, 17, 17, 0.8);
 }
 

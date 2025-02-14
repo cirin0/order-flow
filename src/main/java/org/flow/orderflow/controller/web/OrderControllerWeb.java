@@ -68,8 +68,6 @@ public class OrderControllerWeb {
     return "orders/list";
   }
 
-
-
   @GetMapping("/create")
   public String showCreateOrderPage(HttpSession session, Model model) {
     UserSessionDto userSession = (UserSessionDto) session.getAttribute("user");
@@ -88,16 +86,6 @@ public class OrderControllerWeb {
     model.addAttribute("cart", cart);
     model.addAttribute("userDetails", userDetails);
     return "orders/create-order";
-  }
-
-  @GetMapping("/my")
-  public String getMyOrders(Model model, HttpSession session) {
-    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
-    if (user == null) {
-      return "redirect:/auth/login";
-    }
-    model.addAttribute("orders", orderService.getOrderByUserEmail(user.getEmail()));
-    return "orders/my-orders";
   }
 
   @GetMapping("/{id}")
