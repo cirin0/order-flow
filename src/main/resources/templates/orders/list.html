@@ -13,9 +13,10 @@
 
       <div th:if="${success}" th:text="${success}" class="text-green"></div>
       <div th:if="${error}" th:text="${error}" class="text-red"></div>
+      <div th:if="${info}" th:text="${info}" class="text-blue"></div> <!-- Повідомлення про відсутність замовлень -->
 
       <!-- Оновлена таблиця зі списком замовлень -->
-      <table class="order-table">
+      <table class="order-table" th:if="${not orders.isEmpty()}">
         <thead>
         <tr>
           <th>ID</th>

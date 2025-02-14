@@ -50,16 +50,18 @@ public class OrderControllerWeb {
 
     List<OrderDto> orders;
     try {
-      // Перевіряємо роль через name()
       if (user.getRole().name().equals("ADMIN")) {
-        // Для адміна отримуємо всі замовлення користувачів
         orders = orderService.getAllOrdersWithUserDetails();
       } else {
-        // Для звичайного користувача - тільки його замовлення
         orders = orderService.getOrdersByUserId(user.getUserId());
       }
       model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
       model.addAttribute("orders", orders);
+
+      // Додаємо повідомлення, якщо замовлень немає
+      if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
+        model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
+      }
     } catch (Exception e) {
       model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
       model.addAttribute("orders", new ArrayList<>());
