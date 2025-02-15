@@ -19,7 +19,6 @@
         </div>
       </div>
 
-      <!-- Authenticated User Content -->
       <div th:if="${isAuthenticated}">
         <h1 th:text="${isAdmin ? 'Всі замовлення користувачів' : 'Мої замовлення'}">Замовлення</h1>
 
@@ -27,9 +26,7 @@
         <div th:if="${error}" th:text="${error}" class="text-red"></div>
         <div th:if="${info}" th:text="${info}" class="text-blue"></div>
 
-        <!-- Orders Table -->
         <table class="order-table" th:if="${orders != null and not orders.isEmpty()}">
-          <!-- Existing table content remains the same... -->
           <thead>
           <tr>
             <th>ID</th>
@@ -38,7 +35,7 @@
             <th th:if="${isAdmin}">Email користувача</th>
             <th>Статус</th>
             <th>Сума</th>
-            <th>Дії</th>
+            <th></th>
           </tr>
           </thead>
           <tbody>
@@ -48,7 +45,6 @@
             <td th:if="${isAdmin}" th:text="${order.userFirstName + ' ' + order.userLastName}"></td>
             <td th:if="${isAdmin}" th:text="${order.userEmail}"></td>
             <td>
-              <!-- Admin status dropdown -->
               <div th:if="${isAdmin}" class="flex items-center gap-2">
                 <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="flex items-center gap-2">
                   <select name="status" class="p-1 rounded border" onchange="this.form.submit()">
@@ -63,7 +59,6 @@
                   </select>
                 </form>
               </div>
-              <!-- User status display -->
               <span th:unless="${isAdmin}" class="status-badge"
                     th:classappend="${'status-badge ' + order.status.name().toLowerCase()}">
                 <span th:switch="${order.status.name()}">

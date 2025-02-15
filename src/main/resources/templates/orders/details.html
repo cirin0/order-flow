@@ -9,14 +9,6 @@
   <main class="content mt-5">
     <div class="order-detail-page">
       <h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
-      <div th:if="${success}" th:text="${success}" class="text-green"></div>
-      <div th:if="${error}" th:text="${error}" class="text-red"></div>
-      <div class="order-info">
-        <p>Статус: <span th:text="${order.status.description}"></span></p>
-        <p>Загальна сума: <span th:text="${order.totalPrice}"></span> ₴</p>
-        <p>Дата замовлення: <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}"></span></p>
-        <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
-      </div>
       <h3>Товари:</h3>
       <table class="order-items-table">
         <thead>
@@ -34,16 +26,24 @@
         </tr>
         </tbody>
       </table>
-      <div class="delivery-info">
-        <h3>Інформація про доставку:</h3>
+      <div th:if="${success}" th:text="${success}" class="text-green"></div>
+      <div th:if="${error}" th:text="${error}" class="text-red"></div>
+      <div class="order-info">
+        <p>Статус: <span th:text="${order.status.description}"></span></p>
+        <p>Загальна сума: <span th:text="${order.totalPrice}"></span> ₴</p>
+        <p>Дата замовлення: <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}"></span></p>
+        <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
         <div class="delivery-details">
-          <p>Регіон: <span th:text="${order.deliveryAddress.region}"></span></p>
-          <p>Місто: <span th:text="${order.deliveryAddress.city}"></span></p>
-          <p>Район: <span th:text="${order.deliveryAddress.area}"></span></p>
-          <p>Вулиця: <span th:text="${order.deliveryAddress.street}"></span></p>
-          <p>Будинок: <span th:text="${order.deliveryAddress.house}"></span></p>
-          <p>Квартира: <span th:text="${order.deliveryAddress.apartment}"></span></p>
-        </div>
+          <p>
+            Адреса оставки:
+            <span th:text="${order.deliveryAddress.region} + ' обл., ' +
+                     ${order.deliveryAddress.city} + ', ' +
+                     ${order.deliveryAddress.area} + ', ' +
+                     ${order.deliveryAddress.street} + ', ' +
+                     ${order.deliveryAddress.house} + ', ' +
+                     ${order.deliveryAddress.apartment}">
+          </span>
+          </p>
       </div>
 
       <div th:if="${isAdmin}" class="status-form">
@@ -81,7 +81,9 @@
         </form>
       </div>
     </div>
+    </div>
   </main>
+
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

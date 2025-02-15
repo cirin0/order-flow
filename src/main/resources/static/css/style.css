@@ -2271,3 +2271,36 @@ em {
 .order-create-page .btn-back:hover {
   color: #0056b3;
 }
+
+.order-create-page .form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.order-create-page .form-row .form-group {
+  flex: 1;
+}
+
+.order-create-page .address-button-group {
+  margin-bottom: 20px;
+}
+
+.order-create-page .btn-fill-address {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #333;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.order-create-page .btn-fill-address:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.order-create-page .address-fields {
+  margin-top: 15px;
+}
