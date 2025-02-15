@@ -6,21 +6,17 @@
 <div class="page-wrapper">
   <div class="cityscape"></div>
   <div class="cityscape-revers"></div>
-
   <main class="content mt-5">
     <div class="order-detail-page">
       <h1>Деталі замовлення #<span th:text="${order.id}"></span></h1>
-
       <div th:if="${success}" th:text="${success}" class="text-green"></div>
       <div th:if="${error}" th:text="${error}" class="text-red"></div>
-
       <div class="order-info">
         <p>Статус: <span th:text="${order.status.description}"></span></p>
         <p>Загальна сума: <span th:text="${order.totalPrice}"></span> ₴</p>
         <p>Дата замовлення: <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}"></span></p>
         <p>ТТН номер: <span th:text="${order.orderNumber}"></span></p>
       </div>
-
       <h3>Товари:</h3>
       <table class="order-items-table">
         <thead>
@@ -38,6 +34,17 @@
         </tr>
         </tbody>
       </table>
+      <div class="delivery-info">
+        <h3>Інформація про доставку:</h3>
+        <div class="delivery-details">
+          <p>Регіон: <span th:text="${order.deliveryAddress.region}"></span></p>
+          <p>Місто: <span th:text="${order.deliveryAddress.city}"></span></p>
+          <p>Район: <span th:text="${order.deliveryAddress.area}"></span></p>
+          <p>Вулиця: <span th:text="${order.deliveryAddress.street}"></span></p>
+          <p>Будинок: <span th:text="${order.deliveryAddress.house}"></span></p>
+          <p>Квартира: <span th:text="${order.deliveryAddress.apartment}"></span></p>
+        </div>
+      </div>
 
       <div th:if="${isAdmin}" class="status-form">
         <h3>Змінити статус:</h3>
@@ -52,27 +59,22 @@
           <button type="submit">Оновити статус</button>
         </form>
       </div>
-
       <div class="order-actions">
-
         <a th:href="@{/orders/{id}/download-invoice(id=${order.id})}"
            class="btn-download"
            target="_blank"
            th:if="${order.status.name() == 'PAID' || order.status.name()  == 'SHIPPED' || order.status.name() == 'DELIVERED' || order.status.name() == 'COMPLETED'}">
           Завантажити pdf замовлення
         </a>
-
         <form th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
               th:if="${order.status.name() == 'NEW' || order.status.name() == 'PROCESSING'}">
           <button type="submit">Скасувати замовлення</button>
         </form>
-
         <form th:action="@{/payment/create}" method="post"
               th:if="${order.status.name() == 'NEW' and !isAdmin}">
           <input type="hidden" name="orderId" th:value="${order.id}"/>
           <button type="submit" class="btn-payment">Оплатити замовлення</button>
         </form>
-
         <form th:action="@{/orders/{id}/complete(id=${order.id})}" method="post"
               th:if="${order.status.name() == 'DELIVERED'}">
           <button type="submit">Завершити замовлення</button>
@@ -80,7 +82,6 @@
       </div>
     </div>
   </main>
-
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

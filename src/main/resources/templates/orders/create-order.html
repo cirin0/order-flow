@@ -20,6 +20,94 @@
         <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
 
+      <!-- код з Олександра -->
+      <div th:unless="${cart.items.isEmpty()}" class="bg-white p-4 rounded shadow">
+        <form th:action="@{/orders/create}" method="post" class="space-y-6">
+          <!-- Added hidden input for addressSource -->
+          <input type="hidden" name="addressSource" value="new" id="addressSource">
+          <!-- Added hidden input for postOffice -->
+          <input type="hidden" name="postOffice" value="ukrposhta">
+
+          <div class="border-b pb-6">
+            <h2 class="text-xl font-semibold mb-4">Контактна інформація</h2>
+            <div class="space-y-4">
+              <div>
+                <label for="fullName" class="block font-semibold">ПІБ:</label>
+                <input type="text" id="fullName" name="fullName"
+                       th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
+                       required class="w-full p-2 border rounded">
+              </div>
+              <div>
+                <label for="phone" class="block font-semibold">Номер телефону:</label>
+                <input type="tel" id="phone" name="phone"
+                       th:value="${userDetails != null ? userDetails.phone : ''}"
+                       required class="w-full p-2 border rounded">
+              </div>
+              <div>
+                <label for="email" class="block font-semibold">E-mail:</label>
+                <input type="email" id="email" name="email"
+                       th:value="${userDetails != null ? userDetails.email : ''}"
+                       required class="w-full p-2 border rounded">
+              </div>
+            </div>
+          </div>
+
+          <div class="border-b pb-6">
+            <h2 class="text-xl font-semibold mb-4">Адреса доставки</h2>
+
+            <!-- Single button for profile address -->
+            <div class="mb-4" th:if="${userDetails != null && userDetails.address != null}">
+              <button type="button" onclick="fillProfileAddress()" class="bg-gray-200 px-4 py-2 rounded mb-4">
+                Заповнити адресу з профілю
+              </button>
+            </div>
+
+            <div class="space-y-4" id="addressFields">
+              <div>
+                <label for="region" class="block font-semibold">Регіон:</label>
+                <input type="text" id="region" name="region"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.region : ''}"
+                       class="w-full p-2 border rounded" required>
+              </div>
+              <div>
+                <label for="city" class="block font-semibold">Місто/Селище:</label>
+                <input type="text" id="city" name="city"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.city : ''}"
+                       class="w-full p-2 border rounded" required>
+              </div>
+              <div>
+                <label for="area" class="block font-semibold">Район:</label>
+                <input type="text" id="area" name="area"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.area : ''}"
+                       class="w-full p-2 border rounded" required>
+              </div>
+              <div>
+                <label for="street" class="block font-semibold">Вулиця:</label>
+                <input type="text" id="street" name="street"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.street : ''}"
+                       class="w-full p-2 border rounded">
+              </div>
+              <div>
+                <label for="house" class="block font-semibold">Будинок:</label>
+                <input type="text" id="house" name="house"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.house : ''}"
+                       class="w-full p-2 border rounded">
+              </div>
+              <div>
+                <label for="apartment" class="block font-semibold">Квартира:</label>
+                <input type="text" id="apartment" name="apartment"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.apartment : ''}"
+                       class="w-full p-2 border rounded">
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="bg-blue-500 px-4 py-2 rounded w-full">
+            Підтвердити замовлення
+          </button>
+        </form>
+ <!--=======-->
+      <!-- код з деву -->
       <div th:unless="${cart.items.isEmpty()}" class="cart-items">
         <table class="cart-items-table">
           <thead>
@@ -170,36 +258,19 @@
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
 
 <script>
-  function toggleAddressForm(radio) {
-    const profileSection = document.getElementById('profileAddressSection');
-    const newAddressSection = document.getElementById('newAddressSection');
+  function fillProfileAddress() {
+    const fields = document.getElementById('addressFields').getElementsByTagName('input');
+    document.getElementById('addressSource').value = 'profile'; // Update addressSource when filling profile data
 
-    if (radio.value === 'profile') {
-      profileSection.style.display = 'block';
-      newAddressSection.style.display = 'none';
-      // Disable new address form inputs
-      const inputs = newAddressSection.getElementsByTagName('input');
-      for (let input of inputs) {
-        input.required = false;
-      }
-    } else {
-      profileSection.style.display = 'none';
-      newAddressSection.style.display = 'block';
-      // Enable new address form inputs
-      const inputs = newAddressSection.getElementsByTagName('input');
-      for (let input of inputs) {
-        input.required = true;
+    for (let field of fields) {
+      if (field.type !== 'radio') {  // Skip radio buttons
+        const profileData = field.getAttribute('data-profile');
+        if (profileData) {
+          field.value = profileData;
+        }
       }
     }
   }
-
-  // Initialize form on page load
-  document.addEventListener('DOMContentLoaded', function () {
-    const checkedRadio = document.querySelector('input[name="addressSource"]:checked');
-    if (checkedRadio) {
-      toggleAddressForm(checkedRadio);
-    }
-  });
 </script>
 </body>
 </html>

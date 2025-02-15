@@ -3,6 +3,7 @@ package org.flow.orderflow.controller.web;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
+import org.flow.orderflow.dto.order.DeliveryAddressDto;
 import org.flow.orderflow.dto.order.OrderDto;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
@@ -26,11 +27,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-/*
-   !!! ЦЕ ПРОСТО ТЕСТ !!!
-   Можете міняти як треба. з цього прикладу все працює, але ви можете змінити його як вам зручно.
-*/
 
 @Controller
 @RequestMapping("/orders")
@@ -66,7 +62,6 @@ public class OrderControllerWeb {
         model.addAttribute("orders", new ArrayList<>());
       }
     }
-
     return "orders/list";
   }
 
@@ -86,6 +81,7 @@ public class OrderControllerWeb {
 
     model.addAttribute("cart", cart);
     model.addAttribute("userDetails", userDetails);
+    model.addAttribute("userAddress", userDetails.getAddress());
     model.addAttribute("pageTitle", "Створити замовлення");
     return "orders/create-order";
   }
@@ -117,15 +113,52 @@ public class OrderControllerWeb {
   }
 
   @PostMapping("/create")
-  public String createOrder(HttpSession session, RedirectAttributes redirectAttributes) {
+  public String createOrder(@ModelAttribute OrderDto orderDto,
+                            @RequestParam String fullName,
+                            @RequestParam String phone,
+                            @RequestParam String email,
+                            @RequestParam String addressSource,
+                            @RequestParam(required = false) String region,
+                            @RequestParam(required = false) String city,
+                            @RequestParam(required = false) String area,
+                            @RequestParam(required = false) String street,
+                            @RequestParam(required = false) String house,
+                            @RequestParam(required = false) String apartment,
+                            @RequestParam String postOffice,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     if (user == null) {
       return "redirect:/auth/login";
     }
 
     try {
-      OrderDto orderDto = new OrderDto();
       orderDto.setUserId(user.getUserId());
+      DeliveryAddressDto deliveryAddress;
+      if ("profile".equals(addressSource)) {
+        UserDto userDetails = userService.getUserById(user.getUserId());
+        deliveryAddress = DeliveryAddressDto.builder()
+          .region(userDetails.getAddress().getRegion())
+          .city(userDetails.getAddress().getCity())
+          .area(userDetails.getAddress().getArea())
+          .street(userDetails.getAddress().getStreet())
+          .house(userDetails.getAddress().getHouse())
+          .apartment(userDetails.getAddress().getApartment())
+          .postOffice(postOffice)
+          .build();
+      } else {
+        deliveryAddress = DeliveryAddressDto.builder()
+          .region(region)
+          .city(city)
+          .area(area)
+          .street(street)
+          .house(house)
+          .apartment(apartment)
+          .postOffice(postOffice)
+          .build();
+      }
+
+      orderDto.setDeliveryAddress(deliveryAddress);
       OrderDto createdOrder = orderService.createOrder(orderDto, user.getEmail());
 
       redirectAttributes.addFlashAttribute("success",
@@ -177,7 +210,7 @@ public class OrderControllerWeb {
 
     try {
       orderService.cancelOrder(id);
-      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано. Ми звяжемось з Вами блищим ");
+      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано.");
     } catch (IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
     }

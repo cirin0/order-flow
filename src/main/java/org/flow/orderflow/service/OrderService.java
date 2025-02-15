@@ -7,10 +7,7 @@ import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.order.OrderDto;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.OrderMapper;
-import org.flow.orderflow.model.Order;
-import org.flow.orderflow.model.OrderItem;
-import org.flow.orderflow.model.OrderStatus;
-import org.flow.orderflow.model.Product;
+import org.flow.orderflow.model.*;
 import org.flow.orderflow.repository.OrderRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
@@ -100,6 +97,22 @@ public class OrderService {
         .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
       .totalPrice(cart.getTotalPrice())
       .build();
+
+    DeliveryAddress deliveryAddress = DeliveryAddress.builder()
+      .order(order)
+      .region(orderDto.getDeliveryAddress().getRegion())
+      .city(orderDto.getDeliveryAddress().getCity())
+      .area(orderDto.getDeliveryAddress().getArea())
+      .street(orderDto.getDeliveryAddress().getStreet())
+      .house(orderDto.getDeliveryAddress().getHouse())
+      .apartment(orderDto.getDeliveryAddress().getApartment())
+      .postOffice(orderDto.getDeliveryAddress().getPostOffice())
+      .build();
+
+    order.setDeliveryAddress(deliveryAddress);
+
+    order.setDeliveryAddress(deliveryAddress);
+
     List<OrderItem> orderItems = cart.getItems().stream()
       .map(cartItem -> {
         Product product = productRepository.findById(cartItem.getProductId())
@@ -117,7 +130,7 @@ public class OrderService {
 
     order.setItems(orderItems);
     Order savedOrder = orderRepository.save(order);
-    sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
+//    sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
     createConfirmationPdf(orderMapper.toDto(savedOrder));
 //    cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);
