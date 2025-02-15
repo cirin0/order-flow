@@ -178,7 +178,7 @@ public class OrderControllerWeb {
 
     try {
       orderService.cancelOrder(id);
-      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано. Ми звяжемось з Вами блищим ");
+      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано");
     } catch (IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
     }
