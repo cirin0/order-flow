@@ -1,6 +1,6 @@
 <html lang="ua" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head}"></head>
-<body>
+<body th:data-user-logged-in="${session.user != null}">
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="page-wrapper">
   <div class="background-wrapper">
@@ -84,7 +84,7 @@
                   <img th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
                   <div class="card-body">
                     <h5 class="card-title" th:text="${product.name}"></h5>
-                    <p class="card-text">Ціна: <span th:text="${product.price}"></span></p>
+                    <p class="card-text">Ціна: <span th:text="${product.price}"></span> ₴</p>
                     <p class="card-text">
                       <span th:if="${product.stock > 0}" th:text="'Кількість на складі: ' + ${product.stock}"></span>
                       <span th:unless="${product.stock > 0}">Немає на складі</span>
@@ -197,99 +197,119 @@
     </div>
   </main>
   <div th:replace="~{fragments/footer :: footer}"></div>
-
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const filterSortForm = document.getElementById('filterSortForm');
-      const searchInput = document.getElementById('searchInput');
-      const productsContainer = document.getElementById('productsContainer');
-
-      function updateProducts(page = 0, size = 12) {
-        const searchTerm = searchInput.value;
-        const minPrice = document.getElementById('minPrice').value;
-        const maxPrice = document.getElementById('maxPrice').value;
-        const inStock = document.getElementById('inStock').value;
-        const sortBy = document.getElementById('sortBy').value || 'createdAt';
-        const sortDirection = document.getElementById('sortDirection').value || 'desc';
-
-        const queryParams = new URLSearchParams({
-          page: page,
-          size: size,
-          sortBy: sortBy,
-          sortDirection: sortDirection,
-          searchTerm: searchTerm || '',
-          minPrice: minPrice || '',
-          maxPrice: maxPrice || '',
-          inStock: inStock || ''
-        });
-
-        fetch(`/products/filter-sort-search?${queryParams}`)
-          .then(response => response.text())
-          .then(html => {
-            productsContainer.innerHTML = html;
-
-            const newUrl = `${window.location.pathname}?${queryParams}`;
-            window.history.pushState({}, '', newUrl);
-          })
-          .catch(error => console.error('Помилка:', error));
-      }
-
-      document.addEventListener('click', function (e) {
-        if (e.target.closest('.page-link')) {
-          e.preventDefault();
-          const href = e.target.closest('.page-link').getAttribute('href');
-          const url = new URL(href, window.location.origin);
-          const page = url.searchParams.get('page') || 0;
-
-          updateProducts(parseInt(page));
-        }
-      });
-      searchInput.addEventListener('input', function () {
-        updateProducts();
-      });
-
-      filterSortForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        updateProducts();
-      });
-
-      productsContainer.addEventListener('click', function (event) {
-        const pageLink = event.target.closest('.page-link');
-        if (pageLink) {
-          event.preventDefault();
-          const newPage = parseInt(pageLink.textContent) - 1;
-          if (!isNaN(newPage) && newPage >= 0) {
-            updateProducts(newPage, 12);
-          }
-        }
-      });
-
-      const deleteButtons = document.querySelectorAll('.btn-delete');
-      deleteButtons.forEach(button => {
-        button.addEventListener('click', function (event) {
-          event.preventDefault();
-          const confirmDelete = confirm('Ви справді хочете видалити цей товар?');
-          if (confirmDelete) {
-            window.location.href = event.target.closest('a').href;
-          }
-        });
-      });
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const productsContainer = document.getElementById('productsContainer');
-
-      productsContainer.addEventListener('click', function (event) {
-        const addToCartButton = event.target.closest('.btn-outline-dark[title="Додати до кошика"]');
-        if (addToCartButton && addToCartButton.classList.contains('disabled')) {
-          event.preventDefault();
-          alert('Товару немає на складі. Додавання до кошика неможливе.');
-        }
-      });
-    });
-  </script>
-
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterSortForm = document.getElementById('filterSortForm');
+    const searchInput = document.getElementById('searchInput');
+    const productsContainer = document.getElementById('productsContainer');
+
+    function updateProducts(page = 0, size = 12) {
+      const searchTerm = searchInput.value;
+      const minPrice = document.getElementById('minPrice').value;
+      const maxPrice = document.getElementById('maxPrice').value;
+      const inStock = document.getElementById('inStock').value;
+      const sortBy = document.getElementById('sortBy').value || 'createdAt';
+      const sortDirection = document.getElementById('sortDirection').value || 'desc';
+
+      const queryParams = new URLSearchParams({
+        page: page,
+        size: size,
+        sortBy: sortBy,
+        sortDirection: sortDirection,
+        searchTerm: searchTerm || '',
+        minPrice: minPrice || '',
+        maxPrice: maxPrice || '',
+        inStock: inStock || ''
+      });
+
+      fetch(`/products/filter-sort-search?${queryParams}`)
+        .then(response => response.text())
+        .then(html => {
+          productsContainer.innerHTML = html;
+
+          const newUrl = `${window.location.pathname}?${queryParams}`;
+          window.history.pushState({}, '', newUrl);
+        })
+        .catch(error => console.error('Помилка:', error));
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.page-link')) {
+        e.preventDefault();
+        const href = e.target.closest('.page-link').getAttribute('href');
+        const url = new URL(href, window.location.origin);
+        const page = url.searchParams.get('page') || 0;
+
+        updateProducts(parseInt(page));
+      }
+    });
+    searchInput.addEventListener('input', function () {
+      updateProducts();
+    });
+
+    filterSortForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      updateProducts();
+    });
+
+    productsContainer.addEventListener('click', function (event) {
+      const pageLink = event.target.closest('.page-link');
+      if (pageLink) {
+        event.preventDefault();
+        const newPage = parseInt(pageLink.textContent) - 1;
+        if (!isNaN(newPage) && newPage >= 0) {
+          updateProducts(newPage, 12);
+        }
+      }
+    });
+
+    // Handle add to cart forms
+    document.addEventListener('submit', function (event) {
+      const form = event.target.closest('.add-to-cart-form');
+      if (form) {
+        const isLoggedIn = document.body.getAttribute('data-user-logged-in') === 'true';
+        if (!isLoggedIn) {
+          event.preventDefault();
+          // Swal.fire('Щоб додати товар у кошик, потрібно спочатку увійти');
+          Swal.fire({
+            text: 'Щоб додати товар у кошик, потрібно спочатку увійти',
+            icon: 'info',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000',
+            iconColor: '#000'
+          }).then(() => {
+            window.location.href = '/auth/login';
+          });
+        }
+      }
+    });
+
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        const confirmDelete = confirm('Ви справді хочете видалити цей товар?');
+        if (confirmDelete) {
+          window.location.href = event.target.closest('a').href;
+        }
+      });
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const productsContainer = document.getElementById('productsContainer');
+
+    productsContainer.addEventListener('click', function (event) {
+      const addToCartButton = event.target.closest('.btn-outline-dark[title="Додати до кошика"]');
+      if (addToCartButton && addToCartButton.classList.contains('disabled')) {
+        event.preventDefault();
+        alert('Товару немає на складі. Додавання до кошика неможливе.');
+      }
+    });
+  });
+</script>
+
 </body>
 </html>

@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="h-full">
-<head th:replace="~{fragments/head :: head}">
-  <meta charset="UTF-8"> <!-- Додано кодування UTF-8 -->
-</head>
+<head th:replace="~{fragments/head :: head}"></head>
+<div th:replace="~{fragments/header :: header}"></div>
 <body class="bg-gray-100 flex flex-col h-full m-0">
-<header th:replace="~{fragments/header :: header}"></header>
 <div class="page-wrapper">
   <div class="background-wrapper">
     <div class="cityscape"></div>
@@ -12,17 +10,28 @@
   </div>
   <main class="content mt-5 flex-grow">
     <div class="container mx-auto px-4">
+      <!-- Not Authenticated Message -->
+      <div th:unless="${isAuthenticated}" class="cart-container bg-white p-6 rounded-lg shadow-md text-center">
+        <h2 class="text-2xl font-bold mb-4">Кошик замовлень</h2>
+        <p class="empty-cart-message text-gray-700 mb-4 text-xl">Щоб переглянути товари в кошику необхідно увійти</p>
+        <div class="flex justify-center gap-4">
+          <a href="/auth/login" class="checkout-btn bg-blue-500 px-6 py-2 rounded">
+            Увійти
+          </a>
+        </div>
+      </div>
+
       <!-- Admin Check -->
-      <div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'ADMIN'}"
+      <div th:if="${isAuthenticated and session.user.role.toString() == 'ADMIN'}"
            class="cart-container bg-white p-6 rounded-lg shadow-md text-center">
         <p class="empty-cart-message text-gray-700 mb-4">Адміністратори не можуть використовувати кошик. Будь ласка,
           використовуйте звичайний обліковий запис для покупок.</p>
-        <a href="/" class="checkout-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Повернутися на
+        <a href="/" class="checkout-btn bg-blue-500 px-4 py-2 rounded">Повернутися на
           головну</a>
       </div>
 
       <!-- User Cart -->
-      <div th:if="${session.user != null and session.user.role != null and session.user.role.toString() == 'USER'}"
+      <div th:if="${isAuthenticated and session.user.role.toString() == 'USER'}"
            class="cart-container bg-white p-6 rounded-lg shadow-md">
 
         <!-- Error Messages -->
@@ -35,20 +44,21 @@
 
         <!-- Empty Cart -->
         <div th:if="${cart.items.isEmpty()}" class="empty-cart text-center">
-          <p class=" text-black mb-4 " style="font-size: xx-large ">Ваш кошик порожній</p>
-          <a href="/" class="btn btn-outline-dark px-4 py-2 rounded hover:bg-blue-600">Продовжити
+          <p class="text-black mb-4" style="font-size: xx-large">Ваш кошик порожній</p>
+          <a href="/" class="checkout-btn bg-blue-500 px-4 py-2 rounded">Продовжити
             покупки</a>
         </div>
 
         <!-- Cart Items -->
         <div th:unless="${cart.items.isEmpty()}">
+          <h2 class="cart-title text-3xl font-bold mb-6 text-center">Ваш кошик</h2>
           <table class="cart-table w-full mb-4">
             <thead>
             <tr class="bg-gray-200">
               <th class="py-2 px-4 text-left">Товар</th>
               <th class="py-2 px-4 text-left">Кількість</th>
               <th class="py-2 px-4 text-left">Ціна</th>
-              <th class="py-2 px-4 text-left">Дії</th>
+              <th class="py-2 px-4 text-left"></th>
             </tr>
             </thead>
             <tbody>
@@ -80,7 +90,7 @@
                   <input type="hidden" name="itemId" th:value="${item.id}"/>
                   <button type="submit"
                           class="cart-btn remove-btn bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                    Видалити
+                    <i class="fas fa-trash"></i> Видалити
                   </button>
                 </form>
               </td>
@@ -96,13 +106,13 @@
             <div class="cart-actions flex justify-between">
               <form th:action="@{/cart/clear}" method="post" style="display: inline-block">
                 <button type="submit"
-                        class="cart-btn clear-cart-btn bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                  Очистити кошик
+                        class="cart-btn clear-cart-btn  px-4 py-2">
+                  <i class="fas fa-broom"></i> Очистити кошик
                 </button>
               </form>
 
-              <a href="/orders/create" class="checkout-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Оформити замовлення
+              <a href="/orders/create" class="checkout-btn px-4 py-2 rounded">
+                <i class="fas fa-shopping-cart"></i> Оформити замовлення
               </a>
             </div>
           </div>
@@ -132,13 +142,11 @@
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              // Оновити загальну суму кошика
               const totalPriceElement = document.querySelector('.cart-total span');
               if (totalPriceElement) {
                 totalPriceElement.textContent = data.totalPrice;
               }
 
-              // Оновити попередження про запас
               const stockWarningElement = this.closest('td').querySelector('.stock-warning');
               if (stockWarningElement) {
                 stockWarningElement.textContent = data.warningMessage || '';

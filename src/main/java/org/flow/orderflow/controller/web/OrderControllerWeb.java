@@ -28,11 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-   !!! ЦЕ ПРОСТО ТЕСТ !!!
-   Можете міняти як треба. з цього прикладу все працює, але ви можете змінити його як вам зручно.
-*/
-
 @Controller
 @RequestMapping("/orders")
 @RequiredArgsConstructor
@@ -45,29 +40,27 @@ public class OrderControllerWeb {
   @GetMapping
   public String getAllOrders(Model model, HttpSession session) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
-    if (user == null) {
-      return "redirect:/auth/login";
-    }
+    model.addAttribute("isAuthenticated", user != null);
+    if (user != null) {
+      List<OrderDto> orders;
+      try {
+        if (user.getRole().name().equals("ADMIN")) {
+          orders = orderService.getAllOrdersWithUserDetails();
+          model.addAttribute("pageTitle", "Всі замовлення");
+        } else {
+          orders = orderService.getOrdersByUserId(user.getUserId());
+          model.addAttribute("pageTitle", "Мої замовлення");
+        }
+        model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
+        model.addAttribute("orders", orders);
 
-    List<OrderDto> orders;
-    try {
-      if (user.getRole().name().equals("ADMIN")) {
-        orders = orderService.getAllOrdersWithUserDetails();
-        model.addAttribute("pageTitle", "Всі замовлення");
-      } else {
-        orders = orderService.getOrdersByUserId(user.getUserId());
-        model.addAttribute("pageTitle", "Мої замовлення");
+        if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
+          model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
+        }
+      } catch (Exception e) {
+        model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
+        model.addAttribute("orders", new ArrayList<>());
       }
-      model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
-      model.addAttribute("orders", orders);
-
-
-      if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
-        model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
-      }
-    } catch (Exception e) {
-      model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
-      model.addAttribute("orders", new ArrayList<>());
     }
     return "orders/list";
   }
@@ -88,7 +81,7 @@ public class OrderControllerWeb {
 
     model.addAttribute("cart", cart);
     model.addAttribute("userDetails", userDetails);
-    model.addAttribute("userAddress", userDetails.getAddress()); // Додаємо адресу в модель
+    model.addAttribute("userAddress", userDetails.getAddress());
     model.addAttribute("pageTitle", "Створити замовлення");
     return "orders/create-order";
   }
@@ -141,8 +134,6 @@ public class OrderControllerWeb {
 
     try {
       orderDto.setUserId(user.getUserId());
-
-      // Create delivery address based on form data
       DeliveryAddressDto deliveryAddress;
       if ("profile".equals(addressSource)) {
         UserDto userDetails = userService.getUserById(user.getUserId());

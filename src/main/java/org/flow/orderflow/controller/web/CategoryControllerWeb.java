@@ -24,12 +24,14 @@ public class CategoryControllerWeb {
   @GetMapping
   public String listCategories(Model model) {
     model.addAttribute("categories", categoryService.getAllCategories());
+    model.addAttribute("pageTitle", "Категорії");
     return "categories/category-list";
   }
 
   @GetMapping("/add")
   public String showAddCategoryForm(Model model, HttpSession session) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Додати категорію");
     if (user == null || !user.getRole().name().equals("ADMIN")) {
       return "redirect:/";
     }
@@ -53,6 +55,7 @@ public class CategoryControllerWeb {
     }
     CategoryDto categoryDto = categoryService.getCategoryById(id);
     model.addAttribute("category", categoryDto);
+    model.addAttribute("pageTitle", "Змінити категорію");
     return "categories/category-edit";
   }
 
@@ -80,6 +83,7 @@ public class CategoryControllerWeb {
 
     model.addAttribute("categoryName", category.getName());
     model.addAttribute("products", products);
+    model.addAttribute("pageTitle", "Продукти в категорії");
     return "categories/category-products";
   }
 }

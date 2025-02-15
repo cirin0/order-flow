@@ -22,15 +22,17 @@ public class AuthControllerWeb {
   @GetMapping("/login")
   public String login(Model model) {
     model.addAttribute("userLoginDto", new UserLoginDto());
+    model.addAttribute("pageTitle", "Вхід");
     return "user/login";
   }
 
   @GetMapping("/register")
-  public String register(HttpSession session) {
+  public String register(HttpSession session, Model model) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     if (user != null) {
       return "redirect:/user/profile";
     }
+    model.addAttribute("pageTitle", "Реєстрація");
     return "user/register";
   }
 
