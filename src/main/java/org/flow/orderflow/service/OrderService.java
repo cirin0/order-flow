@@ -7,10 +7,7 @@ import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.order.OrderDto;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.OrderMapper;
-import org.flow.orderflow.model.Order;
-import org.flow.orderflow.model.OrderItem;
-import org.flow.orderflow.model.OrderStatus;
-import org.flow.orderflow.model.Product;
+import org.flow.orderflow.model.*;
 import org.flow.orderflow.repository.OrderRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
@@ -49,15 +46,11 @@ public class OrderService {
 
   public List<OrderDto> getOrdersByUserId(Long userId) {
     List<Order> orders = orderRepository.findByUserId(userId);
-    if (orders.isEmpty()) {
-      throw new NotFound("Orders not found for user with id: " + userId);
-    }
     return orderMapper.toDtoList(orders);
   }
 
   public List<OrderDto> getAllOrdersWithUserDetails() {
     List<Order> orders = orderRepository.findAll();
-    // Використовуємо оновлений маппер, який тепер знає про поля first_name та last_name
     return orderMapper.toDtoList(orders);
   }
 
@@ -104,6 +97,22 @@ public class OrderService {
         .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
       .totalPrice(cart.getTotalPrice())
       .build();
+
+    DeliveryAddress deliveryAddress = DeliveryAddress.builder()
+      .order(order)
+      .region(orderDto.getDeliveryAddress().getRegion())
+      .city(orderDto.getDeliveryAddress().getCity())
+      .area(orderDto.getDeliveryAddress().getArea())
+      .street(orderDto.getDeliveryAddress().getStreet())
+      .house(orderDto.getDeliveryAddress().getHouse())
+      .apartment(orderDto.getDeliveryAddress().getApartment())
+      .postOffice(orderDto.getDeliveryAddress().getPostOffice())
+      .build();
+
+    order.setDeliveryAddress(deliveryAddress);
+
+    order.setDeliveryAddress(deliveryAddress);
+
     List<OrderItem> orderItems = cart.getItems().stream()
       .map(cartItem -> {
         Product product = productRepository.findById(cartItem.getProductId())
@@ -121,7 +130,7 @@ public class OrderService {
 
     order.setItems(orderItems);
     Order savedOrder = orderRepository.save(order);
-    sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
+//    sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
     createConfirmationPdf(orderMapper.toDto(savedOrder));
 //    cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);

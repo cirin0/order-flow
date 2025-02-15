@@ -44,6 +44,6 @@ public class Order {
     this.orderDate = LocalDateTime.now();
   }
 
-//  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-//  private OrderDetails orderDetails;
+  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  private DeliveryAddress deliveryAddress;
 }

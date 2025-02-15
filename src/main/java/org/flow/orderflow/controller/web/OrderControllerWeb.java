@@ -3,6 +3,7 @@ package org.flow.orderflow.controller.web;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
+import org.flow.orderflow.dto.order.DeliveryAddressDto;
 import org.flow.orderflow.dto.order.OrderDto;
 import org.flow.orderflow.dto.user.UserDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
@@ -50,24 +51,26 @@ public class OrderControllerWeb {
 
     List<OrderDto> orders;
     try {
-      // Перевіряємо роль через name()
       if (user.getRole().name().equals("ADMIN")) {
-        // Для адміна отримуємо всі замовлення користувачів
         orders = orderService.getAllOrdersWithUserDetails();
+        model.addAttribute("pageTitle", "Всі замовлення");
       } else {
-        // Для звичайного користувача - тільки його замовлення
         orders = orderService.getOrdersByUserId(user.getUserId());
+        model.addAttribute("pageTitle", "Мої замовлення");
       }
       model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
       model.addAttribute("orders", orders);
+
+
+      if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
+        model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
+      }
     } catch (Exception e) {
       model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
       model.addAttribute("orders", new ArrayList<>());
     }
-
     return "orders/list";
   }
-
 
   @GetMapping("/create")
   public String showCreateOrderPage(HttpSession session, Model model) {
@@ -76,7 +79,6 @@ public class OrderControllerWeb {
       return "redirect:/auth/login";
     }
 
-    // Якщо користувач адмін - перенаправляємо на список замовлень
     if ("ADMIN".equals(userSession.getRole())) {
       return "redirect:/orders";
     }
@@ -86,37 +88,27 @@ public class OrderControllerWeb {
 
     model.addAttribute("cart", cart);
     model.addAttribute("userDetails", userDetails);
+    model.addAttribute("userAddress", userDetails.getAddress()); // Додаємо адресу в модель
+    model.addAttribute("pageTitle", "Створити замовлення");
     return "orders/create-order";
-  }
-
-  @GetMapping("/my")
-  public String getMyOrders(Model model, HttpSession session) {
-    UserSessionDto user = (UserSessionDto) session.getAttribute("user");
-    if (user == null) {
-      return "redirect:/auth/login";
-    }
-    model.addAttribute("orders", orderService.getOrderByUserEmail(user.getEmail()));
-    return "orders/my-orders";
   }
 
   @GetMapping("/{id}")
   public String getOrderDetails(@PathVariable Long id, Model model, HttpSession session) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
+    model.addAttribute("pageTitle", "Деталі замовлення");
     if (user == null) {
       return "redirect:/auth/login";
     }
 
     try {
       OrderDto order = orderService.getOrderById(id);
-      UserDto userDetails = userService.getUserById(order.getUserId());
 
-      // Перевіряємо чи має користувач доступ до цього замовлення
       if (!user.getRole().name().equals("ADMIN") && !order.getUserId().equals(user.getUserId())) {
         return "redirect:/orders";
       }
 
       model.addAttribute("order", order);
-      model.addAttribute("address", userDetails.getAddress()); // Передаємо адресу окремо
       model.addAttribute("statuses", OrderStatus.values());
       model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
 
@@ -128,15 +120,54 @@ public class OrderControllerWeb {
   }
 
   @PostMapping("/create")
-  public String createOrder(HttpSession session, RedirectAttributes redirectAttributes) {
+  public String createOrder(@ModelAttribute OrderDto orderDto,
+                            @RequestParam String fullName,
+                            @RequestParam String phone,
+                            @RequestParam String email,
+                            @RequestParam String addressSource,
+                            @RequestParam(required = false) String region,
+                            @RequestParam(required = false) String city,
+                            @RequestParam(required = false) String area,
+                            @RequestParam(required = false) String street,
+                            @RequestParam(required = false) String house,
+                            @RequestParam(required = false) String apartment,
+                            @RequestParam String postOffice,
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     if (user == null) {
       return "redirect:/auth/login";
     }
 
     try {
-      OrderDto orderDto = new OrderDto();
       orderDto.setUserId(user.getUserId());
+
+      // Create delivery address based on form data
+      DeliveryAddressDto deliveryAddress;
+      if ("profile".equals(addressSource)) {
+        UserDto userDetails = userService.getUserById(user.getUserId());
+        deliveryAddress = DeliveryAddressDto.builder()
+          .region(userDetails.getAddress().getRegion())
+          .city(userDetails.getAddress().getCity())
+          .area(userDetails.getAddress().getArea())
+          .street(userDetails.getAddress().getStreet())
+          .house(userDetails.getAddress().getHouse())
+          .apartment(userDetails.getAddress().getApartment())
+          .postOffice(postOffice)
+          .build();
+      } else {
+        deliveryAddress = DeliveryAddressDto.builder()
+          .region(region)
+          .city(city)
+          .area(area)
+          .street(street)
+          .house(house)
+          .apartment(apartment)
+          .postOffice(postOffice)
+          .build();
+      }
+
+      orderDto.setDeliveryAddress(deliveryAddress);
       OrderDto createdOrder = orderService.createOrder(orderDto, user.getEmail());
 
       redirectAttributes.addFlashAttribute("success",
@@ -188,7 +219,7 @@ public class OrderControllerWeb {
 
     try {
       orderService.cancelOrder(id);
-      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано. Ми звяжемось з Вами блищим ");
+      redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано.");
     } catch (IllegalStateException e) {
       redirectAttributes.addFlashAttribute("error", e.getMessage());
     }

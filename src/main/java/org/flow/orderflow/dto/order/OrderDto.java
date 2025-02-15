@@ -19,6 +19,6 @@ public class OrderDto {
   private OrderStatus status;
   private String statusDescription;
   private String orderNumber;
-//  private OrderDetailsDto orderDetails; // Додаємо це поле
+  private DeliveryAddressDto deliveryAddress;
 
 }
