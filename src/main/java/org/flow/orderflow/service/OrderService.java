@@ -7,10 +7,7 @@ import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.order.OrderDto;
 import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.OrderMapper;
-import org.flow.orderflow.model.Order;
-import org.flow.orderflow.model.OrderItem;
-import org.flow.orderflow.model.OrderStatus;
-import org.flow.orderflow.model.Product;
+import org.flow.orderflow.model.*;
 import org.flow.orderflow.repository.OrderRepository;
 import org.flow.orderflow.repository.ProductRepository;
 import org.flow.orderflow.repository.UserRepository;
@@ -77,7 +74,6 @@ public class OrderService {
     return orderMapper.toDto(savedOrder);
   }
 
-
   @Transactional
   public OrderDto createOrder(OrderDto orderDto, String userEmail) {
     CartDto cart = cartService.getCartByUserId(orderDto.getUserId());
@@ -93,13 +89,27 @@ public class OrderService {
         );
       }
     }
+    User user = userRepository.findById(orderDto.getUserId())
+      .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId()));
 
     Order order = Order.builder()
       .orderNumber(generateUniqueOrderNumber())
-      .user(userRepository.findById(orderDto.getUserId())
-        .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
+      .user(user)
       .totalPrice(cart.getTotalPrice())
+      .status(OrderStatus.NEW)
       .build();
+
+    DeliveryAddress deliveryAddress = DeliveryAddress.builder()
+      .order(order)
+      .region(orderDto.getDeliveryAddress().getRegion())
+      .city(orderDto.getDeliveryAddress().getCity())
+      .area(orderDto.getDeliveryAddress().getArea())
+      .street(orderDto.getDeliveryAddress().getStreet())
+      .house(orderDto.getDeliveryAddress().getHouse())
+      .apartment(orderDto.getDeliveryAddress().getApartment())
+      .build();
+    order.setDeliveryAddress(deliveryAddress);
+
     List<OrderItem> orderItems = cart.getItems().stream()
       .map(cartItem -> {
         Product product = productRepository.findById(cartItem.getProductId())
@@ -114,12 +124,11 @@ public class OrderService {
           .build();
       })
       .collect(Collectors.toList());
-
     order.setItems(orderItems);
     Order savedOrder = orderRepository.save(order);
     sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
     createConfirmationPdf(orderMapper.toDto(savedOrder));
-//    cartService.clearCart(cart.getId());
+    cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);
   }
 

@@ -39,6 +39,9 @@ public class Order {
   @Column(nullable = false)
   private LocalDateTime orderDate;
 
+  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  private DeliveryAddress deliveryAddress;
+
   @PrePersist
   protected void onCreate() {
     this.orderDate = LocalDateTime.now();

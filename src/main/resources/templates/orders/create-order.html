@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="h-full">
 <head th:replace="~{fragments/head :: head}"></head>
-<body class="bg-gray-100 flex flex-col h-full m-0"> <!-- Світлий фон для body -->
+<body class="bg-gray-100 flex flex-col h-full m-0">
 <header th:replace="~{fragments/header :: header}"></header>
 
 <div class="page-wrapper">
@@ -10,16 +10,13 @@
     <div class="cityscape-revers"></div>
     <div class="smoke-effect"></div>
   </div>
-
   <main class="content mt-5 flex-grow">
     <div class="order-create-page">
       <h1>Створення замовлення</h1>
-
       <div th:if="${cart.items.isEmpty()}" class="cart-empty">
         <p>Твій кошик пустий</p>
         <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
-
       <div th:unless="${cart.items.isEmpty()}" class="cart-items">
         <table class="cart-items-table">
           <thead>
@@ -37,12 +34,9 @@
           </tr>
           </tbody>
         </table>
-
         <p class="cart-total">Загальна сума: <span
           th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 2)}">Сума</span></p>
-
         <form th:action="@{/orders/create}" method="post" class="form-section">
-          <!-- Контактна інформація -->
           <div class="form-section">
             <h2>Контактна інформація</h2>
             <div class="form-group">
@@ -51,11 +45,8 @@
                      id="fullName"
                      name="fullName"
                      th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
-                     required
-                     pattern="[А-Яа-яІіЇїЄєҐґ'\s]+"
-                     title="Введіть коректне ПІБ">
+                     required>
             </div>
-
             <div class="form-group">
               <label for="phone">Номер телефону:</label>
               <input type="tel"
@@ -63,11 +54,11 @@
                      name="phone"
                      th:value="${userDetails != null ? userDetails.phone : ''}"
                      required
-                     pattern="\+?\d{10,13}"
+                     pattern="[0-9]{10}"
+                     placeholder="0991234567"
                      maxlength="10"
                      title="Введіть коректний номер телефону">
             </div>
-
             <div class="form-group">
               <label for="email">E-mail:</label>
               <input type="email"
@@ -77,141 +68,71 @@
                      required>
             </div>
           </div>
-
-          <!-- Адреса доставки -->
           <div class="form-section">
             <h2>Адреса доставки</h2>
-
-            <!-- Вибір джерела адреси -->
-            <div class="address-radio-group">
-              <div>
-                <input type="radio"
-                       id="useProfileAddress"
-                       name="addressSource"
-                       value="profile"
-                       th:checked="${userDetails != null && userDetails.address != null}"
-                       onchange="toggleAddressForm(this)">
-                <label for="useProfileAddress">Використати адресу з профілю</label>
-              </div>
-
-              <div>
-                <input type="radio"
-                       id="useNewAddress"
-                       name="addressSource"
-                       value="new"
-                       th:checked="${userDetails == null || userDetails.address == null}"
-                       onchange="toggleAddressForm(this)">
-                <label for="useNewAddress">Вказати нову адресу</label>
-              </div>
+            <div th:if="${userDetails != null && userDetails.address != null}" class="address-button-group">
+              <button type="button" onclick="fillProfileAddress()" class="btn-fill-address">
+                Заповнити адресу з профілю
+              </button>
             </div>
-
-            <!-- Адреса з профілю -->
-            <div id="profileAddressSection"
-                 th:style="${userDetails != null && userDetails.address != null ? 'display: block' : 'display: none'}"
-                 class="profile-address-section">
-              <div th:if="${userDetails != null && userDetails.address != null}">
-                <p><strong>Регіон:</strong> <span th:text="${userDetails.address.region}"></span></p>
-                <p><strong>Місто:</strong> <span th:text="${userDetails.address.city}"></span></p>
-                <p><strong>Район:</strong> <span th:text="${userDetails.address.area}"></span></p>
-                <p><strong>Вулиця:</strong> <span th:text="${userDetails.address.street}"></span></p>
-                <p><strong>Будинок:</strong> <span th:text="${userDetails.address.house}"></span></p>
-                <p><strong>Квартира:</strong> <span th:text="${userDetails.address.apartment}"></span></p>
+            <div class="address-fields">
+              <div class="form-group">
+                <label for="region">Область:</label>
+                <input type="text" id="region" name="region"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.region : ''}"
+                       required>
               </div>
-            </div>
-
-            <!-- Форма нової адреси -->
-            <div id="newAddressSection"
-                 th:style="${userDetails == null || userDetails.address == null ? 'display: block' : 'display: none'}"
-                 class="new-address-section">
-              <div class="address-fields">
+              <div class="form-group">
+                <label for="city">Місто/Селище:</label>
+                <input type="text" id="city" name="city"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.city : ''}"
+                       required>
+              </div>
+              <div class="form-group">
+                <label for="area">Район:</label>
+                <input type="text" id="area" name="area"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.area : ''}"
+                       required>
+              </div>
+              <div class="form-group">
+                <label for="street">Вулиця:</label>
+                <input type="text" id="street" name="street"
+                       th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.street : ''}"
+                       required>
+              </div>
+              <div class="form-row">
                 <div class="form-group">
-                  <label for="region">Регіон:</label>
-                  <input type="text" id="region" name="region">
+                  <label for="house">Будинок:</label>
+                  <input type="text" id="house" name="house"
+                         th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.house : ''}">
                 </div>
-
                 <div class="form-group">
-                  <label for="city">Місто:</label>
-                  <input type="text" id="city" name="city">
-                </div>
-
-                <div class="form-group">
-                  <label for="area">Район:</label>
-                  <input type="text" id="area" name="area">
-                </div>
-
-                <div class="form-group">
-                  <label for="street">Вулиця:</label>
-                  <input type="text" id="street" name="street">
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="house">Будинок:</label>
-                    <input type="text" id="house" name="house">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="apartment">Квартира:</label>
-                    <input type="text" id="apartment" name="apartment">
-                  </div>
+                  <label for="apartment">Квартира:</label>
+                  <input type="text" id="apartment" name="apartment"
+                         th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.apartment : ''}">
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Служба доставки -->
-          <div class="form-group">
-            <label for="postOffice">Служба доставки:</label>
-            <select id="postOffice" name="postOffice" required>
-              <option value="">Оберіть службу доставки</option>
-              <option value="nova_poshta">Нова Пошта</option>
-              <option value="ukrposhta">Укрпошта</option>
-            </select>
-          </div>
-
           <button type="submit" class="btn-submit">Підтвердити замовлення</button>
         </form>
-
         <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
     </div>
-
   </main>
 </div>
-
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
-
 <script>
-  function toggleAddressForm(radio) {
-    const profileSection = document.getElementById('profileAddressSection');
-    const newAddressSection = document.getElementById('newAddressSection');
+  function fillProfileAddress() {
+    const fields = document.querySelectorAll('.address-fields input');
 
-    if (radio.value === 'profile') {
-      profileSection.style.display = 'block';
-      newAddressSection.style.display = 'none';
-      // Disable new address form inputs
-      const inputs = newAddressSection.getElementsByTagName('input');
-      for (let input of inputs) {
-        input.required = false;
-      }
-    } else {
-      profileSection.style.display = 'none';
-      newAddressSection.style.display = 'block';
-      // Enable new address form inputs
-      const inputs = newAddressSection.getElementsByTagName('input');
-      for (let input of inputs) {
-        input.required = true;
+    for (let field of fields) {
+      const profileData = field.getAttribute('data-profile');
+      if (profileData) {
+        field.value = profileData;
       }
     }
   }
-
-  // Initialize form on page load
-  document.addEventListener('DOMContentLoaded', function () {
-    const checkedRadio = document.querySelector('input[name="addressSource"]:checked');
-    if (checkedRadio) {
-      toggleAddressForm(checkedRadio);
-    }
-  });
 </script>
 </body>
 </html>

@@ -15,10 +15,12 @@ import org.flow.orderflow.model.OrderStatus;
 import org.flow.orderflow.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@CrossOrigin
 public class PaymentService {
 
   @Value("${stripe.secret.key}")
@@ -76,11 +78,11 @@ public class PaymentService {
       PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
       String orderId = paymentIntent.getMetadata().get("orderId");
 
-      if (orderId != null) {
+      if (orderId != null && "succeeded".equals(paymentIntent.getStatus())) {
         Order order = orderRepository.findById(Long.parseLong(orderId))
           .orElseThrow(() -> new PaymentException("Order not found"));
 
-        order.setStatus(OrderStatus.PAID);
+//        order.setStatus(OrderStatus.PAID);
         orderRepository.save(order);
         log.info("Payment successful for order: {}", orderId);
       }

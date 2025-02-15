@@ -19,4 +19,6 @@ public class OrderDto {
   private OrderStatus status;
   private String statusDescription;
   private String orderNumber;
+  private DeliveryAddressDto deliveryAddress;
+
 }
