@@ -72,10 +72,6 @@ public class OrderControllerWeb {
       return "redirect:/auth/login";
     }
 
-    if ("ADMIN".equals(userSession.getRole())) {
-      return "redirect:/orders";
-    }
-
     UserDto userDetails = userService.getUserById(userSession.getUserId());
     CartDto cart = cartService.getCartByUserId(userSession.getUserId());
 
@@ -93,14 +89,12 @@ public class OrderControllerWeb {
     if (user == null) {
       return "redirect:/auth/login";
     }
-
     try {
       OrderDto order = orderService.getOrderById(id);
 
       if (!user.getRole().name().equals("ADMIN") && !order.getUserId().equals(user.getUserId())) {
         return "redirect:/orders";
       }
-
       model.addAttribute("order", order);
       model.addAttribute("statuses", OrderStatus.values());
       model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
@@ -113,57 +107,38 @@ public class OrderControllerWeb {
   }
 
   @PostMapping("/create")
-  public String createOrder(@ModelAttribute OrderDto orderDto,
-                            @RequestParam String fullName,
-                            @RequestParam String phone,
-                            @RequestParam String email,
-                            @RequestParam String addressSource,
-                            @RequestParam(required = false) String region,
+  public String createOrder(@RequestParam(required = false) String region,
                             @RequestParam(required = false) String city,
                             @RequestParam(required = false) String area,
                             @RequestParam(required = false) String street,
                             @RequestParam(required = false) String house,
                             @RequestParam(required = false) String apartment,
-                            @RequestParam String postOffice,
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
     if (user == null) {
       return "redirect:/auth/login";
     }
-
     try {
+      OrderDto orderDto = new OrderDto();
       orderDto.setUserId(user.getUserId());
-      DeliveryAddressDto deliveryAddress;
-      if ("profile".equals(addressSource)) {
-        UserDto userDetails = userService.getUserById(user.getUserId());
-        deliveryAddress = DeliveryAddressDto.builder()
-          .region(userDetails.getAddress().getRegion())
-          .city(userDetails.getAddress().getCity())
-          .area(userDetails.getAddress().getArea())
-          .street(userDetails.getAddress().getStreet())
-          .house(userDetails.getAddress().getHouse())
-          .apartment(userDetails.getAddress().getApartment())
-          .postOffice(postOffice)
-          .build();
-      } else {
-        deliveryAddress = DeliveryAddressDto.builder()
-          .region(region)
-          .city(city)
-          .area(area)
-          .street(street)
-          .house(house)
-          .apartment(apartment)
-          .postOffice(postOffice)
-          .build();
-      }
 
+      DeliveryAddressDto deliveryAddress = DeliveryAddressDto.builder()
+        .region(region)
+        .city(city)
+        .area(area)
+        .street(street)
+        .house(house)
+        .apartment(apartment)
+        .build();
       orderDto.setDeliveryAddress(deliveryAddress);
-      OrderDto createdOrder = orderService.createOrder(orderDto, user.getEmail());
 
+      OrderDto createdOrder = orderService.createOrder(orderDto, user.getEmail());
+      
       redirectAttributes.addFlashAttribute("success",
         "Замовлення успішно створено з ID: " + createdOrder.getId());
       return "redirect:/orders/" + createdOrder.getId();
+
     } catch (Exception e) {
       redirectAttributes.addFlashAttribute("error",
         "Помилка створення замовлення: " + e.getMessage());
@@ -180,14 +155,11 @@ public class OrderControllerWeb {
     if (user == null) {
       return "redirect:/auth/login";
     }
-
-    // Перевіряємо чи користувач є адміном
     if (!user.getRole().name().equals("ADMIN")) {
       redirectAttributes.addFlashAttribute("error",
         "У вас немає прав для зміни статусу замовлення");
       return "redirect:/orders/" + id;
     }
-
     try {
       orderService.updateOrderStatus(id, status);
       redirectAttributes.addFlashAttribute("success",
@@ -207,7 +179,6 @@ public class OrderControllerWeb {
     if (user == null) {
       return "redirect:/auth/login";
     }
-
     try {
       orderService.cancelOrder(id);
       redirectAttributes.addFlashAttribute("success", "Замовлення успішно скасовано");
@@ -225,7 +196,6 @@ public class OrderControllerWeb {
     if (user == null) {
       return "redirect:/auth/login";
     }
-
     try {
       orderService.completeOrder(id);
       redirectAttributes.addFlashAttribute("success", "Замовлення успішно завершено");

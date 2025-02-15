@@ -15,10 +15,12 @@ import org.flow.orderflow.model.OrderStatus;
 import org.flow.orderflow.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@CrossOrigin
 public class PaymentService {
 
   @Value("${stripe.secret.key}")

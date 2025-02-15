@@ -10,16 +10,13 @@
     <div class="cityscape-revers"></div>
     <div class="smoke-effect"></div>
   </div>
-
   <main class="content mt-5 flex-grow">
     <div class="order-create-page">
       <h1>Створення замовлення</h1>
-
       <div th:if="${cart.items.isEmpty()}" class="cart-empty">
         <p>Твій кошик пустий</p>
         <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
-
       <div th:unless="${cart.items.isEmpty()}" class="cart-items">
         <table class="cart-items-table">
           <thead>
@@ -37,10 +34,8 @@
           </tr>
           </tbody>
         </table>
-
         <p class="cart-total">Загальна сума: <span
           th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 2)}">Сума</span></p>
-
         <form th:action="@{/orders/create}" method="post" class="form-section">
           <div class="form-section">
             <h2>Контактна інформація</h2>
@@ -52,7 +47,6 @@
                      th:value="${userDetails != null ? userDetails.firstName + ' ' + userDetails.lastName : ''}"
                      required>
             </div>
-
             <div class="form-group">
               <label for="phone">Номер телефону:</label>
               <input type="tel"
@@ -65,7 +59,6 @@
                      maxlength="10"
                      title="Введіть коректний номер телефону">
             </div>
-
             <div class="form-group">
               <label for="email">E-mail:</label>
               <input type="email"
@@ -75,16 +68,13 @@
                      required>
             </div>
           </div>
-
           <div class="form-section">
             <h2>Адреса доставки</h2>
-
             <div th:if="${userDetails != null && userDetails.address != null}" class="address-button-group">
               <button type="button" onclick="fillProfileAddress()" class="btn-fill-address">
                 Заповнити адресу з профілю
               </button>
             </div>
-
             <div class="address-fields">
               <div class="form-group">
                 <label for="region">Область:</label>
@@ -92,35 +82,30 @@
                        th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.region : ''}"
                        required>
               </div>
-
               <div class="form-group">
                 <label for="city">Місто/Селище:</label>
                 <input type="text" id="city" name="city"
                        th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.city : ''}"
                        required>
               </div>
-
               <div class="form-group">
                 <label for="area">Район:</label>
                 <input type="text" id="area" name="area"
                        th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.area : ''}"
                        required>
               </div>
-
               <div class="form-group">
                 <label for="street">Вулиця:</label>
                 <input type="text" id="street" name="street"
                        th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.street : ''}"
                        required>
               </div>
-
               <div class="form-row">
                 <div class="form-group">
                   <label for="house">Будинок:</label>
                   <input type="text" id="house" name="house"
                          th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.house : ''}">
                 </div>
-
                 <div class="form-group">
                   <label for="apartment">Квартира:</label>
                   <input type="text" id="apartment" name="apartment"
@@ -129,23 +114,17 @@
               </div>
             </div>
           </div>
-
           <button type="submit" class="btn-submit">Підтвердити замовлення</button>
         </form>
-
         <a href="/cart" class="btn-back">Повернутися до кошика</a>
       </div>
     </div>
-
   </main>
 </div>
-
 <footer th:replace="~{fragments/footer :: footer}" class="mt-auto"></footer>
-
 <script>
   function fillProfileAddress() {
     const fields = document.querySelectorAll('.address-fields input');
-    document.getElementById('addressSource').value = 'profile'; // Update addressSource when filling profile data
 
     for (let field of fields) {
       const profileData = field.getAttribute('data-profile');

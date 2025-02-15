@@ -74,7 +74,6 @@ public class OrderService {
     return orderMapper.toDto(savedOrder);
   }
 
-
   @Transactional
   public OrderDto createOrder(OrderDto orderDto, String userEmail) {
     CartDto cart = cartService.getCartByUserId(orderDto.getUserId());
@@ -90,12 +89,14 @@ public class OrderService {
         );
       }
     }
+    User user = userRepository.findById(orderDto.getUserId())
+      .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId()));
 
     Order order = Order.builder()
       .orderNumber(generateUniqueOrderNumber())
-      .user(userRepository.findById(orderDto.getUserId())
-        .orElseThrow(() -> new NotFound("User not found with id: " + orderDto.getUserId())))
+      .user(user)
       .totalPrice(cart.getTotalPrice())
+      .status(OrderStatus.NEW)
       .build();
 
     DeliveryAddress deliveryAddress = DeliveryAddress.builder()
@@ -106,11 +107,7 @@ public class OrderService {
       .street(orderDto.getDeliveryAddress().getStreet())
       .house(orderDto.getDeliveryAddress().getHouse())
       .apartment(orderDto.getDeliveryAddress().getApartment())
-      .postOffice(orderDto.getDeliveryAddress().getPostOffice())
       .build();
-
-    order.setDeliveryAddress(deliveryAddress);
-
     order.setDeliveryAddress(deliveryAddress);
 
     List<OrderItem> orderItems = cart.getItems().stream()
@@ -127,12 +124,11 @@ public class OrderService {
           .build();
       })
       .collect(Collectors.toList());
-
     order.setItems(orderItems);
     Order savedOrder = orderRepository.save(order);
-//    sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
+    sendOrderConfirmationEmail(orderMapper.toDto(savedOrder), userEmail);
     createConfirmationPdf(orderMapper.toDto(savedOrder));
-//    cartService.clearCart(cart.getId());
+    cartService.clearCart(cart.getId());
     return orderMapper.toDto(savedOrder);
   }
 
