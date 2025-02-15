@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ua" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head}"></head>
-<body>
+<body th:data-user-logged-in="${session.user != null}">
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="page-wrapper">
@@ -57,5 +57,28 @@
   </div>
   <div th:replace="~{fragments/footer :: footer}"></div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    const addToCartForm = document.querySelector('form[action="/cart/add"]');
+    if (addToCartForm) {
+      addToCartForm.addEventListener('submit', function (event) {
+        const isLoggedIn = document.body.getAttribute('data-user-logged-in') === 'true';
+        if (!isLoggedIn) {
+          event.preventDefault();
+          Swal.fire({
+            text: 'Щоб додати товар у кошик, потрібно спочатку увійти',
+            icon: 'info',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000',
+            iconColor: '#000'
+          }).then(() => {
+            window.location.href = '/auth/login';
+          });
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>

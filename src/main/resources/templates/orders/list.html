@@ -6,73 +6,87 @@
 <div class="page-wrapper">
   <div class="cityscape"></div>
   <div class="cityscape-revers"></div>
-
   <main class="content mt-5">
     <div class="order-page">
-      <h1 th:text="${isAdmin ? 'Всі замовлення користувачів' : 'Мої замовлення'}">Замовлення</h1>
 
-      <div th:if="${success}" th:text="${success}" class="text-green"></div>
-      <div th:if="${error}" th:text="${error}" class="text-red"></div>
-      <div th:if="${info}" th:text="${info}" class="text-blue"></div>
+      <div th:unless="${isAuthenticated}" class="bg-white p-6 rounded-lg shadow-md text-center">
+        <h2 class="text-2xl font-bold mb-4">Історія замовлень</h2>
+        <p class="empty-cart-message text-gray-700 mb-4 text-xl">Для перегляду історії замовлень необхідно увійти</p>
+        <div class="flex justify-center gap-4">
+          <a href="/auth/login" class="checkout-btn bg-blue-500 px-6 py-2 rounded">
+            Увійти
+          </a>
+        </div>
+      </div>
 
-      <!-- Оновлена таблиця зі списком замовлень -->
-      <table class="order-table" th:if="${not orders.isEmpty()}">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Дата замовлення</th>
-          <th th:if="${isAdmin}">Ім'я користувача</th>
-          <th th:if="${isAdmin}">Email користувача</th>
-          <th>Статус</th>
-          <th>Сума</th>
-          <th>Дії</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-          <td th:text="${order.id}"></td>
-          <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
-          <td th:if="${isAdmin}" th:text="${order.userFirstName + ' ' + order.userLastName}"></td>
-          <td th:if="${isAdmin}" th:text="${order.userEmail}"></td>
-          <td>
-            <!-- Для адміна - випадаючий список -->
-            <div th:if="${isAdmin}" class="flex items-center gap-2">
-              <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="flex items-center gap-2">
-                <select name="status" class="p-1 rounded border" onchange="this.form.submit()">
-                  <option value="NEW" th:selected="${order.status.name() == 'NEW'}">Нове замовлення</option>
-                  <option value="PAID" th:selected="${order.status.name() == 'PAID'}" disabled>Оплачено</option>
-                  <option value="PROCESSING" th:selected="${order.status.name() == 'PROCESSING'}">В обробці</option>
-                  <option value="SHIPPED" th:selected="${order.status.name() == 'SHIPPED'}">Відправлено</option>
-                  <option value="DELIVERED" th:selected="${order.status.name() == 'DELIVERED'}">Доставлено</option>
-                  <option value="COMPLETED" th:selected="${order.status.name() == 'COMPLETED'}" disabled>Завершено
-                  </option>
-                  <option value="CANCELED" th:selected="${order.status.name() == 'CANCELED'}">Скасовано</option>
-                </select>
-              </form>
-            </div>
-            <!-- Для користувача - просто текст статусу -->
-            <span th:unless="${isAdmin}" class="status-badge"
-                  th:classappend="${'status-badge ' + order.status.name().toLowerCase()}">
-                  <span th:switch="${order.status.name()}">
-                    <span th:case="'NEW'" th:text="'Нове замовлення'"></span>
-                    <span th:case="'PAID'" th:text="'Оплачено'"></span>
-                    <span th:case="'PROCESSING'" th:text="'В обробці'"></span>
-                    <span th:case="'SHIPPED'" th:text="'Відправлено'"></span>
-                    <span th:case="'DELIVERED'" th:text="'Доставлено'"></span>
-                    <span th:case="'COMPLETED'" th:text="'Завершено'"></span>
-                    <span th:case="'CANCELED'" th:text="'Скасовано'"></span>
-                  </span>
+      <!-- Authenticated User Content -->
+      <div th:if="${isAuthenticated}">
+        <h1 th:text="${isAdmin ? 'Всі замовлення користувачів' : 'Мої замовлення'}">Замовлення</h1>
+
+        <div th:if="${success}" th:text="${success}" class="text-green"></div>
+        <div th:if="${error}" th:text="${error}" class="text-red"></div>
+        <div th:if="${info}" th:text="${info}" class="text-blue"></div>
+
+        <!-- Orders Table -->
+        <table class="order-table" th:if="${orders != null and not orders.isEmpty()}">
+          <!-- Existing table content remains the same... -->
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Дата замовлення</th>
+            <th th:if="${isAdmin}">Ім'я користувача</th>
+            <th th:if="${isAdmin}">Email користувача</th>
+            <th>Статус</th>
+            <th>Сума</th>
+            <th>Дії</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td>
+            <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
+            <td th:if="${isAdmin}" th:text="${order.userFirstName + ' ' + order.userLastName}"></td>
+            <td th:if="${isAdmin}" th:text="${order.userEmail}"></td>
+            <td>
+              <!-- Admin status dropdown -->
+              <div th:if="${isAdmin}" class="flex items-center gap-2">
+                <form th:action="@{/orders/{id}/status(id=${order.id})}" method="post" class="flex items-center gap-2">
+                  <select name="status" class="p-1 rounded border" onchange="this.form.submit()">
+                    <option value="NEW" th:selected="${order.status.name() == 'NEW'}">Нове замовлення</option>
+                    <option value="PAID" th:selected="${order.status.name() == 'PAID'}" disabled>Оплачено</option>
+                    <option value="PROCESSING" th:selected="${order.status.name() == 'PROCESSING'}">В обробці</option>
+                    <option value="SHIPPED" th:selected="${order.status.name() == 'SHIPPED'}">Відправлено</option>
+                    <option value="DELIVERED" th:selected="${order.status.name() == 'DELIVERED'}">Доставлено</option>
+                    <option value="COMPLETED" th:selected="${order.status.name() == 'COMPLETED'}" disabled>Завершено
+                    </option>
+                    <option value="CANCELED" th:selected="${order.status.name() == 'CANCELED'}">Скасовано</option>
+                  </select>
+                </form>
+              </div>
+              <!-- User status display -->
+              <span th:unless="${isAdmin}" class="status-badge"
+                    th:classappend="${'status-badge ' + order.status.name().toLowerCase()}">
+                <span th:switch="${order.status.name()}">
+                  <span th:case="'NEW'" th:text="'Нове замовлення'"></span>
+                  <span th:case="'PAID'" th:text="'Оплачено'"></span>
+                  <span th:case="'PROCESSING'" th:text="'В обробці'"></span>
+                  <span th:case="'SHIPPED'" th:text="'Відправлено'"></span>
+                  <span th:case="'DELIVERED'" th:text="'Доставлено'"></span>
+                  <span th:case="'COMPLETED'" th:text="'Завершено'"></span>
+                  <span th:case="'CANCELED'" th:text="'Скасовано'"></span>
                 </span>
-          </td>
-          <td th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2) + ' грн'}"></td>
-          <td>
-            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn-details">
-              Деталі
-            </a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+              </span>
+            </td>
+            <td th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2) + ' грн'}"></td>
+            <td>
+              <a th:href="@{/orders/{id}(id=${order.id})}" class="btn-details">
+                Деталі
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
   <div th:replace="~{fragments/footer :: footer}"></div>

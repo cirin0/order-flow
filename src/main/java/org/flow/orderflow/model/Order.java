@@ -43,4 +43,7 @@ public class Order {
   protected void onCreate() {
     this.orderDate = LocalDateTime.now();
   }
+
+  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  private DeliveryAddress deliveryAddress;
 }
