@@ -1421,8 +1421,10 @@ em {
 .clear-cart-btn {
   background-color: #6c757d;
   color: white;
-  padding: 10px 20px;
-  font-size: 1rem;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+
 }
 
 .clear-cart-btn:hover {
