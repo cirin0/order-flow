@@ -44,30 +44,29 @@ public class OrderControllerWeb {
   @GetMapping
   public String getAllOrders(Model model, HttpSession session) {
     UserSessionDto user = (UserSessionDto) session.getAttribute("user");
-    if (user == null) {
-      return "redirect:/auth/login";
+    model.addAttribute("isAuthenticated", user != null);
+    if (user != null) {
+      List<OrderDto> orders;
+      try {
+        if (user.getRole().name().equals("ADMIN")) {
+          orders = orderService.getAllOrdersWithUserDetails();
+          model.addAttribute("pageTitle", "Всі замовлення");
+        } else {
+          orders = orderService.getOrdersByUserId(user.getUserId());
+          model.addAttribute("pageTitle", "Мої замовлення");
+        }
+        model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
+        model.addAttribute("orders", orders);
+
+        if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
+          model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
+        }
+      } catch (Exception e) {
+        model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
+        model.addAttribute("orders", new ArrayList<>());
+      }
     }
 
-    List<OrderDto> orders;
-    try {
-      if (user.getRole().name().equals("ADMIN")) {
-        orders = orderService.getAllOrdersWithUserDetails();
-        model.addAttribute("pageTitle", "Всі замовлення");
-      } else {
-        orders = orderService.getOrdersByUserId(user.getUserId());
-        model.addAttribute("pageTitle", "Мої замовлення");
-      }
-      model.addAttribute("isAdmin", user.getRole().name().equals("ADMIN"));
-      model.addAttribute("orders", orders);
-
-
-      if (orders.isEmpty() && !user.getRole().name().equals("ADMIN")) {
-        model.addAttribute("info", "Ви ще не зробили жодного замовлення.");
-      }
-    } catch (Exception e) {
-      model.addAttribute("error", "Помилка при завантаженні замовлень: " + e.getMessage());
-      model.addAttribute("orders", new ArrayList<>());
-    }
     return "orders/list";
   }
 
