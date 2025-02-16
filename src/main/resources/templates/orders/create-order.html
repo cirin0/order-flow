@@ -104,7 +104,8 @@
                 <div class="form-group">
                   <label for="house">Будинок:</label>
                   <input type="text" id="house" name="house"
-                         th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.house : ''}">
+                         th:data-profile="${userDetails != null && userDetails.address != null ? userDetails.address.house : ''}"
+                         required>
                 </div>
                 <div class="form-group">
                   <label for="apartment">Квартира:</label>

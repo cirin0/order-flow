@@ -10,9 +10,9 @@ import java.util.List;
 public class OrderDto {
   private Long id;
   private Long userId;
-  private String userEmail;        // Додано поле для email користувача
-  private String userFirstName;    // Додано поле для імені користувача
-  private String userLastName;     // Додано поле для прізвища користувача
+  private String userEmail;
+  private String userFirstName;
+  private String userLastName;
   private List<OrderItemDto> items;
   private Double totalPrice;
   private LocalDateTime orderDate;
