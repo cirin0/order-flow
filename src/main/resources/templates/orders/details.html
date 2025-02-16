@@ -37,10 +37,11 @@
             Адреса оставки:
             <span th:text="${order.deliveryAddress.region} + ' обл., ' +
                      ${order.deliveryAddress.city} + ', ' +
-                     ${order.deliveryAddress.area} + ', ' +
-                     ${order.deliveryAddress.street} + ', ' +
-                     ${order.deliveryAddress.house} + ', ' +
-                     ${order.deliveryAddress.apartment}">
+                     ${order.deliveryAddress.area} + ' р-йн, вул. ' +
+                     ${order.deliveryAddress.street} + ', буд. ' +
+                     ${order.deliveryAddress.house} +
+                       (${order.deliveryAddress.apartment != null && !order.deliveryAddress.apartment.isEmpty()} ?
+                       ', кв. ' + ${order.deliveryAddress.apartment} : '')">
           </span>
           </p>
         </div>
