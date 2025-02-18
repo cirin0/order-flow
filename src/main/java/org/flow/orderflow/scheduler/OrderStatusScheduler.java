@@ -57,7 +57,7 @@ public class OrderStatusScheduler {
   @Scheduled(timeUnit = SECONDS, fixedRate = 60)
   @Transactional
   public void checkPaidOrders() {
-    LocalDateTime time = LocalDateTime.now().minusMinutes(10);
+    LocalDateTime time = LocalDateTime.now().minusMinutes(20);
     log.info("Checking for orders from status PAID to SHIPPED");
     List<Order> processingOrders = orderRepository.findByStatusAndOrderDateBefore(
       OrderStatus.PAID,
