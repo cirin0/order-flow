@@ -289,18 +289,18 @@ class OrderServiceTest {
 
     assertThat(result).isEqualTo(orderDto);
     verify(cartService).getCartByUserId(1L);
-    verify(productRepository).findById(1L);
+    verify(productRepository, times(2)).findById(1L);
     verify(userRepository).findById(1L);
     verify(orderRepository).save(any(Order.class));
     verify(pdfService).generateInvoice(orderDto);
-    verify(orderMapper).toDto(order);
+    verify(orderMapper, times(3)).toDto(order);
     verify(cartService).clearCart(1L);
   }
 
   @Test
   void createOrder_withInsufficientStock_shouldThrowIllegalStateException() {
     String userEmail = "test@example.com";
-    product.setStock(0); // недостаточно на складе
+    product.setStock(0); // недостатньо на складі
     when(cartService.getCartByUserId(1L)).thenReturn(cartDto);
     when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
@@ -354,7 +354,7 @@ class OrderServiceTest {
     OrderDto result = orderService.cancelOrder(1L);
 
     assertThat(result.getStatus()).isEqualTo(OrderStatus.CANCELED);
-    assertThat(product.getStock()).isEqualTo(11); // восстановили запас
+    assertThat(product.getStock()).isEqualTo(11); // повернути товар на склад
     verify(orderRepository).findById(1L);
     verify(productRepository).save(product);
     verify(orderRepository).save(order);
