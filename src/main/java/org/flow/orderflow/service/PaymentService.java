@@ -42,7 +42,7 @@ public class PaymentService {
       Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new PaymentException("Order not found"));
 
-      if (order.getStatus() != OrderStatus.NEW) {
+      if (order.getStatus() != OrderStatus.NEW && order.getStatus() != OrderStatus.PROCESSING) {
         throw new PaymentException("Invalid order status for payment");
       }
       PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
