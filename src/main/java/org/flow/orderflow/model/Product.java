@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -34,6 +35,12 @@ public class Product {
   @JoinColumn(name = "category_id")
   private Category category;
 
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Review> reviews;
+
+  @Column(name = "average_rating")
+  private Double averageRating;
+
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
@@ -44,6 +51,9 @@ public class Product {
   protected void onCreate() {
     createdAt = LocalDateTime.now();
     updatedAt = LocalDateTime.now();
+    if (this.averageRating == null) {
+      this.averageRating = 0.0;
+    }
   }
 
   @PreUpdate
