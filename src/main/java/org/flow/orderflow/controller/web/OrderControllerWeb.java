@@ -134,7 +134,7 @@ public class OrderControllerWeb {
       orderDto.setDeliveryAddress(deliveryAddress);
 
       OrderDto createdOrder = orderService.createOrder(orderDto, user.getEmail());
-      
+
       redirectAttributes.addFlashAttribute("success",
         "Замовлення успішно створено з ID: " + createdOrder.getId());
       return "redirect:/orders/" + createdOrder.getId();
