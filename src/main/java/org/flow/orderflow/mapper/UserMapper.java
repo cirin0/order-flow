@@ -18,6 +18,10 @@ public interface UserMapper {
   @Mapping(target = "last_name", source = "lastName")
   User toUserRegistrationDto(UserRegistrationDto dto);
 
+  @Mapping(source = "first_name", target = "firstName")
+  @Mapping(source = "last_name", target = "lastName")
+  UserRegistrationDto toUserRegistrationDto(User user);
+
   @Mapping(target = "first_name", source = "firstName")
   @Mapping(target = "last_name", source = "lastName")
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

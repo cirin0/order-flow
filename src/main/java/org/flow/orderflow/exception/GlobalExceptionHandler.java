@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
   @ExceptionHandler(NotFound.class)
   public Object handleNotFound(NotFound e, HttpServletRequest request, Model model) {
+    String requestURI = request.getRequestURI();
     String accept = request.getHeader("Accept");
 
-    if (accept != null && accept.contains("application/json")) {
+    if (requestURI.startsWith("/api") || (accept != null && accept.contains("application/json"))) {
       ErrorResponse errorResponse = new ErrorResponse(
         HttpStatus.NOT_FOUND,
         e.getMessage()
@@ -23,6 +24,24 @@ public class GlobalExceptionHandler {
       model.addAttribute("error", e.getMessage());
       model.addAttribute("status", HttpStatus.NOT_FOUND);
       return "error/404";
+    }
+  }
+
+  @ExceptionHandler(ReviewAlreadyExists.class)
+  public Object handleReviewAlreadyExists(ReviewAlreadyExists e, HttpServletRequest request, Model model) {
+    String requestURI = request.getRequestURI();
+    String accept = request.getHeader("Accept");
+
+    if (requestURI.startsWith("/api") || (accept != null && accept.contains("application/json"))) {
+      ErrorResponse errorResponse = new ErrorResponse(
+        HttpStatus.CONFLICT,
+        e.getMessage()
+      );
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    } else {
+      model.addAttribute("error", e.getMessage());
+      model.addAttribute("status", HttpStatus.CONFLICT);
+      return "error/409";
     }
   }
 }
