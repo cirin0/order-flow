@@ -1,23 +1,37 @@
-create table reviews
+create table if not exists reviews
 (
-  id         bigint  not null,
-  content    TEXT    not null,
-  created_at timestamp(6),
-  rating     integer not null,
-  updated_at timestamp(6),
+  id
+  bigint
+  generated
+  by
+  default as
+  identity
+  primary
+  key,
+  content
+  TEXT
+  not
+  null,
+  created_at
+  timestamp
+(
+  6
+),
+  rating integer not null,
+  updated_at timestamp
+(
+  6
+),
   product_id bigint,
-  user_id    bigint,
-  primary key (id)
-)
+  user_id bigint
+  );
 
-create sequence rewiews_seq start with 1 increment by 50
-
-alter table if exists rewiews
-  add constraint FKd1hqr30o7vovcgwuv5ucxntlc
+alter table if exists reviews
+  add constraint fk_reviews_product_id
   foreign key (product_id)
-  references products
+  references products;
 
-alter table if exists rewiews
-  add constraint FKh7yloohgehdsrw1na6ybfr69u
+alter table if exists reviews
+  add constraint fk_reviews_user_id
   foreign key (user_id)
-  references users
+  references users;
