@@ -8,21 +8,22 @@ import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.flow.orderflow.security.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
   private final UserRepository userRepository;
-  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-  private final Map<String, UserSessionDto> activeSessions = new HashMap<>();
+  private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final JwtUtil jwtUtil;
+  private final AuthenticationManager authenticationManager;
 
   public UserSessionDto registerUser(UserRegistrationDto registrationDto) {
     if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
@@ -34,47 +35,57 @@ public class AuthenticationService {
       user.setRole(Role.valueOf("USER"));
     }
     User savedUser = userRepository.save(user);
-    return createUserSession(savedUser);
+
+    String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole());
+
+    return UserSessionDto.builder()
+      .userId(savedUser.getId())
+      .email(savedUser.getEmail())
+      .sessionToken(token)
+      .role(savedUser.getRole())
+      .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000) // Keep for backward compatibility
+      .build();
   }
 
   public UserSessionDto login(UserLoginDto loginDto) {
-    User user = userRepository.findByEmail(loginDto.getEmail())
-      .orElseThrow(() -> new RuntimeException("User not found with email: " + loginDto.getEmail()));
-    if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-      throw new RuntimeException("Invalid password");
+    try {
+      Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+      );
+
+      if (authentication.isAuthenticated()) {
+        User user = userRepository.findByEmail(loginDto.getEmail())
+          .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+
+        return UserSessionDto.builder()
+          .userId(user.getId())
+          .email(user.getEmail())
+          .sessionToken(token)
+          .role(user.getRole())
+          .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000) // Keep for backward compatibility
+          .build();
+      } else {
+        throw new RuntimeException("Invalid credentials");
+      }
+    } catch (AuthenticationException e) {
+      throw new RuntimeException("Authentication failed: " + e.getMessage());
     }
-    return createUserSession(user);
   }
 
-  private UserSessionDto createUserSession(User user) {
-    String sessionToken = generateSessionToken();
-    UserSessionDto sessionDto = UserSessionDto.builder()
-      .userId(user.getId())
-      .email(user.getEmail())
-      .sessionToken(sessionToken)
-      .role(user.getRole())
-      .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
-      .build();
-    activeSessions.put(sessionToken, sessionDto);
-    return sessionDto;
-  }
-
-  public boolean validateSession(String sessionToken) {
-    UserSessionDto session = activeSessions.get(sessionToken);
-    if (session == null) {
+  public boolean validateSession(String token) {
+    try {
+      String username = jwtUtil.extractUsername(token);
+      return username != null && !jwtUtil.isTokenExpired(token);
+    } catch (Exception e) {
       return false;
     }
-    return session.getExpirationTime() > System.currentTimeMillis();
   }
 
-  public void logout(String sessionToken) {
-    activeSessions.remove(sessionToken);
-  }
-
-  private String generateSessionToken() {
-    SecureRandom secureRandom = new SecureRandom();
-    byte[] tokenBytes = new byte[32];
-    secureRandom.nextBytes(tokenBytes);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+  // No need for logout with JWT as it's stateless
+  // Client should just remove the token
+  public void logout(String token) {
+    // No server-side action needed for JWT
   }
 }
