@@ -9,15 +9,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-  private final SessionInterceptor authInterceptor;
-
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(authInterceptor);
-  }
+  private final SessionInterceptor sessionInterceptor;
 
   @Override
   public void addViewControllers(ViewControllerRegistry registry) {
     registry.addRedirectViewController("/", "/products");
+  }
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(sessionInterceptor);
   }
 }
