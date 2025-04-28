@@ -1,11 +1,12 @@
 package org.flow.orderflow.dto.user;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class UserRegistrationDto {
+@Builder
+public class UserRegisteredDto {
   private String firstName;
   private String lastName;
   private String email;
-  private String password;
 }

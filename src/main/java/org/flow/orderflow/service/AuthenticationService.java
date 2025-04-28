@@ -2,8 +2,10 @@ package org.flow.orderflow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserLoginDto;
+import org.flow.orderflow.dto.user.UserRegisteredDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.exception.InvalidRefreshToken;
 import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
@@ -25,7 +27,7 @@ public class AuthenticationService {
   private final JwtUtil jwtUtil;
   private final AuthenticationManager authenticationManager;
 
-  public UserSessionDto registerUser(UserRegistrationDto registrationDto) {
+  public UserRegisteredDto registerUser(UserRegistrationDto registrationDto) {
     if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
       throw new RuntimeException("User with email: " + registrationDto.getEmail() + " already exists");
     }
@@ -34,20 +36,16 @@ public class AuthenticationService {
     if (user.getRole() == null) {
       user.setRole(Role.valueOf("USER"));
     }
+
     User savedUser = userRepository.save(user);
-
-    String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole());
-
-    return UserSessionDto.builder()
-      .userId(savedUser.getId())
+    return UserRegisteredDto.builder()
+      .firstName(savedUser.getFirst_name())
+      .lastName(savedUser.getLast_name())
       .email(savedUser.getEmail())
-      .sessionToken(token)
-      .role(savedUser.getRole())
-      .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000) // Keep for backward compatibility
       .build();
   }
 
-  public UserSessionDto login(UserLoginDto loginDto) {
+  public UserSessionDto loginUser(UserLoginDto loginDto) {
     try {
       Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
@@ -57,14 +55,17 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(loginDto.getEmail())
           .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole());
 
         return UserSessionDto.builder()
           .userId(user.getId())
           .email(user.getEmail())
-          .sessionToken(token)
+          .accessToken(accessToken)
+          .refreshToken(refreshToken)
           .role(user.getRole())
-          .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000) // Keep for backward compatibility
+          .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+          .refreshExpirationTime(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000) // 30 days
           .build();
       } else {
         throw new RuntimeException("Invalid credentials");
@@ -77,15 +78,43 @@ public class AuthenticationService {
   public boolean validateSession(String token) {
     try {
       String username = jwtUtil.extractUsername(token);
-      return username != null && !jwtUtil.isTokenExpired(token);
+      return username != null && !jwtUtil.isTokenExpired(token) && jwtUtil.isAccessToken(token);
     } catch (Exception e) {
       return false;
     }
   }
 
-  // No need for logout with JWT as it's stateless
-  // Client should just remove the token
+  public boolean validateRefreshToken(String refreshToken) {
+    try {
+      String username = jwtUtil.extractUsername(refreshToken);
+      return username != null && !jwtUtil.isTokenExpired(refreshToken) && jwtUtil.isRefreshToken(refreshToken);
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public UserSessionDto refreshAccessToken(String refreshToken) {
+    if (!validateRefreshToken(refreshToken)) {
+      throw new InvalidRefreshToken("Token is not valid");
+    }
+
+    String username = jwtUtil.extractUsername(refreshToken);
+    User user = userRepository.findByEmail(username)
+      .orElseThrow(() -> new RuntimeException("User not found"));
+
+    String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole());
+
+    return UserSessionDto.builder()
+      .userId(user.getId())
+      .email(user.getEmail())
+      .accessToken(newAccessToken)
+      .refreshToken(refreshToken)
+      .role(user.getRole())
+      .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+      .refreshExpirationTime(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
+      .build();
+  }
+
   public void logout(String token) {
-    // No server-side action needed for JWT
   }
 }

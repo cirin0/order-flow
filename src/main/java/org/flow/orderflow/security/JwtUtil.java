@@ -18,59 +18,75 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-  @Value("${jwt.secret:defaultSecretKeyWhichShouldBeAtLeast32CharactersLong}")
+  @Value("${jwt.secret}")
   private String secret;
 
-  @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
+  @Value("${jwt.expiration}") // 24 hours
   private long jwtExpiration;
 
-  // Generate token for user
+  @Value("${jwt.refresh.expiration}") // 30 days
+  private long refreshExpiration;
+
   public String generateToken(String username, Role role) {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", role.name());
-    return createToken(claims, username);
+    claims.put("tokenType", "ACCESS");
+    return createToken(claims, username, jwtExpiration);
   }
 
-  // Create token with claims and subject
-  private String createToken(Map<String, Object> claims, String subject) {
+  public String generateRefreshToken(String username, Role role) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put("role", role.name());
+    claims.put("tokenType", "REFRESH");
+    return createToken(claims, username, refreshExpiration);
+  }
+
+  private String createToken(Map<String, Object> claims, String subject, long expiration) {
     return Jwts.builder()
       .setClaims(claims)
       .setSubject(subject)
       .setIssuedAt(new Date(System.currentTimeMillis()))
-      .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+      .setExpiration(new Date(System.currentTimeMillis() + expiration))
       .signWith(getSigningKey(), SignatureAlgorithm.HS256)
       .compact();
   }
 
-  // Get signing key
   private Key getSigningKey() {
     byte[] keyBytes = secret.getBytes();
     return Keys.hmacShaKeyFor(keyBytes);
   }
 
-  // Extract username from token
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
   }
 
-  // Extract expiration date from token
   public Date extractExpiration(String token) {
     return extractClaim(token, Claims::getExpiration);
   }
 
-  // Extract role from token
   public String extractRole(String token) {
     final Claims claims = extractAllClaims(token);
     return claims.get("role", String.class);
   }
 
-  // Extract claim from token
+  public String extractTokenType(String token) {
+    final Claims claims = extractAllClaims(token);
+    return claims.get("tokenType", String.class);
+  }
+
+  public boolean isRefreshToken(String token) {
+    return "REFRESH".equals(extractTokenType(token));
+  }
+
+  public boolean isAccessToken(String token) {
+    return "ACCESS".equals(extractTokenType(token));
+  }
+
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
   }
 
-  // Extract all claims from token
   private Claims extractAllClaims(String token) {
     return Jwts.parserBuilder()
       .setSigningKey(getSigningKey())
@@ -79,12 +95,10 @@ public class JwtUtil {
       .getBody();
   }
 
-  // Check if token is expired
   public Boolean isTokenExpired(String token) {
     return extractExpiration(token).before(new Date());
   }
 
-  // Validate token
   public Boolean validateToken(String token, UserDetails userDetails) {
     final String username = extractUsername(token);
     return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

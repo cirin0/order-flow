@@ -51,9 +51,9 @@ public class AuthControllerWeb {
   @PostMapping("/login")
   public String login(Model model, @ModelAttribute UserLoginDto userLoginDto, HttpSession session) {
     try {
-      UserSessionDto user = authenticationService.login(userLoginDto);
+      UserSessionDto user = authenticationService.loginUser(userLoginDto);
       session.setAttribute("user", user);
-      session.setAttribute("sessionToken", user.getSessionToken());
+      session.setAttribute("sessionToken", user.getAccessToken());
       return "redirect:/";
     } catch (Exception e) {
       model.addAttribute("error", "Невірний логін або пароль!");
