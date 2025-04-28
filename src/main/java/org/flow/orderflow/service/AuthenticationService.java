@@ -2,29 +2,32 @@ package org.flow.orderflow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.UserLoginDto;
+import org.flow.orderflow.dto.user.UserRegisteredDto;
 import org.flow.orderflow.dto.user.UserRegistrationDto;
 import org.flow.orderflow.dto.user.UserSessionDto;
+import org.flow.orderflow.exception.InvalidRefreshToken;
 import org.flow.orderflow.mapper.UserMapper;
 import org.flow.orderflow.model.Role;
 import org.flow.orderflow.model.User;
 import org.flow.orderflow.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.flow.orderflow.security.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
   private final UserRepository userRepository;
-  private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-  private final Map<String, UserSessionDto> activeSessions = new HashMap<>();
+  private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final JwtUtil jwtUtil;
+  private final AuthenticationManager authenticationManager;
 
-  public UserSessionDto registerUser(UserRegistrationDto registrationDto) {
+  public UserRegisteredDto registerUser(UserRegistrationDto registrationDto) {
     if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
       throw new RuntimeException("User with email: " + registrationDto.getEmail() + " already exists");
     }
@@ -33,48 +36,85 @@ public class AuthenticationService {
     if (user.getRole() == null) {
       user.setRole(Role.valueOf("USER"));
     }
+
     User savedUser = userRepository.save(user);
-    return createUserSession(savedUser);
-  }
-
-  public UserSessionDto login(UserLoginDto loginDto) {
-    User user = userRepository.findByEmail(loginDto.getEmail())
-      .orElseThrow(() -> new RuntimeException("User not found with email: " + loginDto.getEmail()));
-    if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-      throw new RuntimeException("Invalid password");
-    }
-    return createUserSession(user);
-  }
-
-  private UserSessionDto createUserSession(User user) {
-    String sessionToken = generateSessionToken();
-    UserSessionDto sessionDto = UserSessionDto.builder()
-      .userId(user.getId())
-      .email(user.getEmail())
-      .sessionToken(sessionToken)
-      .role(user.getRole())
-      .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+    return UserRegisteredDto.builder()
+      .firstName(savedUser.getFirst_name())
+      .lastName(savedUser.getLast_name())
+      .email(savedUser.getEmail())
       .build();
-    activeSessions.put(sessionToken, sessionDto);
-    return sessionDto;
   }
 
-  public boolean validateSession(String sessionToken) {
-    UserSessionDto session = activeSessions.get(sessionToken);
-    if (session == null) {
+  public UserSessionDto loginUser(UserLoginDto loginDto) {
+    try {
+      Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+      );
+
+      if (authentication.isAuthenticated()) {
+        User user = userRepository.findByEmail(loginDto.getEmail())
+          .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole());
+
+        return UserSessionDto.builder()
+          .userId(user.getId())
+          .email(user.getEmail())
+          .accessToken(accessToken)
+          .refreshToken(refreshToken)
+          .role(user.getRole())
+          .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+          .refreshExpirationTime(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000) // 30 days
+          .build();
+      } else {
+        throw new RuntimeException("Invalid credentials");
+      }
+    } catch (AuthenticationException e) {
+      throw new RuntimeException("Authentication failed: " + e.getMessage());
+    }
+  }
+
+  public boolean validateSession(String token) {
+    try {
+      String username = jwtUtil.extractUsername(token);
+      return username != null && !jwtUtil.isTokenExpired(token) && jwtUtil.isAccessToken(token);
+    } catch (Exception e) {
       return false;
     }
-    return session.getExpirationTime() > System.currentTimeMillis();
   }
 
-  public void logout(String sessionToken) {
-    activeSessions.remove(sessionToken);
+  public boolean validateRefreshToken(String refreshToken) {
+    try {
+      String username = jwtUtil.extractUsername(refreshToken);
+      return username != null && !jwtUtil.isTokenExpired(refreshToken) && jwtUtil.isRefreshToken(refreshToken);
+    } catch (Exception e) {
+      return false;
+    }
   }
 
-  private String generateSessionToken() {
-    SecureRandom secureRandom = new SecureRandom();
-    byte[] tokenBytes = new byte[32];
-    secureRandom.nextBytes(tokenBytes);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+  public UserSessionDto refreshAccessToken(String refreshToken) {
+    if (!validateRefreshToken(refreshToken)) {
+      throw new InvalidRefreshToken("Token is not valid");
+    }
+
+    String username = jwtUtil.extractUsername(refreshToken);
+    User user = userRepository.findByEmail(username)
+      .orElseThrow(() -> new RuntimeException("User not found"));
+
+    String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole());
+
+    return UserSessionDto.builder()
+      .userId(user.getId())
+      .email(user.getEmail())
+      .accessToken(newAccessToken)
+      .refreshToken(refreshToken)
+      .role(user.getRole())
+      .expirationTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+      .refreshExpirationTime(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
+      .build();
+  }
+
+  public void logout(String token) {
   }
 }

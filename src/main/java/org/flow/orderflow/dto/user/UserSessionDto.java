@@ -10,6 +10,8 @@ public class UserSessionDto {
   private Long userId;
   private String email;
   private Role role;
-  private String sessionToken;
+  private String accessToken;
+  private String refreshToken;
   private Long expirationTime;
+  private Long refreshExpirationTime;
 }
