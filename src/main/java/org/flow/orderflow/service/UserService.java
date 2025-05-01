@@ -57,6 +57,19 @@ public class UserService {
     return userMapper.toDto(userRepository.save(user));
   }
 
+  public UserDto updateUserByEmail(String email, UserDto userDto) {
+    User existingUser = userRepository.findByEmail(email)
+      .orElseThrow(() -> new NotFound("User not found with email: " + email));
+    if (userDto.getPhone() != null && !userDto.getPhone().equals(existingUser.getPhone())) {
+      if (userRepository.existsByPhoneAndIdNot(userDto.getPhone(), existingUser.getId())) {
+        throw new IllegalStateException("Номер телефону вже використовується");
+      }
+      existingUser.setPhone(userDto.getPhone());
+    }
+    User user = userMapper.partialUpdate(userDto, existingUser);
+    return userMapper.toDto(userRepository.save(user));
+  }
+
   public String changeRoleAdmin(Long id) {
     User user = userRepository.findById(id)
       .orElseThrow(() -> new NotFound("User not found with id: " + id));
