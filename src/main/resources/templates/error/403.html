@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ua" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="page-wrapper">
+  <div class="cityscape"></div>
+  <div class="cityscape-revers"></div>
+
+  <main class="content">
+    <div class="py-5 text-center">
+      <h1 class="display-1 text-black">403</h1>
+      <h2 class="text-black">Доступ заборонено</h2>
+      <p class="lead text-black">У вас немає прав доступу до цієї сторінки.</p>
+      <div class="gif-container mb-4">
+        <img alt="403 Error GIF" class="error-gif" src="/images/403.gif" style="width: 400px">
+      </div>
+      <a class="btn btn-dark" th:href="@{/}">На головну</a>
+    </div>
+  </main>
+  <footer class="mt-auto" th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+</body>
+</html>

@@ -35,6 +35,16 @@ public class UserController {
     return ResponseEntity.ok(userService.existsByEmail(email));
   }
 
+  @PostMapping("/{id}")
+  public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+    return ResponseEntity.ok(userService.updateUser(id, userDto));
+  }
+
+  @PostMapping("/email/{email}")
+  public ResponseEntity<UserDto> updateUserByEmail(@PathVariable String email, @RequestBody UserDto userDto) {
+    return ResponseEntity.ok(userService.updateUserByEmail(email, userDto));
+  }
+
   @PostMapping("/admin/{id}")
   public ResponseEntity<String> changeRoleAdmin(@PathVariable Long id) {
     return ResponseEntity.ok(userService.changeRoleAdmin(id));
