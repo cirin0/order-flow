@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
 import org.flow.orderflow.dto.cart.CartItemDto;
+import org.flow.orderflow.exception.NotFound;
 import org.flow.orderflow.mapper.CartMapper;
 import org.flow.orderflow.model.Cart;
 import org.flow.orderflow.model.CartItem;
@@ -33,7 +34,6 @@ public class CartService {
   public CartDto getOrCreateCartByUserId(Long userId) {
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
     Cart cart = cartRepository.findByUser(user)
       .orElseGet(() -> {
         Cart newCart = Cart.builder()
@@ -41,18 +41,20 @@ public class CartService {
           .build();
         return cartRepository.save(newCart);
       });
-
     return cartMapper.toDTO(cart);
   }
 
   @Transactional
   public CartDto getCartByUserId(Long userId) {
     User user = userRepository.findById(userId)
-      .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
-
+      .orElseThrow(() -> new NotFound("User not found"));
     Cart cart = cartRepository.findByUser(user)
-      .orElseThrow(() -> new IllegalArgumentException("Кошик не знайдено"));
-
+      .orElseGet(() -> {
+        Cart newCart = Cart.builder()
+          .user(user)
+          .build();
+        return cartRepository.save(newCart);
+      });
     for (CartItem item : cart.getItems()) {
       Product product = item.getProduct();
       if (item.getQuantity() > product.getStock()) {
@@ -60,10 +62,8 @@ public class CartService {
         cart.addWarningMessage("Товар '" + product.getName() + "' має недостатній запас. Доступно: " + product.getStock());
       }
     }
-
     cart.recalculateTotal();
     cartRepository.save(cart);
-
     return cartMapper.toDTO(cart);
   }
 
@@ -84,7 +84,6 @@ public class CartService {
         .build();
       cart.getItems().add(newItem);
     }
-
     cart.recalculateTotal();
     return cartMapper.toDTO(cartRepository.save(cart));
   }
@@ -101,7 +100,6 @@ public class CartService {
     if (quantity > product.getStock()) {
       throw new IllegalArgumentException("Insufficient stock available");
     }
-
     item.setQuantity(quantity);
     cart.recalculateTotal();
     return cartMapper.toDTO(cartRepository.save(cart));
@@ -141,6 +139,4 @@ public class CartService {
     return cartMapper.toDTO(cartRepository.findByUser(user)
       .orElseThrow(() -> new IllegalArgumentException("Cart not found")));
   }
-
-
 }
