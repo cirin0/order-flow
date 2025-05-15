@@ -1,5 +1,6 @@
 package org.flow.orderflow.controller.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.cart.CartDto;
@@ -120,6 +121,8 @@ public class CartControllerWeb {
     return "cart/cart";
   }
 
+  @Hidden
+  @ResponseBody
   @PostMapping("/update")
   public ResponseEntity<?> updateCartItem(
     HttpSession session,
