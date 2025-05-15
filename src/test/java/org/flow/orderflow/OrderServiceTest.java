@@ -217,11 +217,13 @@ class OrderServiceTest {
 
   @Test
   void getOrderByUserEmail_whenOrderExists_shouldReturnOrder() {
+    List<Order> orders = Collections.singletonList(order);
+    List<OrderDto> expectedDtos = Collections.singletonList(orderDto);
     String email = "test@example.com";
-    when(orderRepository.findByUserEmail(email)).thenReturn(Optional.of(order));
-    when(orderMapper.toDto(order)).thenReturn(orderDto);
+    when(orderRepository.findByUserEmail(email)).thenReturn(orders);
+    when(orderMapper.toDtoList(orders)).thenReturn(expectedDtos);
 
-    OrderDto result = orderService.getOrderByUserEmail(email);
+    List<OrderDto> result = orderService.getOrderByUserEmail(email);
 
     assertThat(result).isEqualTo(orderDto);
     verify(orderRepository).findByUserEmail(email);
@@ -230,15 +232,18 @@ class OrderServiceTest {
 
   @Test
   void getOrderByUserEmail_whenOrderDoesNotExist_shouldThrowNotFound() {
+    List<Order> orders = Collections.singletonList(order);
+    List<OrderDto> expectedDtos = Collections.singletonList(orderDto);
     String email = "nonexistent@example.com";
-    when(orderRepository.findByUserEmail(email)).thenReturn(Optional.empty());
 
-    NotFound exception = assertThrows(NotFound.class, () ->
-      orderService.getOrderByUserEmail(email)
-    );
+    when(orderRepository.findByUserEmail(email)).thenReturn(orders);
+    when(orderMapper.toDtoList(orders)).thenReturn(expectedDtos);
 
-    assertThat(exception.getMessage()).contains("Order not found for user with email: " + email);
-    verify(orderRepository).findByUserEmail(email);
+    List<OrderDto> result = orderService.getOrderByUserEmail(email);
+
+    assertThat(result).isEqualTo(expectedDtos);
+    verify(orderRepository).findAll();
+    verify(orderMapper).toDtoList(orders);
   }
 
   @Test

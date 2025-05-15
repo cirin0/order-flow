@@ -20,7 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class OrderStatusScheduler {
   private final OrderRepository orderRepository;
 
-  @Scheduled(timeUnit = SECONDS, fixedRate = 300)
+  @Scheduled(timeUnit = SECONDS, fixedRate = 3600)
   @Transactional
   public void processOrders() {
     LocalDateTime time = LocalDateTime.now().minusMinutes(5);
@@ -37,7 +37,7 @@ public class OrderStatusScheduler {
     }
   }
 
-  @Scheduled(timeUnit = SECONDS, fixedRate = 300)
+  @Scheduled(timeUnit = SECONDS, fixedRate = 3600)
   @Transactional
   public void cancelOrders() {
     LocalDateTime time = LocalDateTime.now().minusMinutes(60);
@@ -54,7 +54,7 @@ public class OrderStatusScheduler {
     }
   }
 
-  @Scheduled(timeUnit = SECONDS, fixedRate = 60)
+  @Scheduled(timeUnit = SECONDS, fixedRate = 300)
   @Transactional
   public void checkPaidOrders() {
     LocalDateTime time = LocalDateTime.now().minusMinutes(20);
