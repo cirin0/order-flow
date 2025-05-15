@@ -121,7 +121,6 @@ public class CartControllerWeb {
   }
 
   @PostMapping("/update")
-  @ResponseBody
   public ResponseEntity<?> updateCartItem(
     HttpSession session,
     @RequestParam Long itemId,
@@ -138,7 +137,7 @@ public class CartControllerWeb {
         "success", true,
         "message", "Кошик успішно оновлено",
         "totalPrice", updatedCart.getTotalPrice(),
-        "warningMessage", updatedCart.getWarningMessages().isEmpty() ? "" : updatedCart.getWarningMessages().get(0)
+        "warningMessage", updatedCart.getWarningMessages().isEmpty() ? "" : updatedCart.getWarningMessages().getFirst()
       ));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));

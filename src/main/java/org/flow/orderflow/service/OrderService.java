@@ -54,10 +54,9 @@ public class OrderService {
     return orderMapper.toDtoList(orders);
   }
 
-  public OrderDto getOrderByUserEmail(String email) {
-    Order order = orderRepository.findByUserEmail(email)
-      .orElseThrow(() -> new NotFound("Order not found for user with email: " + email));
-    return orderMapper.toDto(order);
+  public List<OrderDto> getOrderByUserEmail(String email) {
+    List<Order> orders = orderRepository.findByUserEmail(email);
+    return orderMapper.toDtoList(orders);
   }
 
   @Transactional

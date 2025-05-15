@@ -28,22 +28,22 @@ public class OrderController {
     return ResponseEntity.ok(order);
   }
 
-  @GetMapping("/user/{userId}")
+  @GetMapping("/user/id/{userId}")
   public ResponseEntity<List<OrderDto>> getOrdersByUserId(@PathVariable Long userId) {
     List<OrderDto> orders = orderService.getOrdersByUserId(userId);
     return ResponseEntity.ok(orders);
   }
 
-  @GetMapping("/user/{userEmail}")
-  public ResponseEntity<OrderDto> getOrderByUserEmail(@PathVariable String userEmail) {
-    OrderDto order = orderService.getOrderByUserEmail(userEmail);
-    return ResponseEntity.ok(order);
+  @GetMapping("/user/email/{userEmail}")
+  public ResponseEntity<List<OrderDto>> getOrderByUserEmail(@PathVariable String userEmail) {
+    List<OrderDto> orders = orderService.getOrderByUserEmail(userEmail);
+    return ResponseEntity.ok(orders);
   }
 
   @PostMapping
-  public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
-    String userEmail = "ivan.gruziv@gmail.com";
+  public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto, @RequestParam String userEmail) {
     OrderDto order = orderService.createOrder(orderDto, userEmail);
+    order.setUserEmail(userEmail);
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
@@ -71,10 +71,10 @@ public class OrderController {
     return ResponseEntity.ok(updatedOrder);
   }
 
-  @ExceptionHandler(RuntimeException.class)
-  public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(e.getMessage());
-  }
+//  @ExceptionHandler(RuntimeException.class)
+//  public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+//    return ResponseEntity
+//      .status(HttpStatus.BAD_REQUEST)
+//      .body(e.getMessage());
+//  }
 }
