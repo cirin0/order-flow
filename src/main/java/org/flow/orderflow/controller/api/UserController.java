@@ -1,5 +1,6 @@
 package org.flow.orderflow.controller.api;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.flow.orderflow.dto.user.AddressDto;
 import org.flow.orderflow.dto.user.UserDto;
@@ -45,6 +46,7 @@ public class UserController {
     return ResponseEntity.ok(userService.updateUserByEmail(email, userDto));
   }
 
+  @Hidden
   @PostMapping("/admin/{id}")
   public ResponseEntity<String> changeRoleAdmin(@PathVariable Long id) {
     return ResponseEntity.ok(userService.changeRoleAdmin(id));
