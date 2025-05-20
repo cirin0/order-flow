@@ -34,7 +34,8 @@ public class SecurityConfig {
         .requestMatchers("/auth/**", "/user/**", "/cart/**", "/orders/**", "/api/**",
           "/api/auth/**", "/products/**", "/categories/**",
           "/about/**", "/contact/**", "/error/**", "/css/**", "/js/**",
-          "/images/**", "/fonts/**", "/", "/swagger-ui/**", "/v3/api-docs/**", "*.ico", "/password/**", "/error").permitAll()
+          "/images/**", "/fonts/**", "/", "/swagger-ui/**", "/v3/api-docs/**", "*.ico", 
+          "/password/**", "/error", "/payment/**").permitAll()
         .requestMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated()
       )
